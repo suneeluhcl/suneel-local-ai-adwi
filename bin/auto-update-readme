@@ -37,16 +37,17 @@ def extract_commands() -> list[str]:
         src = CLI_PATH.read_text(errors="ignore")
         cmds.update(re.findall(r'line\.startswith\("(/[a-z][a-z0-9-]+)"', src))
         cmds.update(re.findall(r'line == "(/[a-z][a-z0-9-]+)"', src))
+        # Also catch: line in ("/cmd1", "/cmd2") style entries
+        for group in re.findall(r'line in \(([^)]+)\)', src):
+            cmds.update(re.findall(r'"(/[a-z][a-z0-9-]+)"', group))
     # From capabilities.json
     if CAPS_PATH.exists():
         try:
             caps = json.loads(CAPS_PATH.read_text())
-            if isinstance(caps, list):
-                for c in caps:
-                    n = c.get("command") or c.get("name", "")
-                    if n: cmds.add(n)
-            elif isinstance(caps, dict):
-                cmds.update(caps.keys())
+            entries = caps if isinstance(caps, list) else caps.get("capabilities", [])
+            for c in entries:
+                n = c.get("command") or c.get("name", "")
+                if n: cmds.add(n)
         except Exception:
             pass
     return sorted(cmds)

@@ -608,17 +608,25 @@ See `notes/ADWI-START-HERE.md` for detailed first-time setup instructions.
 ### CLI Commands
 
 <!-- AUTO:COMMANDS -->
-**87 registered commands.** Key groups:
+**120 registered commands.** Key groups:
+
+**add**: `/add-capability-plan <idea>`  `/add-root`
 
 **backup**: `/backup-audit`  `/backup-disable`  `/backup-enable`  `/backup-log`  `/backup-now`  `/backup-status`
 
 **benchmark**: `/benchmark`
 
-**capabilities**: `/capabilities`  `capabilities`
+**browse**: `/browse`
+
+**capabilities**: `/capabilities`
+
+**capabilities  or  /capability**: `/capabilities  or  /capability-status`
 
 **capability**: `/capability-audit`  `/capability-status`
 
 **cleanup**: `/cleanup`
+
+**cloud <prompt>  or just type**: `/cloud <prompt>  or just type`
 
 **daily**: `/daily-improve`
 
@@ -644,13 +652,21 @@ See `notes/ADWI-START-HERE.md` for detailed first-time setup instructions.
 
 **generate**: `/generate-image`
 
+**gh**: `/gh-status`
+
 **git**: `/git`
 
-**gmail**: `/gmail`  `/gmail-auth`  `/gmail-summary`
+**github**: `/github`  `/github-private`  `/github-public`  `/github-status`
+
+**gmail**: `/gmail`  `/gmail-auth`  `/gmail-read`  `/gmail-summary`
 
 **ha**: `/ha`
 
 **help**: `/help`
+
+**image**: `/image-save`
+
+**image <path>  or  /screenshot**: `/image <path>  or  /screenshot-analyze <path>`
 
 **implement**: `/implement-idea`
 
@@ -663,6 +679,12 @@ See `notes/ADWI-START-HERE.md` for detailed first-time setup instructions.
 **large**: `/large-files`
 
 **learn**: `/learn-from-last-error`
+
+**list**: `/list`
+
+**listen**: `/listen`
+
+**local <prompt>  or /use**: `/local <prompt>  or /use-local then type`
 
 **mcp**: `/mcp`  `/mcp-setup`
 
@@ -690,21 +712,43 @@ See `notes/ADWI-START-HERE.md` for detailed first-time setup instructions.
 
 **rag**: `/rag`  `/rag-index`
 
+**read <path>**: `/read <path>`
+
+**reason <task>**: `/reason <task>`
+
+**remote**: `/remote`  `/remote-status`
+
 **repair**: `/repair-adwi`
+
+**repo**: `/repo-private`  `/repo-public`
+
+**review**: `/review-plan <idea>`
 
 **roadmap**: `/roadmap`
 
 **route**: `/route`
 
-**run**: `/run-python`  `/run-safe`
+**run**: `/run-bash`  `/run-python`  `/run-safe`
+
+**save**: `/save-youtube <url>`
+
+**screenshot**: `/screenshot-analyze`
+
+**search <term>**: `/search <term>`
 
 **secrets**: `/secrets-status`
 
-**self**: `/self-heal`
+**self**: `/self-heal`  `/self-heal  or  fix my setup`
+
+**set**: `/set-cloud-model`
 
 **status**: `/status`
 
-**sync**: `/sync-knowledge`
+**status  or  check my setup**: `/status  or  check my setup`
+
+**sync**: `/sync-knowledge`  `/sync-knowledge  or  sync my knowledge`
+
+**tailscale**: `/tailscale`
 
 **tavily**: `/tavily`
 
@@ -718,20 +762,18 @@ See `notes/ADWI-START-HERE.md` for detailed first-time setup instructions.
 
 **trusted**: `/trusted-roots`
 
-**updated**: `updated`
+**url <url>**: `/url <url>`
 
 **use**: `/use-cloud`  `/use-local`
 
-**version**: `version`
-
-**voice**: `/voice-brief`  `/voice-out`
+**voice**: `/voice`  `/voice-brief`  `/voice-in`  `/voice-out`
 
 **watcher**: `/watcher-status`
 
 **web**: `/web-search`
 
-**what**: `/what-next`
+**what**: `/what-next`  `/what-next  or  what should I build next`
 
-**workspace**: `workspace`
+**youtube <url>  or paste URL**: `/youtube <url>  or paste URL`
 *Auto-updated: 2026-06-15*
 <!-- /AUTO:COMMANDS -->
