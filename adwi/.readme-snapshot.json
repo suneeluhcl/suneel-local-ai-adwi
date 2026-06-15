@@ -141,27 +141,27 @@
     [
       "prometheus",
       "9090",
-      "Up 3 hours"
+      "Up 4 hours"
     ],
     [
       "loki",
       "3100",
-      "Up 3 hours"
+      "Up 4 hours"
     ],
     [
       "grafana",
       "4000",
-      "Up 3 hours"
+      "Up 4 hours"
     ],
     [
       "node-exporter",
       "9100",
-      "Up 3 hours"
+      "Up 4 hours"
     ],
     [
       "cadvisor",
       "9101",
-      "Up 3 hours (healthy)"
+      "Up 4 hours (healthy)"
     ]
   ],
   "launchagents": [
@@ -202,5 +202,5 @@
     "MODEL_NLU_FALLBACK": "qwen3:0.6b"
   },
   "ts": "2026-06-15",
-  "_hash": "5c6005b452b3acdf"
+  "_hash": "51a6b6b5475a9885"
 }
