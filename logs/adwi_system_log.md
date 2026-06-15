@@ -181,3 +181,32 @@
 3. Cloudflare Tunnel: get token from dash.cloudflare.com → add CLOUDFLARE_TUNNEL_TOKEN to config/.env
 4. Install sox for mic recording: `brew install sox`
 5. iPhone: install Tailscale app + HA companion app (see iphone-control-plane.md)
+
+---
+
+## 2026-06-15 — Mandate Execution: Infrastructure Wiring
+
+### Completed Automatically
+- sox 14.x installed via brew — mic recording now live
+- voice.py updated: sox (primary) + ffmpeg (fallback) for mic recording  
+- Home Assistant container started: suneel-homeassistant up at :8123
+- auto-update-readme script created (bin/auto-update-readme)
+- .git/hooks/pre-commit installed — fires auto-readme on every commit
+- bin/adwi-git-backup patched — calls auto-readme before each backup commit
+- adwi/backup.py patched — _run_auto_readme() called inside do_backup()
+- README.md markers injected: AUTO:MODELS, AUTO:SERVICES, AUTO:AGENTS, AUTO:COMMANDS
+- All changes committed and pushed (acc5db7 → 43a99aa)
+
+### Pending User Action (3 items)
+1. **Tailscale**: App at /Applications/Tailscale.app is missing.
+   Install from: https://tailscale.com/download/mac
+   Then run: tailscale up (no sudo needed after app install)
+   
+2. **Home Assistant Token**: Visit http://localhost:8123 → complete onboarding →
+   Settings → Profile → Long-Lived Access Tokens → Create Token → copy it
+   Then paste here and I will write it to config/.env
+
+3. **Cloudflare Tunnel Token**: Visit https://one.dash.cloudflare.com →
+   Zero Trust → Networks → Tunnels → Create tunnel → name it "adwi-n8n" →
+   Copy the token shown in step 2 of the connector setup →
+   Paste here and I will write it to config/.env
