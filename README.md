@@ -81,7 +81,7 @@ SYSTEM You are Adwi, a cautious local AI assistant. Never read secrets, never co
 |---|---|---|
 | 0 | Instant pre-checks | YouTube URL regex, image path regex (0 ms) |
 | 1 | Regex pre-filter | `_regex_prefilter()` — zero-latency for common phrases |
-| 2 | Few-shot injection | Qdrant `nlu_fixtures` top-3 semantic matches (74 fixtures, 768-dim Cosine) |
+| 2 | Few-shot injection | Qdrant `nlu_fixtures` top-3 semantic matches (89 fixtures, 768-dim Cosine) |
 | 3 | LLM classification | `llama3.1:8b` with JSON schema — `analysis`+`confidence`+`intent`+`arguments` (62 intent classes) |
 | 4 | Argument dispatch | 29 typed slot reads: `path`, `query`, `url`, `size_mb`, `days`, `description` |
 | 5 | Fallback | `qwen3:0.6b` (80-token budget, no analysis block) |
@@ -92,7 +92,7 @@ SYSTEM You are Adwi, a cautious local AI assistant. Never read secrets, never co
 - `intent` — one of 62 registered intent classes
 - `arguments` — typed key-value slots fed straight into command handlers
 
-**Qdrant few-shot collection:** `nlu_fixtures` · 74 seed fixtures · scored at `score_threshold=0.5` · provisioned via `python3 adwi/memory.py provision-nlu`
+**Qdrant few-shot collection:** `nlu_fixtures` · 89 seed fixtures · scored at `score_threshold=0.5` · provisioned via `python3 adwi/memory.py provision-nlu`
 *Auto-updated: 2026-06-15*
 <!-- /AUTO:NLU -->
 

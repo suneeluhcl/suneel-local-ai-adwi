@@ -523,10 +523,12 @@ NLU_SEED_FIXTURES: list[tuple[str, str, dict, str]] = [
     ("evaluate adwi intent routing accuracy",            "eval_adwi",    {},                                    "eval / test run"),
     # ── sync / capabilities / daily_improve ──────────────────────────────
     ("sync my knowledge",                                "sync",         {},                                    "knowledge sync trigger"),
+    ("sync knowledge base to open webui",                "sync",         {},                                    "explicit sync command"),
     ("update open webui knowledge base",                 "sync",         {},                                    "sync phrased as update"),
-    ("what can you do?",                                 "capabilities", {},                                    "capability list request"),
-    ("show me your capabilities",                        "capabilities", {},                                    "capability list phrased as show"),
-    ("list all your features",                           "capabilities", {},                                    "feature list variant"),
+    ("what can you do, adwi?",                           "capabilities", {},                                    "capability list — explicitly about adwi"),
+    ("show me your capabilities",                        "capabilities", {},                                    "capability list phrased as show — your = adwi"),
+    ("list all your features",                           "capabilities", {},                                    "feature list — your = adwi's features"),
+    ("what commands does adwi support",                  "capabilities", {},                                    "adwi command list request"),
     ("make yourself better",                             "daily_improve",{},                                    "daily improve phrased colloquially"),
     ("run your daily improvement routine",               "daily_improve",{},                                    "daily improve explicit"),
     ("improve adwi today",                               "daily_improve",{},                                    "daily improve imperative"),
@@ -554,9 +556,25 @@ NLU_SEED_FIXTURES: list[tuple[str, str, dict, str]] = [
     # ── what_next ─────────────────────────────────────────────────────────
     ("what should I build next?",                        "what_next",    {},                                    "roadmap query — what next"),
     ("what's the next thing to add to adwi",             "what_next",    {},                                    "what_next — next feature query"),
-    # ── chat fallback ─────────────────────────────────────────────────────
+    # ── chat fallback — conversational, advisory, and knowledge questions ──
     ("what is the transformer attention mechanism",      "chat",         {},                                    "general knowledge question"),
     ("explain how LangGraph works",                      "chat",         {},                                    "explanation request — chat"),
+    # Advisory / recommendation — these must NEVER route to capabilities or sync
+    ("I keep running out of quota on claude, what should I do",
+                                                         "chat",         {},                                    "subscription advisory → chat, not capabilities"),
+    ("what is the best alternative to claude for my use case",
+                                                         "chat",         {},                                    "tool comparison advisory → chat"),
+    ("how do I manage my AI subscriptions better",       "chat",         {},                                    "subscription management advice → chat"),
+    ("I need to cut costs on my AI tools",               "chat",         {},                                    "cost advice → chat"),
+    ("help me decide between gpt-4 and claude",          "chat",         {},                                    "model comparison → chat"),
+    ("what is the difference between claude and gemini", "chat",         {},                                    "model comparison question → chat"),
+    ("should I use local models or cloud models",        "chat",         {},                                    "architecture advice → chat"),
+    ("how do I add more buttons to home assistant",      "chat",         {},                                    "HA how-to question → chat, not capabilities"),
+    ("I want to enhance my home assistant dashboard",    "chat",         {},                                    "HA enhancement request → chat"),
+    ("what are the best practices for prompt engineering","chat",        {},                                    "general best-practices question → chat"),
+    ("explain what ollama does",                         "chat",         {},                                    "tool explanation → chat"),
+    ("how does RAG work",                                "chat",         {},                                    "technical explanation → chat"),
+    ("what is the best way to organise my notes",        "chat",         {},                                    "advice on notes organisation → chat"),
 ]
 
 
