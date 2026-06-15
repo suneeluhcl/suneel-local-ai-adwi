@@ -1,0 +1,93 @@
+{
+  "timestamp": "2026-06-15T15:50:11.253332",
+  "total": 30,
+  "passed": 16,
+  "failed": 14,
+  "skipped": 0,
+  "failures": [
+    {
+      "id": "r005",
+      "input": "sync my knowledge",
+      "expected": "sync",
+      "got": "memory_recall"
+    },
+    {
+      "id": "r006",
+      "input": "update open webui knowledge",
+      "expected": "sync",
+      "got": "web_search"
+    },
+    {
+      "id": "r007",
+      "input": "what can you do?",
+      "expected": "capabilities",
+      "got": "chat"
+    },
+    {
+      "id": "r008",
+      "input": "show me your capabilities",
+      "expected": "capabilities",
+      "got": "memory_recall"
+    },
+    {
+      "id": "r009",
+      "input": "make yourself better",
+      "expected": "daily_improve",
+      "got": "disk_usage"
+    },
+    {
+      "id": "r013",
+      "input": "I got a SyntaxError in adwi_cli.py line 42",
+      "expected": "fix_error",
+      "got": "file_read"
+    },
+    {
+      "id": "r014",
+      "input": "NameError: name 'CMD_GIT' is not defined",
+      "expected": "fix_error",
+      "got": "memory_recall"
+    },
+    {
+      "id": "r015",
+      "input": "HTTP Error 400: Bad Request when calling cloud",
+      "expected": "fix_error",
+      "got": "disk_usage"
+    },
+    {
+      "id": "r016",
+      "input": "analyze my screenshot ~/Desktop/error.png",
+      "expected": "image",
+      "got": "memory_recall"
+    },
+    {
+      "id": "r017",
+      "input": "look at this image: /tmp/screenshot.png",
+      "expected": "image",
+      "got": "chat"
+    },
+    {
+      "id": "r019",
+      "input": "find notes about Ollama",
+      "expected": "rag_search",
+      "got": "memory_recall"
+    },
+    {
+      "id": "r021",
+      "input": "fetch this page and summarize it",
+      "expected": "browse",
+      "got": "web_search"
+    },
+    {
+      "id": "r028",
+      "input": "what should I build next?",
+      "expected": "what_next",
+      "got": "chat"
+    },
+    {
+      "id": "r030",
+      "input": "backup my workspace to GitHub",
+      "expected": "backup",
+      "got": "memory_recall"
+    }
+  ]
+}

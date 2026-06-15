@@ -1,0 +1,39 @@
+{
+  "timestamp": "2026-06-15T15:53:07.086948",
+  "total": 30,
+  "passed": 25,
+  "failed": 5,
+  "skipped": 0,
+  "failures": [
+    {
+      "id": "r004",
+      "input": "something is broken, repair adwi",
+      "expected": "self_heal",
+      "got": "fix_error"
+    },
+    {
+      "id": "r019",
+      "input": "find notes about Ollama",
+      "expected": "rag_search",
+      "got": "memory_recall"
+    },
+    {
+      "id": "r021",
+      "input": "fetch this page and summarize it",
+      "expected": "browse",
+      "got": "web_search"
+    },
+    {
+      "id": "r028",
+      "input": "what should I build next?",
+      "expected": "what_next",
+      "got": "chat"
+    },
+    {
+      "id": "r030",
+      "input": "backup my workspace to GitHub",
+      "expected": "backup",
+      "got": "backup_now"
+    }
+  ]
+}

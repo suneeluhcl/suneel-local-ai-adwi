@@ -1,0 +1,21 @@
+{
+  "timestamp": "2026-06-15T15:54:26.584825",
+  "total": 30,
+  "passed": 28,
+  "failed": 2,
+  "skipped": 0,
+  "failures": [
+    {
+      "id": "r019",
+      "input": "find notes about Ollama",
+      "expected": "rag_search",
+      "got": "memory_recall"
+    },
+    {
+      "id": "r021",
+      "input": "fetch this page and summarize it",
+      "expected": "browse",
+      "got": "web_search"
+    }
+  ]
+}
