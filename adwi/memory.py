@@ -713,9 +713,26 @@ def _main():
         s = mem.stats()
         print(json.dumps(s, indent=2))
 
+    elif cmd == "provision-nlu":
+        print("Provisioning Qdrant nlu_fixtures collection…")
+        result = provision_nlu_fixtures()
+        print(json.dumps(result, indent=2))
+
+    elif cmd == "query-nlu":
+        if not query:
+            print("Usage: python3 memory.py query-nlu <text>")
+            sys.exit(1)
+        hits = query_nlu_fixtures(query)
+        if not hits:
+            print("No matches (Qdrant may be cold or collection empty).")
+        for h in hits:
+            print(f'\n  [{h["intent"]}] "{h["user_phrase"]}"')
+            print(f"   args: {json.dumps(h.get('arguments', {}))}")
+            print(f"   why:  {h.get('reasoning', '')}")
+
     else:
         print(f"Unknown command: {cmd}")
-        print("Commands: scan | recall <q> | context <q> | store <text> | stats")
+        print("Commands: scan | recall <q> | context <q> | store <text> | stats | provision-nlu | query-nlu <q>")
 
     mem.close()
 
