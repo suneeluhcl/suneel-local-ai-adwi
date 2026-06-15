@@ -4519,6 +4519,21 @@ def dispatch_natural(text: str):
     args    = intent_data.get("arguments") or {}
     analysis = intent_data.get("analysis", "")
 
+    # SimLab eval hook — completely inert unless ADWI_EVAL_OUTPUT_JSON is set
+    # by the EvalRunner. Never executes in production (env var never set there).
+    _simlab_out = os.environ.get("ADWI_EVAL_OUTPUT_JSON")
+    if _simlab_out:
+        try:
+            with open(_simlab_out, "w", encoding="utf-8") as _sf:
+                json.dump({
+                    "intent":     intent,
+                    "confidence": intent_data.get("confidence", 0),
+                    "args":       args,
+                    "analysis":   analysis[:200],
+                }, _sf)
+        except Exception:
+            pass
+
     # Clear the thinking indicator
     print("    ", end="\r", flush=True)
 
