@@ -92,3 +92,11 @@ bin/*.backup.*
 *.tmp
 *.bak
 .env.local
+
+# ── Config env (API tokens) ──
+config/.env
+
+# ── Obsidian vault runtime files ──
+obsidian-vault/.obsidian/workspace.json
+obsidian-vault/.obsidian/workspace-mobile.json
+*.bak

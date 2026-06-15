@@ -22,6 +22,25 @@ OBSIDIAN_VAULT    = WORKSPACE / "obsidian-vault"
 OBSIDIAN_BRIDGE   = "http://127.0.0.1:5056"
 SEARXNG_URL       = "http://127.0.0.1:8888"
 
+# Load config/.env for API keys
+def _load_env():
+    env_file = WORKSPACE / "config" / ".env"
+    if not env_file.exists():
+        return
+    for raw in env_file.read_text(encoding="utf-8").splitlines():
+        line = raw.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        k, _, v = line.partition("=")
+        k = k.strip(); v = v.strip().strip('"').strip("'")
+        if k and v:
+            os.environ.setdefault(k, v)
+
+_load_env()
+TAVILY_API_KEY    = os.environ.get("TAVILY_API_KEY",    "")
+FIRECRAWL_API_KEY = os.environ.get("FIRECRAWL_API_KEY", "")
+EXA_API_KEY       = os.environ.get("EXA_API_KEY",       "")
+
 NOW      = datetime.now()
 DATE_STR = NOW.strftime("%Y-%m-%d")
 TIME_STR = NOW.strftime("%H:%M")
@@ -503,13 +522,38 @@ _RESEARCH_TOPICS = [
 
 
 def _searxng_query(query: str, max_results: int = 3) -> list:
+    """Try Tavily first (better quality for release notes), fall back to SearXNG."""
+    # Primary: Tavily
+    if TAVILY_API_KEY:
+        try:
+            payload = json.dumps({
+                "api_key": TAVILY_API_KEY, "query": query,
+                "search_depth": "basic", "max_results": max_results,
+            }).encode("utf-8")
+            req = urllib.request.Request(
+                "https://api.tavily.com/search", data=payload,
+                headers={"Content-Type": "application/json"},
+            )
+            with urllib.request.urlopen(req, timeout=15) as r:
+                data = json.loads(r.read())
+            results = [
+                {"title": i.get("title",""), "url": i.get("url",""), "content": i.get("content","")[:300]}
+                for i in data.get("results", [])[:max_results]
+            ]
+            if results:
+                return results
+        except Exception:
+            pass  # fall through to SearXNG
+
+    # Fallback: SearXNG (local)
     params = urllib.parse.urlencode({
         "q": query, "format": "json", "language": "en",
         "engines": "google,duckduckgo", "safesearch": "0",
     })
-    url = f"{SEARXNG_URL}/search?{params}"
     try:
-        req = urllib.request.Request(url, headers={"User-Agent": "Adwi-Nightly/1.0"})
+        req = urllib.request.Request(
+            f"{SEARXNG_URL}/search?{params}", headers={"User-Agent": "Adwi-Nightly/1.0"}
+        )
         with urllib.request.urlopen(req, timeout=15) as r:
             data = json.loads(r.read())
         return [
@@ -811,7 +855,20 @@ def main():
         data["memory_scan"] = {"error": str(_e)}
         _pr(f"  ⚠ memory scan: {_e}")
 
-    _pr("[6/7] Capability sync...")
+    _pr("[5b/10] System health audit (brew, npm, disk, docker)...")
+    data["sys_health"] = step_system_health()
+    sh = data["sys_health"]
+    _pr(f"  disk {sh.get('disk_avail','?')} free | brew outdated: {sh.get('brew_outdated_count',0)} | npm outdated: {sh.get('npm_outdated_count',0)}")
+
+    _pr("[5c/10] Web research (SearXNG release note queries)...")
+    try:
+        data["web_research"] = step_web_research()
+        _pr(f"  searched {len(data['web_research'])} tool(s)")
+    except Exception as _e:
+        data["web_research"] = {}
+        _pr(f"  ⚠ web research: {_e}")
+
+    _pr("[6/10] Capability sync...")
     data["cap_sync"] = step_capability_sync()
     cs = data["cap_sync"]
     if "error" not in cs:
@@ -819,7 +876,7 @@ def main():
     else:
         _pr(f"  ⚠ {cs['error']}")
 
-    _pr("[7/7] Git commit + push...")
+    _pr("[7/10] Git commit + push...")
     data["git_commit"] = step_git_commit()
     gc = data["git_commit"]
     if gc.get("success"):
@@ -828,8 +885,17 @@ def main():
     else:
         _pr(f"  ⚠ {gc.get('message','no changes')}")
 
+    _pr("[8/10] Writing Obsidian daily note...")
+    try:
+        note_path = step_obsidian_daily_note(data)
+        _pr(f"  ✓ {note_path}")
+    except Exception as _e:
+        _pr(f"  ⚠ daily note: {_e}")
+
     report = step_write_report(data)
-    _pr(f"\n✓ Report saved: {report}")
+    _pr(f"\n✓ Nightly log:     {report}")
+    _pr(f"✓ Morning brief:   ~/Desktop/morning_brief.md")
+    _pr(f"✓ Obsidian note:   obsidian-vault/daily-notes/{DATE_STR}.md")
     _pr(f"{'='*60}\n")
 
 

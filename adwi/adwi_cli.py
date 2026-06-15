@@ -103,8 +103,12 @@ def _load_config_env():
 
 _load_config_env()
 # Allow runtime override of service URLs via env
-SEARXNG_URL     = os.environ.get("SEARXNG_URL",      SEARXNG_URL)
-OBSIDIAN_BRIDGE = os.environ.get("OBSIDIAN_BRIDGE_URL", OBSIDIAN_BRIDGE)
+SEARXNG_URL      = os.environ.get("SEARXNG_URL",         SEARXNG_URL)
+OBSIDIAN_BRIDGE  = os.environ.get("OBSIDIAN_BRIDGE_URL",  OBSIDIAN_BRIDGE)
+# External API keys — loaded from config/.env
+TAVILY_API_KEY    = os.environ.get("TAVILY_API_KEY",    "")
+FIRECRAWL_API_KEY = os.environ.get("FIRECRAWL_API_KEY", "")
+EXA_API_KEY       = os.environ.get("EXA_API_KEY",       "")
 
 if not ROUTING_FILE.exists():
     ROUTING_FILE.write_text(
@@ -1222,31 +1226,163 @@ def cmd_rag_index(quiet=False) -> None:
 # ── Web Search (SearXNG) ──────────────────────────────────────────────────────
 
 def _searxng_search(query: str, max_results: int = 8) -> list:
-    """Query local SearXNG instance. Returns list of {title, url, content} dicts."""
+    """Query local SearXNG. Returns [{title, url, content, source}]."""
     import urllib.parse
     params = urllib.parse.urlencode({
         "q": query, "format": "json", "language": "en",
         "engines": "google,duckduckgo,bing", "safesearch": "0",
     })
-    url = f"{SEARXNG_URL}/search?{params}"
     try:
-        req = urllib.request.Request(url, headers={"User-Agent": "Adwi/1.0"})
+        req = urllib.request.Request(
+            f"{SEARXNG_URL}/search?{params}", headers={"User-Agent": "Adwi/1.0"}
+        )
         with urllib.request.urlopen(req, timeout=12) as r:
             data = json.loads(r.read())
-        results = []
-        for item in data.get("results", [])[:max_results]:
-            results.append({
-                "title":   item.get("title", ""),
-                "url":     item.get("url", ""),
-                "content": item.get("content", "")[:400],
-            })
-        return results
+        return [
+            {"title": i.get("title",""), "url": i.get("url",""),
+             "content": i.get("content","")[:400], "source": "searxng"}
+            for i in data.get("results", [])[:max_results]
+        ]
     except Exception as e:
-        return [{"title": "SearXNG error", "url": "", "content": str(e)}]
+        return [{"title": "SearXNG unavailable", "url": "", "content": str(e), "source": "searxng"}]
+
+
+def _tavily_search(query: str, max_results: int = 6) -> list:
+    """Query Tavily AI search API. Returns [{title, url, content, source}]."""
+    if not TAVILY_API_KEY:
+        return []
+    payload = json.dumps({
+        "api_key": TAVILY_API_KEY,
+        "query":   query,
+        "search_depth": "basic",
+        "max_results":  max_results,
+        "include_answer": False,
+    }).encode("utf-8")
+    try:
+        req = urllib.request.Request(
+            "https://api.tavily.com/search", data=payload,
+            headers={"Content-Type": "application/json", "User-Agent": "Adwi/1.0"},
+        )
+        with urllib.request.urlopen(req, timeout=15) as r:
+            data = json.loads(r.read())
+        return [
+            {"title": i.get("title",""), "url": i.get("url",""),
+             "content": i.get("content","")[:400], "source": "tavily"}
+            for i in data.get("results", [])[:max_results]
+        ]
+    except Exception as e:
+        return [{"title": "Tavily error", "url": "", "content": str(e), "source": "tavily"}]
+
+
+def _exa_search(query: str, max_results: int = 5) -> list:
+    """Query Exa neural search API. Returns [{title, url, content, source}]."""
+    if not EXA_API_KEY:
+        return []
+    # Step 1: search
+    payload = json.dumps({
+        "query": query, "numResults": max_results,
+        "useAutoprompt": True, "type": "neural",
+    }).encode("utf-8")
+    try:
+        req = urllib.request.Request(
+            "https://api.exa.ai/search", data=payload,
+            headers={"Content-Type": "application/json",
+                     "x-api-key": EXA_API_KEY, "User-Agent": "Adwi/1.0"},
+        )
+        with urllib.request.urlopen(req, timeout=15) as r:
+            data = json.loads(r.read())
+        results = data.get("results", [])
+        if not results:
+            return []
+
+        # Step 2: fetch highlights/snippets for the result IDs
+        ids = [r["id"] for r in results if r.get("id")]
+        contents: dict = {}
+        if ids:
+            cpayload = json.dumps({
+                "ids": ids,
+                "text": {"maxCharacters": 400, "includeHtmlTags": False},
+            }).encode("utf-8")
+            creq = urllib.request.Request(
+                "https://api.exa.ai/contents", data=cpayload,
+                headers={"Content-Type": "application/json",
+                         "x-api-key": EXA_API_KEY},
+            )
+            with urllib.request.urlopen(creq, timeout=15) as cr:
+                cdata = json.loads(cr.read())
+            for c in cdata.get("results", []):
+                contents[c["id"]] = c.get("text", "")
+
+        return [
+            {"title": r.get("title",""), "url": r.get("url",""),
+             "content": contents.get(r.get("id",""), r.get("url",""))[:400],
+             "source": "exa"}
+            for r in results
+        ]
+    except Exception as e:
+        return [{"title": "Exa error", "url": "", "content": str(e), "source": "exa"}]
+
+
+def _firecrawl_scrape(url: str) -> dict:
+    """Scrape a URL via Firecrawl API. Returns {markdown, title, description, success}."""
+    if not FIRECRAWL_API_KEY:
+        return {"success": False, "error": "FIRECRAWL_API_KEY not set"}
+    payload = json.dumps({"url": url, "formats": ["markdown"]}).encode("utf-8")
+    try:
+        req = urllib.request.Request(
+            "https://api.firecrawl.dev/v1/scrape", data=payload,
+            headers={
+                "Content-Type":  "application/json",
+                "Authorization": f"Bearer {FIRECRAWL_API_KEY}",
+                "User-Agent":    "Adwi/1.0",
+            },
+        )
+        with urllib.request.urlopen(req, timeout=30) as r:
+            data = json.loads(r.read())
+        if data.get("success"):
+            inner = data.get("data", {})
+            meta  = inner.get("metadata", {})
+            return {
+                "success":     True,
+                "markdown":    inner.get("markdown", ""),
+                "title":       meta.get("title", ""),
+                "description": meta.get("description", ""),
+            }
+        return {"success": False, "error": data.get("error", "unknown")}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+
+def search_web(query: str, max_results: int = 8) -> tuple[list, str]:
+    """
+    Multi-source web search with priority cascade.
+    Priority: SearXNG (local, always) → Tavily (AI-quality) → Exa (neural).
+    Returns (results_list, source_label).
+    """
+    # Always run SearXNG (local, no quota)
+    results = _searxng_search(query, max_results)
+    ok      = [r for r in results if r.get("url")]
+
+    # Tavily: add if key present — deduplicate by URL
+    if TAVILY_API_KEY:
+        seen_urls = {r["url"] for r in ok}
+        for r in _tavily_search(query, max_results):
+            if r.get("url") and r["url"] not in seen_urls:
+                ok.append(r); seen_urls.add(r["url"])
+
+    # Exa: add for research/neural enrichment if key present
+    if EXA_API_KEY:
+        seen_urls = {r["url"] for r in ok}
+        for r in _exa_search(query, 4):
+            if r.get("url") and r["url"] not in seen_urls:
+                ok.append(r); seen_urls.add(r["url"])
+
+    sources = sorted({r["source"] for r in ok})
+    return ok[:max_results + 4], " + ".join(sources)
 
 
 def cmd_web_search(query: str = "") -> None:
-    """Search the web via local SearXNG and summarize top results with adwi:latest."""
+    """Search the web via SearXNG + Tavily + Exa and synthesize results."""
     if not query:
         query = input(f"  {CYAN}Web search:{RESET} ").strip()
     if not query:
@@ -1254,32 +1390,126 @@ def cmd_web_search(query: str = "") -> None:
     adwi_head(f"Web search: {query[:60]}")
     activity_start(query, "Web Search")
 
-    results = _searxng_search(query)
-    if not results:
-        cprint("  No results returned from SearXNG", YELLOW)
-        activity_done("no results")
-        return
+    results, sources = search_web(query)
+    real = [r for r in results if r.get("url")]
+    if not real:
+        cprint("  No results from any source", YELLOW)
+        activity_done("no results"); return
 
-    for i, r in enumerate(results, 1):
+    cprint(f"  {GRAY}Sources: {sources}{RESET}", "")
+    for i, r in enumerate(real, 1):
+        badge = {"tavily": GREEN, "exa": YELLOW, "searxng": CYAN}.get(r["source"], GRAY)
+        cprint(f"  {badge}[{r['source'][:3].upper()}]{RESET} {r['title']}", "")
+        cprint(f"        {GRAY}{r['url']}{RESET}", "")
+        if r["content"]:
+            cprint(f"        {r['content'][:110]}", GRAY)
+
+    ctx = "\n\n".join(
+        f"[{i}] {r['title']}\nURL: {r['url']}\n{r['content']}"
+        for i, r in enumerate(real, 1)
+    )
+    print()
+    stream_local(
+        f"Query: {query}\n\nSearch results (from {sources}):\n{ctx}\n\n"
+        "Synthesize the key findings. Be specific, cite URLs, flag anything actionable.",
+        system="You are Adwi. Summarize web search results factually and concisely.",
+    )
+    activity_done(f"{len(real)} results via {sources}")
+    log_action("web_search", f"Query: {query} | sources: {sources}\n{ctx[:1000]}")
+
+
+def cmd_exa_search(query: str = "") -> None:
+    """Neural/semantic web search via Exa — better for research than keyword search."""
+    if not EXA_API_KEY:
+        cprint("  EXA_API_KEY not set in config/.env", YELLOW); return
+    if not query:
+        query = input(f"  {CYAN}Exa neural search:{RESET} ").strip()
+    if not query:
+        return
+    adwi_head(f"Exa neural search: {query[:60]}")
+    activity_start(query, "Exa Search")
+    results = _exa_search(query, max_results=8)
+    real = [r for r in results if r.get("url")]
+    if not real:
+        cprint("  No Exa results", YELLOW); activity_done("no results"); return
+    for i, r in enumerate(real, 1):
+        cprint(f"  {YELLOW}[{i}]{RESET} {r['title']}", "")
+        cprint(f"       {GRAY}{r['url']}{RESET}", "")
+        if r["content"]:
+            cprint(f"       {r['content'][:120]}", GRAY)
+    ctx = "\n\n".join(f"[{i}] {r['title']}\nURL: {r['url']}\n{r['content']}" for i, r in enumerate(real, 1))
+    print()
+    stream_local(
+        f"Neural search query: {query}\n\nResults:\n{ctx}\n\nSynthesize insights.",
+        system="You are Adwi. Summarize these semantically-matched web results.",
+    )
+    activity_done(f"{len(real)} Exa results")
+
+
+def cmd_tavily_search(query: str = "") -> None:
+    """AI-curated web search via Tavily — high-quality, LLM-optimized results."""
+    if not TAVILY_API_KEY:
+        cprint("  TAVILY_API_KEY not set in config/.env", YELLOW); return
+    if not query:
+        query = input(f"  {CYAN}Tavily search:{RESET} ").strip()
+    if not query:
+        return
+    adwi_head(f"Tavily search: {query[:60]}")
+    activity_start(query, "Tavily Search")
+    results = _tavily_search(query, max_results=8)
+    real = [r for r in results if r.get("url")]
+    if not real:
+        cprint("  No Tavily results", YELLOW); activity_done("no results"); return
+    for i, r in enumerate(real, 1):
         cprint(f"  {GREEN}[{i}]{RESET} {r['title']}", "")
         cprint(f"       {GRAY}{r['url']}{RESET}", "")
         if r["content"]:
             cprint(f"       {r['content'][:120]}", GRAY)
-
-    # Let adwi synthesize the results
-    ctx = "\n\n".join(
-        f"[{i}] {r['title']}\nURL: {r['url']}\n{r['content']}"
-        for i, r in enumerate(results, 1)
-    )
+    ctx = "\n\n".join(f"[{i}] {r['title']}\nURL: {r['url']}\n{r['content']}" for i, r in enumerate(real, 1))
     print()
     stream_local(
-        f"Query: {query}\n\nSearch results:\n{ctx}\n\n"
-        "Synthesize the key findings from these search results. "
-        "Be specific, cite URLs where relevant, and flag anything actionable.",
-        system="You are Adwi. Summarize web search results factually and concisely.",
+        f"Tavily search: {query}\n\nResults:\n{ctx}\n\nSynthesize the findings.",
+        system="You are Adwi. Summarize these AI-curated search results concisely.",
     )
-    activity_done(f"{len(results)} results")
-    log_action("web_search", f"Query: {query}\n{ctx[:1000]}")
+    activity_done(f"{len(real)} Tavily results")
+
+
+def cmd_firecrawl(url_and_q: str = "") -> None:
+    """Scrape any URL to clean markdown via Firecrawl, then summarize."""
+    if not FIRECRAWL_API_KEY:
+        cprint("  FIRECRAWL_API_KEY not set in config/.env", YELLOW); return
+    parts    = url_and_q.split(None, 1)
+    url      = parts[0].strip() if parts else ""
+    question = parts[1].strip() if len(parts) > 1 else None
+    if not url:
+        url = input(f"  {CYAN}URL to scrape:{RESET} ").strip()
+    if not url:
+        return
+    if not url.startswith("http"):
+        url = "https://" + url
+    adwi_head(f"Firecrawl: {url[:70]}")
+    activity_start(url, "Firecrawl Scrape")
+    cprint(f"  {GRAY}Scraping via Firecrawl…{RESET}", "")
+    result = _firecrawl_scrape(url)
+    if not result["success"]:
+        cprint(f"  ✗ Firecrawl error: {result.get('error')}", RED)
+        activity_error(result.get("error", "failed")); return
+    md    = result["markdown"]
+    title = result.get("title", "")
+    cprint(f"  {GREEN}✓{RESET} Scraped {len(md):,} chars — {title}", "")
+    truncated = md[:8000]
+    if question:
+        stream_local(
+            f"URL: {url}\nTitle: {title}\n\nPage content (markdown):\n{truncated}\n\nQuestion: {question}",
+            system="You are Adwi. Answer using the scraped page content. Quote relevant sections.",
+        )
+    else:
+        stream_local(
+            f"Summarize this page for Suneel:\nURL: {url}\nTitle: {title}\n\n{truncated}",
+            system="You are Adwi. Give a structured 5-bullet summary. Note any code, commands, or action items.",
+        )
+    activity_done(f"{len(md):,} chars scraped")
+    log_action("firecrawl", f"URL: {url}\n{md[:500]}")
 
 
 # ── Obsidian Vault Access ─────────────────────────────────────────────────────
@@ -1440,7 +1670,10 @@ def cmd_rag_search(query: str, top_k: int = 5) -> None:
 
 # ── Browser automation ─────────────────────────────────────────────────────────
 def cmd_browse(url_and_q: str) -> None:
-    """Fetch a URL (JS-capable if Playwright installed) and summarize or answer a question."""
+    """
+    Fetch a URL and summarize or answer a question.
+    Priority: Firecrawl (clean markdown) → Playwright (JS) → urllib (raw HTML).
+    """
     parts    = url_and_q.split(None, 1)
     url      = parts[0] if parts else ""
     question = parts[1].strip() if len(parts) > 1 else None
@@ -1450,47 +1683,66 @@ def cmd_browse(url_and_q: str) -> None:
         url = "https://" + url
 
     adwi_head(f"Fetching: {url[:80]}")
-    text = title = ""
+    text = title = method = ""
 
-    try:
-        from playwright.sync_api import sync_playwright  # type: ignore
-        with sync_playwright() as p:
-            browser = p.chromium.launch(headless=True)
-            page = browser.new_page(user_agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)")
-            page.goto(url, wait_until="domcontentloaded", timeout=25000)
-            title = page.title()
-            text  = page.evaluate(
-                "() => { const els = document.querySelectorAll('article,main,p,h1,h2,h3,li');"
-                " return Array.from(els).map(e=>e.innerText).join('\\n').slice(0,7000); }"
-            )
-            browser.close()
-        cprint(f"  Title: {title}", CYAN)
-    except ImportError:
+    # ── Priority 1: Firecrawl — cleanest markdown output ─────────────────────
+    if FIRECRAWL_API_KEY:
+        cprint(f"  {GRAY}Fetching via Firecrawl…{RESET}", "")
+        fc = _firecrawl_scrape(url)
+        if fc["success"] and fc.get("markdown"):
+            text   = fc["markdown"][:8000]
+            title  = fc.get("title", "")
+            method = "Firecrawl"
+
+    # ── Priority 2: Playwright — JS-capable local browser ────────────────────
+    if not text:
         try:
+            from playwright.sync_api import sync_playwright  # type: ignore
+            cprint(f"  {GRAY}Fetching via Playwright…{RESET}", "")
+            with sync_playwright() as p:
+                browser = p.chromium.launch(headless=True)
+                page    = browser.new_page(user_agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)")
+                page.goto(url, wait_until="domcontentloaded", timeout=25000)
+                title   = page.title()
+                text    = page.evaluate(
+                    "() => { const els = document.querySelectorAll('article,main,p,h1,h2,h3,li');"
+                    " return Array.from(els).map(e=>e.innerText).join('\\n').slice(0,8000); }"
+                )
+                browser.close()
+            method = "Playwright"
+        except ImportError:
+            pass
+        except Exception as e:
+            cprint(f"  {YELLOW}Playwright: {e}{RESET}", "")
+
+    # ── Priority 3: urllib — raw HTML strip ───────────────────────────────────
+    if not text:
+        try:
+            cprint(f"  {GRAY}Fetching via urllib…{RESET}", "")
             req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
             with urllib.request.urlopen(req, timeout=15) as r:
                 html = r.read().decode("utf-8", errors="replace")
             text = re.sub(r"<style[^>]*>.*?</style>", "", html, flags=re.S|re.I)
             text = re.sub(r"<script[^>]*>.*?</script>", "", text, flags=re.S|re.I)
             text = re.sub(r"<[^>]+>", " ", text)
-            text = re.sub(r"\s+", " ", text)[:7000]
+            text = re.sub(r"\s+", " ", text)[:8000]
+            method = "urllib"
         except Exception as e:
             cprint(f"  Could not fetch: {e}", RED); return
-    except Exception as e:
-        cprint(f"  Browser error: {e}", YELLOW); return
 
     if not text.strip():
         cprint("  Page appears empty or JS-blocked.", YELLOW); return
 
+    cprint(f"  {GREEN}✓{RESET} {title or url[:60]}  {GRAY}[via {method}]{RESET}", "")
     if question:
         stream_local(
             f"URL: {url}\nTitle: {title}\nContent:\n{text}\n\nQuestion: {question}",
-            system="You are Adwi. Answer the question using the webpage content."
+            system="You are Adwi. Answer the question using the webpage content. Quote relevant sections.",
         )
     else:
         stream_local(
             f"Summarize this page for Suneel:\nURL: {url}\nTitle: {title}\n\nContent:\n{text}",
-            system="You are Adwi. Give a concise 3-5 bullet summary of the page."
+            system="You are Adwi. Give a structured 5-bullet summary. Note code, commands, or action items.",
         )
 
 # ── Code execution sandbox ─────────────────────────────────────────────────────
@@ -3639,6 +3891,7 @@ def dispatch_natural(text: str):
         "memory_scan": "Memory Scan", "memory_recall": "Memory Recall",
         "memory_stats": "Memory Stats", "route": "Semantic Router",
         "web_search": "Web Search", "obsidian_search": "Obsidian Vault Search",
+        "exa_search": "Exa Neural Search", "firecrawl": "Firecrawl Scrape",
     }
     if intent != "chat" and intent in _ACTION_LABELS:
         activity_start(text, _ACTION_LABELS[intent])
@@ -3864,6 +4117,14 @@ def handle(line: str) -> bool:
     elif line.startswith("/browse "): cmd_browse(line[8:].strip())
     elif line.startswith("/web-search "): cmd_web_search(line[12:].strip())
     elif line == "/web-search": cmd_web_search()
+    elif line.startswith("/exa "): cmd_exa_search(line[5:].strip())
+    elif line == "/exa": cmd_exa_search()
+    elif line.startswith("/exa-search "): cmd_exa_search(line[12:].strip())
+    elif line == "/exa-search": cmd_exa_search()
+    elif line.startswith("/tavily "): cmd_tavily_search(line[8:].strip())
+    elif line == "/tavily": cmd_tavily_search()
+    elif line.startswith("/firecrawl "): cmd_firecrawl(line[11:].strip())
+    elif line == "/firecrawl": cmd_firecrawl()
     elif line.startswith("/obsidian-search "): cmd_obsidian_search(line[17:].strip())
     elif line == "/obsidian-search": cmd_obsidian_search()
     elif line.startswith("/obsidian-read "): cmd_obsidian_read(line[15:].strip())
