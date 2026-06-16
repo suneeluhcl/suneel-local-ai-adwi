@@ -264,12 +264,17 @@ def mark_unread(msg_ids: list) -> int:
 # ── Phase 3: draft / send helpers (gmail.modify scope covers all of these) ───
 
 def _build_raw_message(to: str, subject: str, body: str,
-                        in_reply_to: str = "", references: str = "") -> str:
+                        in_reply_to: str = "", references: str = "",
+                        cc: str = "", bcc: str = "") -> str:
     """Build a base64url-encoded MIME message string for the Gmail API."""
     from email.mime.text import MIMEText
     msg = MIMEText(body, "plain", "utf-8")
     msg["To"]      = to
     msg["Subject"] = subject
+    if cc:
+        msg["Cc"]  = cc
+    if bcc:
+        msg["Bcc"] = bcc
     if in_reply_to:
         msg["In-Reply-To"] = in_reply_to
         msg["References"]  = references or in_reply_to
@@ -277,13 +282,15 @@ def _build_raw_message(to: str, subject: str, body: str,
 
 
 def create_draft_reply(reply_to_msg_id: str, message_id_header: str,
-                        thread_id: str, to: str, subject: str, body: str) -> dict:
+                        thread_id: str, to: str, subject: str, body: str,
+                        cc: str = "", bcc: str = "") -> dict:
     """Create a Gmail draft reply in the same thread. Returns draft context dict."""
     service = get_service()
     subj = subject if subject.lower().startswith("re:") else f"Re: {subject}"
     raw  = _build_raw_message(to, subj, body,
                                in_reply_to=message_id_header,
-                               references=message_id_header)
+                               references=message_id_header,
+                               cc=cc, bcc=bcc)
     body_payload = {"message": {"raw": raw}}
     if thread_id:
         body_payload["message"]["threadId"] = thread_id
@@ -293,16 +300,19 @@ def create_draft_reply(reply_to_msg_id: str, message_id_header: str,
         "thread_id":  thread_id,
         "message_id": message_id_header,
         "to":         to,
+        "cc":         cc,
+        "bcc":        bcc,
         "subject":    subj,
         "body":       body,
         "mode":       "reply",
     }
 
 
-def create_draft_compose(to: str, subject: str, body: str) -> dict:
+def create_draft_compose(to: str, subject: str, body: str,
+                          cc: str = "", bcc: str = "") -> dict:
     """Create a Gmail draft for a new (non-reply) email. Returns draft context dict."""
     service = get_service()
-    raw   = _build_raw_message(to, subject, body)
+    raw   = _build_raw_message(to, subject, body, cc=cc, bcc=bcc)
     draft = service.users().drafts().create(
         userId="me",
         body={"message": {"raw": raw}}
@@ -311,10 +321,18 @@ def create_draft_compose(to: str, subject: str, body: str) -> dict:
         "draft_id":  draft["id"],
         "thread_id": None,
         "to":        to,
+        "cc":        cc,
+        "bcc":       bcc,
         "subject":   subject,
         "body":      body,
         "mode":      "compose",
     }
+
+
+def get_my_email() -> str:
+    """Return the authenticated Gmail account's email address."""
+    service = get_service()
+    return service.users().getProfile(userId="me").execute().get("emailAddress", "")
 
 
 def get_draft(draft_id: str) -> dict:
@@ -349,12 +367,14 @@ def delete_draft(draft_id: str) -> None:
 
 
 def update_draft(draft_id: str, to: str, subject: str, body: str,
-                  thread_id: str = None, message_id_header: str = None) -> dict:
+                  thread_id: str = None, message_id_header: str = None,
+                  cc: str = "", bcc: str = "") -> dict:
     """Replace the content of an existing Gmail draft in-place. Returns updated context dict."""
     service = get_service()
     raw = _build_raw_message(to, subject, body,
                               in_reply_to=message_id_header or "",
-                              references=message_id_header or "")
+                              references=message_id_header or "",
+                              cc=cc, bcc=bcc)
     body_payload = {"message": {"raw": raw}}
     if thread_id:
         body_payload["message"]["threadId"] = thread_id
@@ -364,6 +384,8 @@ def update_draft(draft_id: str, to: str, subject: str, body: str,
     return {
         "draft_id":   result["id"],
         "to":         to,
+        "cc":         cc,
+        "bcc":        bcc,
         "subject":    subject,
         "body":       body,
         "thread_id":  thread_id,
@@ -451,3 +473,86 @@ def resolve_contact(name: str, max_candidates: int = 5) -> list:
             "count":   count,
         })
     return candidates
+
+
+# ── Phase 6: attachment helpers ───────────────────────────────────────────────
+
+def _extract_attachments(payload: dict, msg_id: str = "") -> list:
+    """
+    Recursively extract attachment metadata from a Gmail message payload part.
+    Returns list of dicts: {filename, mime_type, size, attachment_id, message_id}.
+    Only includes parts that have both a filename and an attachmentId (real attachments,
+    not inline text/html body parts).
+    """
+    result = []
+    fname  = payload.get("filename", "")
+    att_id = payload.get("body", {}).get("attachmentId", "")
+    if fname and att_id:
+        result.append({
+            "filename":      fname,
+            "mime_type":     payload.get("mimeType", "application/octet-stream"),
+            "size":          payload.get("body", {}).get("size", 0),
+            "attachment_id": att_id,
+            "message_id":    msg_id,
+        })
+    for part in payload.get("parts", []):
+        result.extend(_extract_attachments(part, msg_id))
+    return result
+
+
+def list_attachments(msg_id: str) -> list:
+    """List attachment metadata on a single message. Returns list of attachment dicts."""
+    service = get_service()
+    detail  = service.users().messages().get(
+        userId="me", id=msg_id, format="full"
+    ).execute()
+    return _extract_attachments(detail.get("payload", {}), msg_id)
+
+
+def list_thread_attachments(thread_id: str) -> list:
+    """List all attachments across every message in a thread."""
+    service = get_service()
+    t = service.users().threads().get(
+        userId="me", id=thread_id, format="full"
+    ).execute()
+    result = []
+    for msg in t.get("messages", []):
+        result.extend(_extract_attachments(msg.get("payload", {}), msg["id"]))
+    return result
+
+
+def fetch_attachment(msg_id: str, attachment_id: str) -> bytes:
+    """Fetch the raw bytes of an attachment from Gmail. Returns decoded bytes."""
+    service = get_service()
+    att = service.users().messages().attachments().get(
+        userId="me", messageId=msg_id, id=attachment_id
+    ).execute()
+    data = att.get("data", "")
+    return base64.urlsafe_b64decode(data) if data else b""
+
+
+def save_attachment(msg_id: str, attachment_id: str, filename: str,
+                    save_dir: Path) -> Path:
+    """
+    Fetch an attachment from Gmail and write it to save_dir.
+    Sanitizes the filename (strips directory traversal, limits chars).
+    Appends a numeric suffix if the destination already exists.
+    Returns the saved Path.
+    """
+    import re as _re
+    # Strip path components and restrict to safe chars
+    safe_name = Path(filename).name
+    safe_name = _re.sub(r"[^\w.\-() ]", "_", safe_name)[:200].strip()
+    if not safe_name:
+        safe_name = f"attachment_{attachment_id[:8]}"
+    save_dir.mkdir(parents=True, exist_ok=True)
+    dest = save_dir / safe_name
+    if dest.exists():
+        stem, suffix = dest.stem, dest.suffix
+        n = 1
+        while dest.exists():
+            dest = save_dir / f"{stem}_{n}{suffix}"
+            n += 1
+    data = fetch_attachment(msg_id, attachment_id)
+    dest.write_bytes(data)
+    return dest

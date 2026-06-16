@@ -85,14 +85,14 @@ SYSTEM You are Adwi, a cautious local AI assistant. Never read secrets, never co
 | 0 | Instant pre-checks | YouTube URL regex, image path regex (0 ms) |
 | 1 | Regex pre-filter | `_regex_prefilter()` — zero-latency for common phrases |
 | 2 | Few-shot injection | Qdrant `nlu_fixtures` top-3 semantic matches (96 fixtures, 768-dim Cosine) |
-| 3 | LLM classification | `llama3.1:8b` with JSON schema — `analysis`+`confidence`+`intent`+`arguments` (79 intent classes) |
+| 3 | LLM classification | `llama3.1:8b` with JSON schema — `analysis`+`confidence`+`intent`+`arguments` (84 intent classes) |
 | 4 | Argument dispatch | 29 typed slot reads: `path`, `query`, `url`, `size_mb`, `days`, `description` |
 | 5 | Fallback | `qwen3:0.6b` (80-token budget, no analysis block) |
 
 **Schema fields (Phase 6):**
 - `analysis` — dense one-sentence reasoning before intent selection
 - `confidence` — float 0.0–1.0
-- `intent` — one of 79 registered intent classes
+- `intent` — one of 84 registered intent classes
 - `arguments` — typed key-value slots fed straight into command handlers
 
 **Qdrant few-shot collection:** `nlu_fixtures` · 96 seed fixtures · scored at `score_threshold=0.5` · provisioned via `python3 adwi/memory.py provision-nlu`
@@ -209,7 +209,7 @@ Dashboard: http://localhost:4000 (user: suneel)
 ## §3 Deterministic Capability Grid
 
 <!-- AUTO:COMMANDS -->
-**139 registered commands.** Key groups:
+**144 registered commands.** Key groups:
 
 **add**: `/add-capability-plan <idea>`  `/add-root`
 **backup**: `/backup-audit`  `/backup-disable`  `/backup-enable`  `/backup-log`  `/backup-now`  `/backup-status`
@@ -237,7 +237,7 @@ Dashboard: http://localhost:4000 (user: suneel)
 **gh**: `/gh-status`
 **git**: `/git`
 **github**: `/github`  `/github-private`  `/github-public`  `/github-status`
-**gmail**: `/gmail`  `/gmail-archive`  `/gmail-auth`  `/gmail-cancel`  `/gmail-cancel-draft`  `/gmail-compose`  `/gmail-confirm`  `/gmail-draft-reply`  `/gmail-mark-read`  `/gmail-mark-unread`  `/gmail-promos`  `/gmail-read`  `/gmail-rewrite`  `/gmail-send-draft`  `/gmail-show-draft`  `/gmail-social`  `/gmail-spam`  `/gmail-summarize`  `/gmail-summary`  `/gmail-thread`  `/gmail-trash`
+**gmail**: `/gmail`  `/gmail-add-bcc`  `/gmail-add-cc`  `/gmail-archive`  `/gmail-attachments`  `/gmail-auth`  `/gmail-cancel`  `/gmail-cancel-draft`  `/gmail-compose`  `/gmail-confirm`  `/gmail-draft-reply`  `/gmail-mark-read`  `/gmail-mark-unread`  `/gmail-promos`  `/gmail-read`  `/gmail-rewrite`  `/gmail-save-attachment`  `/gmail-send-draft`  `/gmail-show-draft`  `/gmail-social`  `/gmail-spam`  `/gmail-summarize`  `/gmail-summarize-attachment`  `/gmail-summary`  `/gmail-thread`  `/gmail-trash`
 **ha**: `/ha`
 **help**: `/help`
 **image**: `/image-save`

@@ -36,6 +36,8 @@ ALL_INTENTS = [
     "gmail","gmail_read","gmail_open","gmail_thread","gmail_summarize","gmail_list_category",
     "gmail_archive","gmail_trash","gmail_mark_read","gmail_mark_unread","gmail_confirm","gmail_cancel",
     "gmail_draft_reply","gmail_compose","gmail_show_draft","gmail_send_draft","gmail_cancel_draft","gmail_rewrite_draft",
+    "gmail_add_cc","gmail_add_bcc",
+    "gmail_list_attachments","gmail_save_attachment","gmail_summarize_attachment",
     "sync",
     "nightly_status","nightly_run",
     "fix_error","patch_adwi","inspect_code","test_adwi","eval_routing","eval_adwi",
@@ -323,6 +325,20 @@ REGEX_INTENTS = [
     # gmail Phase 4: rewrite intent — MUST precede Phase 3 patterns
     (re.compile(r"\b(?:make|rewrite|revise|edit)\b.{0,20}\b(?:it|the\s+draft|the\s+reply|this|the\s+email)\b.{0,40}\b(?:shorter|longer|brief(?:er)?|concis(?:e|er)|professional(?:ly)?|formal(?:ly)?|casual(?:ly)?|warm(?:er|ly)?|friendli(?:er)?|direct(?:ly)?|clear(?:er)?)\b", re.I), "gmail_rewrite_draft"),
     (re.compile(r"\b(?:mention|add|include)\b.{0,50}\b(?:in|to)\s+(?:the\s+)?(?:draft|reply|email|message)\b", re.I), "gmail_rewrite_draft"),
+    # gmail Phase 5: add-cc / add-bcc — MUST precede Phase 3
+    (re.compile(r"\badd\s+cc\b", re.I), "gmail_add_cc"),
+    (re.compile(r"\bcc\b.{0,40}\b(?:to\s+(?:the\s+)?(?:draft|email|message)|on\s+(?:this|the\s+(?:draft|email|message)))\b", re.I), "gmail_add_cc"),
+    (re.compile(r"\badd\s+bcc\b", re.I), "gmail_add_bcc"),
+    (re.compile(r"\bbcc\b.{0,40}\b(?:to\s+(?:the\s+)?(?:draft|email|message)|on\s+(?:this|the\s+(?:draft|email|message)))\b", re.I), "gmail_add_bcc"),
+    # gmail Phase 6: attachment intents
+    (re.compile(r"\b(?:summarize|tldr|what.s\s+in|whats\s+in)\b.{0,30}\b(?:the\s+)?(?:attached\s+)?(?:attachment|pdf|document|invoice|receipt|spreadsheet)\b", re.I), "gmail_summarize_attachment"),
+    (re.compile(r"\bwhat(?:'s|\s+is)\b.{0,30}\b(?:in\s+)?(?:the\s+)?(?:attached|attachment)\b", re.I), "gmail_summarize_attachment"),
+    (re.compile(r"\b(?:save|download|open)\b.{0,30}\b(?:the\s+)?(?:attached\s+)?(?:attachment|pdf|document|invoice|receipt|image|spreadsheet)\b", re.I), "gmail_save_attachment"),
+    (re.compile(r"\b(?:save|download)\b.{0,25}\b(?:that|this|first|second|third)\b.{0,20}\b(?:attachment|file|pdf|document)\b", re.I), "gmail_save_attachment"),
+    (re.compile(r"\b(?:show|list|view|see)\b.{0,25}\battachment", re.I), "gmail_list_attachments"),
+    (re.compile(r"\battachment.{0,25}\b(?:on|in|for|from)\b", re.I), "gmail_list_attachments"),
+    (re.compile(r"\bany\s+attachments?\b", re.I), "gmail_list_attachments"),
+    (re.compile(r"\b(?:what|which)\b.{0,20}\b(?:file|attachment|pdf|document).{0,15}\battach", re.I), "gmail_list_attachments"),
     # gmail Phase 3: draft/send intents — MUST precede Phase 2 mutation patterns
     (re.compile(r"^send\s+(?:it|the\s+draft|that|this)\s*$", re.I), "gmail_send_draft"),
     (re.compile(r"^(?:go\s+ahead\s+and\s+)?send(?:\s+it|\s+the\s+draft|\s+now)\s*$", re.I), "gmail_send_draft"),

@@ -798,6 +798,27 @@ _REGEX_INTENTS = [
     (re.compile(r"\b(?:make|rewrite|revise|edit)\b.{0,20}\b(?:it|the\s+draft|the\s+reply|this|the\s+email)\b.{0,40}\b(?:shorter|longer|brief(?:er)?|concis(?:e|er)|professional(?:ly)?|formal(?:ly)?|casual(?:ly)?|warm(?:er|ly)?|friendli(?:er)?|direct(?:ly)?|clear(?:er)?)\b", re.I), "gmail_rewrite_draft"),
     (re.compile(r"\b(?:mention|add|include)\b.{0,50}\b(?:in|to)\s+(?:the\s+)?(?:draft|reply|email|message)\b", re.I), "gmail_rewrite_draft"),
 
+    # ── Gmail Phase 5: add-cc / add-bcc — MUST precede Phase 3 (avoid cc/bcc in compose hitting here) ──
+    # gmail_add_cc — "add cc Priya", "cc Priya to the draft", "cc Priya on this email"
+    (re.compile(r"\badd\s+cc\b", re.I), "gmail_add_cc"),
+    (re.compile(r"\bcc\b.{0,40}\b(?:to\s+(?:the\s+)?(?:draft|email|message)|on\s+(?:this|the\s+(?:draft|email|message)))\b", re.I), "gmail_add_cc"),
+    # gmail_add_bcc — "add bcc me", "bcc Rahul on this draft", "bcc me on the email"
+    (re.compile(r"\badd\s+bcc\b", re.I), "gmail_add_bcc"),
+    (re.compile(r"\bbcc\b.{0,40}\b(?:to\s+(?:the\s+)?(?:draft|email|message)|on\s+(?:this|the\s+(?:draft|email|message)))\b", re.I), "gmail_add_bcc"),
+
+    # ── Gmail Phase 6: attachment intents — MUST precede gmail_summarize (lower down) ──────
+    # gmail_summarize_attachment — before Phase 3 AND before the generic gmail_summarize block
+    (re.compile(r"\b(?:summarize|tldr|what.s\s+in|whats\s+in)\b.{0,30}\b(?:the\s+)?(?:attached\s+)?(?:attachment|pdf|document|invoice|receipt|spreadsheet)\b", re.I), "gmail_summarize_attachment"),
+    (re.compile(r"\bwhat(?:'s|\s+is)\b.{0,30}\b(?:in\s+)?(?:the\s+)?(?:attached|attachment)\b", re.I), "gmail_summarize_attachment"),
+    # gmail_save_attachment — "save/download/open the PDF/attachment/invoice"
+    (re.compile(r"\b(?:save|download|open)\b.{0,30}\b(?:the\s+)?(?:attached\s+)?(?:attachment|pdf|document|invoice|receipt|image|spreadsheet)\b", re.I), "gmail_save_attachment"),
+    (re.compile(r"\b(?:save|download)\b.{0,25}\b(?:that|this|first|second|third)\b.{0,20}\b(?:attachment|file|pdf|document)\b", re.I), "gmail_save_attachment"),
+    # gmail_list_attachments — "show/list attachments", "any files attached?"
+    (re.compile(r"\b(?:show|list|view|see)\b.{0,25}\battachment", re.I), "gmail_list_attachments"),
+    (re.compile(r"\battachment.{0,25}\b(?:on|in|for|from)\b", re.I), "gmail_list_attachments"),
+    (re.compile(r"\bany\s+attachments?\b", re.I), "gmail_list_attachments"),
+    (re.compile(r"\b(?:what|which)\b.{0,20}\b(?:file|attachment|pdf|document).{0,15}\battach", re.I), "gmail_list_attachments"),
+
     # ── Gmail Phase 3: draft / send intents — MUST precede Phase 2 mutation patterns ──────
     # gmail_send_draft — anchored bare forms; also "send the draft" (requires "draft" word)
     (re.compile(r"^send\s+(?:it|the\s+draft|that|this)\s*$", re.I), "gmail_send_draft"),
@@ -1082,6 +1103,8 @@ _ALL_INTENTS = [
     "gmail_confirm", "gmail_cancel",
     "gmail_draft_reply", "gmail_compose", "gmail_show_draft",
     "gmail_send_draft", "gmail_cancel_draft", "gmail_rewrite_draft",
+    "gmail_add_cc", "gmail_add_bcc",
+    "gmail_list_attachments", "gmail_save_attachment", "gmail_summarize_attachment",
     # n8n / automation
     "sync",
     # Nightly
@@ -1170,6 +1193,18 @@ _INTENT_SYSTEM = (
     "   'gmail_rewrite_draft': rewrite/update the current draft body — 'make it shorter',\n"
     "                      'rewrite it professionally', 'mention that I can do Friday'\n"
     "                      Always requires a current draft. Shows updated preview after rewrite.\n"
+    "   'gmail_add_cc'    : add a CC recipient to the current draft — 'add cc Priya',\n"
+    "                      'cc Priya to the draft', 'also cc my manager'\n"
+    "                      Always requires an active draft.\n"
+    "   'gmail_add_bcc'   : add a BCC recipient to the current draft — 'add bcc me',\n"
+    "                      'bcc Rahul on this draft', 'also bcc myself'\n"
+    "                      Always requires an active draft.\n"
+    "   'gmail_list_attachments': list attached files on the current email — 'show attachments',\n"
+    "                      'what files are attached', 'any attachments on that email'\n"
+    "   'gmail_save_attachment': save a specific attachment to the workspace — 'save the PDF',\n"
+    "                      'download the invoice', 'save the first attachment', 'open the PDF'\n"
+    "   'gmail_summarize_attachment': save and LLM-summarize an attachment — 'summarize the PDF',\n"
+    "                      'what's in the attached document', 'tldr the invoice'\n"
     "   'generate_image' : ONLY when creating a brand-new image/picture/artwork/visual output.\n"
     "                      NEVER for explanations, comparisons, or code/model concepts.\n"
     "                      'generation' as a software concept (code generation, token generation,\n"
@@ -3221,13 +3256,16 @@ _GMAIL_IDS: list = []       # ephemeral id list for /gmail-read <n>
 _GMAIL_SUBJECTS: list = []  # parallel subject list for "open this email [subject]" lookup
 
 _GMAIL_CTX: dict = {
-    "current_email":    None,  # full email dict — set by cmd_gmail_read / cmd_gmail_open
-    "current_thread":   None,  # full thread dict — set by cmd_gmail_thread
-    "thread_ids":       [],    # thread IDs parallel to _GMAIL_IDS
-    "candidates":       [],    # candidate email dicts from last list/category (Phase 2)
-    "draft":            None,  # current draft (Phase 3): {draft_id, to, subject, body, mode, …}
-    "pending":          None,  # pending mutation (Phase 2): {action, ids, count, description}
-    "pending_recipient": None, # Phase 4: {name, instruction, candidates, mode, subject}
+    "current_email":     None,  # full email dict — set by cmd_gmail_read / cmd_gmail_open
+    "current_thread":    None,  # full thread dict — set by cmd_gmail_thread
+    "thread_ids":        [],    # thread IDs parallel to _GMAIL_IDS
+    "candidates":        [],    # candidate email dicts from last list/category (Phase 2)
+    "draft":             None,  # current draft (Phase 3): {draft_id, to, cc, bcc, subject, body, mode, …}
+    "pending":           None,  # pending mutation (Phase 2): {action, ids, count, description}
+    "pending_recipient": None,  # Phase 4: {name, instruction, candidates, mode, subject, cc, bcc}
+    "contacts":          {},    # Phase 5: session contact cache {normalized_name: {email, display}}
+    "attachments":       [],    # Phase 6: attachment metadata list from current email/thread
+    "current_attachment": None, # Phase 6: last selected/saved attachment dict
 }
 
 _GMAIL_ACTION_PAST = {
@@ -3238,6 +3276,7 @@ _GMAIL_ACTION_PAST = {
 }
 
 _GMAIL_MAX_CANDIDATES = 25  # hard cap on mutation batch size
+ATTACH_SAVE_DIR       = BASE / "gmail-attachments"  # Phase 6: bounded attachment save dir
 
 _GMAIL_CATEGORY_MAP = {
     "promotions": "CATEGORY_PROMOTIONS", "promotion":  "CATEGORY_PROMOTIONS",
@@ -3632,14 +3671,20 @@ def _gmail_draft_preview(draft_ctx: dict) -> None:
     """Render a draft preview box from a draft context dict."""
     W = 60
     mode    = draft_ctx.get("mode", "compose").title()
-    to      = (draft_ctx.get("to") or "")[:W-4]
-    subject = (draft_ctx.get("subject") or "")[:W-4]
+    to      = (draft_ctx.get("to") or "")[:W-11]
+    cc      = draft_ctx.get("cc") or ""
+    bcc     = draft_ctx.get("bcc") or ""
+    subject = (draft_ctx.get("subject") or "")[:W-11]
     body    = (draft_ctx.get("body") or "").strip()
     lines   = body.splitlines()
     cprint(f"\n  ┌{'─'*W}┐", GRAY)
     cprint(f"  │  {BOLD}Draft {mode:<{W-10}}{RESET}│")
     cprint(f"  ├{'─'*W}┤", GRAY)
     cprint(f"  │  {CYAN}To:{RESET}      {to:<{W-11}}{RESET}│")
+    if cc:
+        cprint(f"  │  {CYAN}CC:{RESET}      {cc[:W-11]:<{W-11}}{RESET}│")
+    if bcc:
+        cprint(f"  │  {CYAN}BCC:{RESET}     {bcc[:W-11]:<{W-11}}{RESET}│")
     cprint(f"  │  {CYAN}Subject:{RESET} {subject:<{W-11}}{RESET}│")
     cprint(f"  ├{'─'*W}┤", GRAY)
     for ln in lines[:8]:
@@ -3703,22 +3748,64 @@ def cmd_gmail_draft_reply(text: str = "") -> None:
 
 
 def cmd_gmail_compose(text: str = "") -> None:
-    """Compose a new email draft with contact-name resolution. Shows preview; waits for send."""
+    """Compose a new email draft with contact-name resolution and CC/BCC support."""
     token = HOME / "SuneelWorkSpace" / "secrets" / "gmail-token.json"
     if not token.exists():
         cprint("  Gmail not authorized — run /gmail-auth first", RED); return
     adwi_head("Gmail — Compose Draft")
-    # Extract recipient name/address and compose instruction from text
-    to_m   = re.search(r"\b(?:email|to|message)\s+(\w[\w\s.]{0,30}?)\s+(?:saying|about|that|to\s+say|regarding)", text, re.I)
+    # Extract TO — stops at cc/bcc keyword or saying/about
+    to_m = re.search(
+        r"\b(?:email|message)\s+([\w][\w\s.]{0,30}?)"
+        r"(?:\s+(?:and\s+)?(?:cc|bcc)\b|\s+(?:saying|about|that|to\s+say|regarding))",
+        text, re.I
+    )
+    # Extract CC
+    cc_m = re.search(
+        r"\b(?:and\s+)?cc\s+([\w][\w\s.]{0,30}?)"
+        r"(?:\s+(?:and\s+)?bcc\b|\s+(?:saying|about|that|to\s+say)|$)",
+        text, re.I
+    )
+    # Extract BCC
+    bcc_m = re.search(
+        r"\bbcc\s+([\w][\w\s.]{0,30}?)"
+        r"(?:\s+(?:saying|about|that|to\s+say)|$)",
+        text, re.I
+    )
+    # Extract instruction
     inst_m = re.search(r"\b(?:saying|about|that|to\s+say|regarding)\s+(.+?)(?:[?.]|$)", text, re.I)
+
     to_raw      = to_m.group(1).strip() if to_m else ""
+    cc_raw      = cc_m.group(1).strip() if cc_m else ""
+    bcc_raw     = bcc_m.group(1).strip() if bcc_m else ""
     instruction = inst_m.group(1).strip() if inst_m else re.sub(
         r"^(?:compose|write|draft|email|message)\b.{0,25}?\s+", "", text, flags=re.I).strip()
+
     if not to_raw:
         to_raw = input(f"  {YELLOW}To (name or email):{RESET} ").strip()
         if not to_raw:
             cprint("  Cancelled.", GRAY); return
-    # Resolve recipient via Gmail history (Phase 4)
+
+    # Resolve CC/BCC inline (no multi-stage disambiguation — direct ask on ambiguity)
+    cc_resolved = ""
+    bcc_resolved = ""
+    if cc_raw:
+        cc_resolved = _gmail_resolve_inline(cc_raw)
+        if cc_resolved:
+            cprint(f"  {GRAY}CC: {cc_resolved}{RESET}")
+        else:
+            cprint(f"  {YELLOW}Could not resolve CC '{cc_raw}'{RESET}")
+            cc_input = input(f"  {YELLOW}CC email (or blank to skip):{RESET} ").strip()
+            cc_resolved = cc_input if "@" in cc_input else ""
+    if bcc_raw:
+        bcc_resolved = _gmail_resolve_inline(bcc_raw)
+        if bcc_resolved:
+            cprint(f"  {GRAY}BCC: {bcc_resolved}{RESET}")
+        else:
+            cprint(f"  {YELLOW}Could not resolve BCC '{bcc_raw}'{RESET}")
+            bcc_input = input(f"  {YELLOW}BCC email (or blank to skip):{RESET} ").strip()
+            bcc_resolved = bcc_input if "@" in bcc_input else ""
+
+    # Resolve TO — full flow with disambiguation
     cprint(f"  {GRAY}Looking up {to_raw!r}…{RESET}")
     resolved, candidates = _gmail_resolve_recipient(to_raw)
     if resolved:
@@ -3726,9 +3813,9 @@ def cmd_gmail_compose(text: str = "") -> None:
             instruction = input(f"  {YELLOW}What should the email say?{RESET} ").strip()
             if not instruction:
                 cprint("  Cancelled.", GRAY); return
-        _gmail_do_compose(resolved, instruction[:60].rstrip(".,?!"), instruction)
+        _gmail_do_compose(resolved, instruction[:60].rstrip(".,?!"), instruction,
+                          cc=cc_resolved, bcc=bcc_resolved)
     elif candidates:
-        # Disambiguation — show numbered list, save state
         cprint(f"\n  Multiple contacts named {to_raw!r}:", YELLOW)
         for i, c in enumerate(candidates, 1):
             cnt_str = f"  ({c['count']} messages)" if c.get("count") else ""
@@ -3742,9 +3829,10 @@ def cmd_gmail_compose(text: str = "") -> None:
             "candidates":  candidates,
             "mode":        "compose",
             "subject":     instruction[:60].rstrip(".,?!"),
+            "cc":          cc_resolved,
+            "bcc":         bcc_resolved,
         }
     else:
-        # No match — fall back to manual entry
         cprint(f"  No contacts found for {to_raw!r} in your Gmail history.", YELLOW)
         email = input(f"  {YELLOW}Enter email address:{RESET} ").strip()
         if not email or "@" not in email:
@@ -3753,7 +3841,8 @@ def cmd_gmail_compose(text: str = "") -> None:
             instruction = input(f"  {YELLOW}What should the email say?{RESET} ").strip()
             if not instruction:
                 cprint("  Cancelled.", GRAY); return
-        _gmail_do_compose(email, instruction[:60].rstrip(".,?!"), instruction)
+        _gmail_do_compose(email, instruction[:60].rstrip(".,?!"), instruction,
+                          cc=cc_resolved, bcc=bcc_resolved)
 
 
 
@@ -3772,15 +3861,56 @@ def _extract_rewrite_instruction(text: str) -> str:
     return cleaned or text.strip()
 
 
+def _gmail_resolve_inline(name_or_email: str) -> str:
+    """
+    Lightweight resolution for CC/BCC recipients — no disambiguation flow.
+    Returns resolved email string, or "" if unresolvable.
+    """
+    name_or_email = name_or_email.strip()
+    if not name_or_email:
+        return ""
+    if "@" in name_or_email:
+        return name_or_email
+    # Self-reference: "me", "myself"
+    if re.match(r"^(?:me|myself|my\s+self)$", name_or_email, re.I):
+        try:
+            return _gmail().get_my_email()
+        except Exception:
+            return ""
+    # Check in-session cache
+    cache_key = name_or_email.lower()
+    cached = _GMAIL_CTX["contacts"].get(cache_key)
+    if cached:
+        return cached["email"]
+    # Resolve via Gmail history — auto-pick single match; return "" on ambiguity
+    try:
+        candidates = _gmail().resolve_contact(name_or_email)
+    except Exception:
+        return ""
+    if len(candidates) == 1:
+        _GMAIL_CTX["contacts"][cache_key] = {
+            "email":   candidates[0]["email"],
+            "display": candidates[0].get("display", ""),
+        }
+        return candidates[0]["email"]
+    return ""  # Multiple matches → caller will ask for direct email entry
+
+
 def _gmail_resolve_recipient(name_or_email: str) -> tuple:
     """
-    Resolve a recipient name to email addresses using Gmail history.
+    Resolve a recipient name to email addresses using Gmail history + session cache.
     Returns (resolved_str_or_None, candidates_list).
-    resolved_str is set when exactly one match is found.
+    resolved_str is set when exactly one match is found (and the result is cached).
     candidates_list is non-empty when the match is ambiguous.
     """
     if "@" in name_or_email:
         return name_or_email, []
+    # Check in-session cache first
+    cache_key = name_or_email.lower().strip()
+    cached = _GMAIL_CTX["contacts"].get(cache_key)
+    if cached:
+        cprint(f"  {GRAY}✓ Cached: {cached['display']} <{cached['email']}>{RESET}")
+        return cached["email"], []
     try:
         gh         = _gmail()
         candidates = gh.resolve_contact(name_or_email)
@@ -3788,13 +3918,19 @@ def _gmail_resolve_recipient(name_or_email: str) -> tuple:
         cprint(f"  {GRAY}Contact lookup failed: {e}{RESET}")
         return None, []
     if len(candidates) == 1:
+        # Cache the successful single-match resolution
+        _GMAIL_CTX["contacts"][cache_key] = {
+            "email":   candidates[0]["email"],
+            "display": candidates[0].get("display", candidates[0]["email"]),
+        }
         return candidates[0]["email"], []
     elif len(candidates) > 1:
         return None, candidates
     return None, []
 
 
-def _gmail_do_compose(to: str, subject: str, instruction: str) -> None:
+def _gmail_do_compose(to: str, subject: str, instruction: str,
+                       cc: str = "", bcc: str = "") -> None:
     """Core draft-creation step after recipient is fully resolved."""
     cprint(f"  {GRAY}Generating draft…{RESET}")
     prompt = (
@@ -3811,11 +3947,81 @@ def _gmail_do_compose(to: str, subject: str, instruction: str) -> None:
         cprint(f"  Could not generate draft: {body}", RED); return
     try:
         gh        = _gmail()
-        draft_ctx = gh.create_draft_compose(to=to, subject=subject, body=body)
+        draft_ctx = gh.create_draft_compose(to=to, subject=subject, body=body, cc=cc, bcc=bcc)
         _GMAIL_CTX["draft"] = draft_ctx
         _gmail_draft_preview(draft_ctx)
     except Exception as e:
         cprint(f"  Error creating draft: {e}", RED)
+
+
+# ── Gmail Phase 6: attachment helpers ─────────────────────────────────────────
+
+def _gmail_attachment_text(path: Path, max_chars: int = 6000) -> str:
+    """Extract readable text from a saved attachment for LLM summarization."""
+    suffix = path.suffix.lower()
+    if suffix in {".txt", ".md", ".csv", ".log", ".rst", ".eml"}:
+        try:
+            return path.read_text(encoding="utf-8", errors="replace")[:max_chars]
+        except Exception:
+            return ""
+    if suffix in IMAGE_EXTS:
+        return ""  # caller handles image branch via analyze_image()
+    # PDF / DOCX / XLSX / PPTX / EPUB → markitdown (available in venv)
+    try:
+        from markitdown import MarkItDown
+        result = MarkItDown().convert(str(path))
+        return (result.text_content or "")[:max_chars]
+    except Exception:
+        return ""
+
+
+def _gmail_pick_attachment(text: str) -> dict | None:
+    """
+    Select one attachment from _GMAIL_CTX["attachments"] by ordinal, mime-type
+    hint, or filename substring. Auto-selects if only one attachment exists.
+    Returns the matching dict or None.
+    """
+    atts = _GMAIL_CTX.get("attachments", [])
+    if not atts:
+        return None
+    if len(atts) == 1:
+        return atts[0]
+    low = text.lower()
+    # Ordinal keywords
+    ordinals = {
+        "first": 0, "1st": 0, "1": 0,
+        "second": 1, "2nd": 1, "2": 1,
+        "third": 2, "3rd": 2, "3": 2,
+        "fourth": 3, "4th": 3, "4": 3,
+    }
+    for word, idx in ordinals.items():
+        if re.search(rf"\b{re.escape(word)}\b", low):
+            if idx < len(atts):
+                return atts[idx]
+    # Mime-type hints
+    mime_hints = [
+        ("pdf",         "application/pdf"),
+        ("word",        "application/vnd.openxmlformats-officedocument.wordprocessingml"),
+        ("excel",       "application/vnd.openxmlformats-officedocument.spreadsheetml"),
+        ("spreadsheet", "application/vnd.openxmlformats-officedocument.spreadsheetml"),
+        ("csv",         "text/csv"),
+        ("zip",         "application/zip"),
+        ("image",       "image/"),
+        ("photo",       "image/"),
+        ("picture",     "image/"),
+    ]
+    for hint, mime_prefix in mime_hints:
+        if hint in low:
+            for att in atts:
+                if att.get("mime_type", "").lower().startswith(mime_prefix):
+                    return att
+    # Filename substring match — any word 3+ chars appearing in filename
+    for att in atts:
+        fname = att.get("filename", "").lower()
+        for word in re.findall(r"\w{3,}", low):
+            if word in fname:
+                return att
+    return None
 
 
 def cmd_gmail_recipient_choice(selection: int) -> None:
@@ -3830,16 +4036,248 @@ def cmd_gmail_recipient_choice(selection: int) -> None:
     chosen  = candidates[idx]
     to      = chosen["email"]
     display = chosen.get("display", to.split("@")[0])
+    # Populate in-session cache so subsequent emails to same person are instant
+    cache_key = (pr.get("name") or "").lower().strip()
+    if cache_key:
+        _GMAIL_CTX["contacts"][cache_key] = {"email": to, "display": display}
     cprint(f"  ✓ Recipient: {display} <{to}>", GREEN)
     _GMAIL_CTX["pending_recipient"] = None
     instruction = pr.get("instruction", "")
     subject     = pr.get("subject", instruction[:60].rstrip(".,?!"))
+    cc          = pr.get("cc", "")
+    bcc         = pr.get("bcc", "")
     if not instruction:
         instruction = input(f"  {YELLOW}What should the email say?{RESET} ").strip()
         if not instruction:
             cprint("  Cancelled.", GRAY); return
         subject = instruction[:60].rstrip(".,?!")
-    _gmail_do_compose(to, subject, instruction)
+    _gmail_do_compose(to, subject, instruction, cc=cc, bcc=bcc)
+
+
+def cmd_gmail_add_cc(text: str = "") -> None:
+    """Add a CC recipient to the current draft, update Gmail draft in-place, show preview."""
+    draft = _GMAIL_CTX.get("draft")
+    if not draft:
+        cprint("  No current draft. Create one first with 'compose an email to X'.", YELLOW); return
+    # Extract name/email from text: strip leading "add cc " / "cc "
+    cc_raw = re.sub(r"^\s*(?:add\s+)?cc\s+", "", text, flags=re.I).strip()
+    cc_raw = re.sub(r"\s+(?:to\s+(?:the\s+)?(?:draft|email|message))\s*$", "", cc_raw, flags=re.I).strip()
+    if not cc_raw:
+        cc_raw = input(f"  {YELLOW}CC (name or email):{RESET} ").strip()
+        if not cc_raw:
+            cprint("  Cancelled.", GRAY); return
+    resolved = _gmail_resolve_inline(cc_raw)
+    if not resolved:
+        cprint(f"  Could not resolve '{cc_raw}'.", YELLOW)
+        resolved = input(f"  {YELLOW}CC email address:{RESET} ").strip()
+        if not resolved or "@" not in resolved:
+            cprint("  Cancelled.", YELLOW); return
+    adwi_head("Gmail — Add CC")
+    existing_cc = draft.get("cc") or ""
+    new_cc = f"{existing_cc}, {resolved}".strip(", ") if existing_cc else resolved
+    try:
+        gh = _gmail()
+        gh.update_draft(
+            draft["draft_id"], draft["to"], draft["subject"], draft["body"],
+            thread_id=draft.get("thread_id"),
+            message_id_header=draft.get("message_id", ""),
+            cc=new_cc,
+            bcc=draft.get("bcc") or "",
+        )
+    except Exception as e:
+        cprint(f"  {YELLOW}Gmail draft update failed ({e}) — CC added locally.{RESET}")
+    _GMAIL_CTX["draft"]["cc"] = new_cc
+    cprint(f"  ✓ CC: {new_cc}", GREEN)
+    _gmail_draft_preview(_GMAIL_CTX["draft"])
+
+
+def cmd_gmail_add_bcc(text: str = "") -> None:
+    """Add a BCC recipient to the current draft, update Gmail draft in-place, show preview."""
+    draft = _GMAIL_CTX.get("draft")
+    if not draft:
+        cprint("  No current draft. Create one first with 'compose an email to X'.", YELLOW); return
+    bcc_raw = re.sub(r"^\s*(?:add\s+)?bcc\s+", "", text, flags=re.I).strip()
+    bcc_raw = re.sub(r"\s+(?:to\s+(?:the\s+)?(?:draft|email|message))\s*$", "", bcc_raw, flags=re.I).strip()
+    if not bcc_raw:
+        bcc_raw = input(f"  {YELLOW}BCC (name or email):{RESET} ").strip()
+        if not bcc_raw:
+            cprint("  Cancelled.", GRAY); return
+    resolved = _gmail_resolve_inline(bcc_raw)
+    if not resolved:
+        cprint(f"  Could not resolve '{bcc_raw}'.", YELLOW)
+        resolved = input(f"  {YELLOW}BCC email address:{RESET} ").strip()
+        if not resolved or "@" not in resolved:
+            cprint("  Cancelled.", YELLOW); return
+    adwi_head("Gmail — Add BCC")
+    existing_bcc = draft.get("bcc") or ""
+    new_bcc = f"{existing_bcc}, {resolved}".strip(", ") if existing_bcc else resolved
+    try:
+        gh = _gmail()
+        gh.update_draft(
+            draft["draft_id"], draft["to"], draft["subject"], draft["body"],
+            thread_id=draft.get("thread_id"),
+            message_id_header=draft.get("message_id", ""),
+            cc=draft.get("cc") or "",
+            bcc=new_bcc,
+        )
+    except Exception as e:
+        cprint(f"  {YELLOW}Gmail draft update failed ({e}) — BCC added locally.{RESET}")
+    _GMAIL_CTX["draft"]["bcc"] = new_bcc
+    cprint(f"  ✓ BCC: {new_bcc}", GREEN)
+    _gmail_draft_preview(_GMAIL_CTX["draft"])
+
+
+def cmd_gmail_list_attachments(text: str = "") -> None:
+    """List attachments on the current email or thread."""
+    token = HOME / "SuneelWorkSpace" / "secrets" / "gmail-token.json"
+    if not token.exists():
+        cprint("  Gmail not authorized — run /gmail-auth first", RED); return
+    try:
+        gh = _gmail()
+        want_thread = bool(re.search(r"\bthread|conversation\b", text, re.I))
+        atts, source_name = [], ""
+
+        if want_thread and _GMAIL_CTX.get("current_thread"):
+            t = _GMAIL_CTX["current_thread"]
+            atts = gh.list_thread_attachments(t["thread_id"])
+            source_name = t.get("subject", "thread")[:55]
+        elif _GMAIL_CTX.get("current_email"):
+            em = _GMAIL_CTX["current_email"]
+            atts = gh.list_attachments(em["id"])
+            source_name = em.get("subject", "email")[:55]
+        else:
+            cprint("  No current email. Open one first, then say 'show attachments'.", YELLOW)
+            return
+
+        if not atts:
+            cprint(f"  No attachments on: {source_name}", YELLOW); return
+
+        _GMAIL_CTX["attachments"] = atts
+        adwi_head(f"Attachments — {source_name}")
+        for i, att in enumerate(atts, 1):
+            size_str = _human_size(att["size"]) if att.get("size") else "?"
+            cprint(f"  {i}. {att['filename']}", CYAN)
+            cprint(f"     {GRAY}{att['mime_type']}  {size_str}{RESET}")
+        hint = "save the first attachment · save the PDF · summarize the attachment"
+        cprint(f"\n  {YELLOW}{hint}{RESET}")
+    except Exception as e:
+        cprint(f"  Gmail error: {e}", RED)
+
+
+def cmd_gmail_save_attachment(text: str = "") -> None:
+    """Save a selected attachment from the current email to the workspace."""
+    token = HOME / "SuneelWorkSpace" / "secrets" / "gmail-token.json"
+    if not token.exists():
+        cprint("  Gmail not authorized — run /gmail-auth first", RED); return
+
+    # Auto-populate if not yet listed
+    if not _GMAIL_CTX.get("attachments"):
+        em = _GMAIL_CTX.get("current_email")
+        if not em:
+            cprint("  No current email. Open one first.", YELLOW); return
+        try:
+            _GMAIL_CTX["attachments"] = _gmail().list_attachments(em["id"])
+        except Exception as e:
+            cprint(f"  Could not list attachments: {e}", RED); return
+
+    atts = _GMAIL_CTX.get("attachments", [])
+    if not atts:
+        cprint("  No attachments on this email.", YELLOW); return
+
+    att = _gmail_pick_attachment(text)
+    if att is None:
+        if len(atts) > 1:
+            cprint(f"  {len(atts)} attachments found — be more specific:", YELLOW)
+            for i, a in enumerate(atts, 1):
+                cprint(f"  {i}. {a['filename']}  {GRAY}({_human_size(a.get('size',0))}){RESET}")
+            return
+        att = atts[0]
+
+    adwi_head("Gmail — Save Attachment")
+    cprint(f"  File: {att['filename']}", CYAN)
+    cprint(f"  Type: {att['mime_type']}  Size: {_human_size(att.get('size', 0))}", GRAY)
+    try:
+        saved = _gmail().save_attachment(
+            att["message_id"], att["attachment_id"], att["filename"], ATTACH_SAVE_DIR
+        )
+        att["saved_path"] = str(saved)
+        _GMAIL_CTX["current_attachment"] = att
+        cprint(f"  ✓ Saved: {saved}", GREEN)
+        # "open the PDF" — open with macOS default app
+        if re.search(r"\bopen\b", text, re.I):
+            import subprocess as _sub
+            _sub.run(["open", str(saved)], check=False)
+        cprint(f"  {GRAY}Say 'summarize the attachment' to read and summarize it.{RESET}")
+    except Exception as e:
+        cprint(f"  Save failed: {e}", RED)
+
+
+def cmd_gmail_summarize_attachment(text: str = "") -> None:
+    """Save (if needed) and LLM-summarize a text-extractable attachment."""
+    token = HOME / "SuneelWorkSpace" / "secrets" / "gmail-token.json"
+    if not token.exists():
+        cprint("  Gmail not authorized — run /gmail-auth first", RED); return
+
+    # Auto-populate if not yet listed
+    if not _GMAIL_CTX.get("attachments"):
+        em = _GMAIL_CTX.get("current_email")
+        if not em:
+            cprint("  No current email. Open one first.", YELLOW); return
+        try:
+            _GMAIL_CTX["attachments"] = _gmail().list_attachments(em["id"])
+        except Exception as e:
+            cprint(f"  Could not list attachments: {e}", RED); return
+
+    atts = _GMAIL_CTX.get("attachments", [])
+    if not atts:
+        cprint("  No attachments on this email.", YELLOW); return
+
+    att = _gmail_pick_attachment(text)
+    if att is None:
+        if len(atts) > 1:
+            cprint(f"  {len(atts)} attachments — be more specific:", YELLOW)
+            for i, a in enumerate(atts, 1):
+                cprint(f"  {i}. {a['filename']}  {GRAY}({_human_size(a.get('size',0))}){RESET}")
+            return
+        att = atts[0]
+
+    adwi_head(f"Gmail — Summarize: {att['filename']}")
+
+    # Save if not already done
+    saved_path_str = att.get("saved_path")
+    saved_path = Path(saved_path_str) if (saved_path_str and Path(saved_path_str).exists()) else None
+    if not saved_path:
+        cprint(f"  {GRAY}Saving {att['filename']}…{RESET}")
+        try:
+            saved_path = _gmail().save_attachment(
+                att["message_id"], att["attachment_id"], att["filename"], ATTACH_SAVE_DIR
+            )
+            att["saved_path"] = str(saved_path)
+            _GMAIL_CTX["current_attachment"] = att
+            cprint(f"  ✓ Saved: {saved_path}", GREEN)
+        except Exception as e:
+            cprint(f"  Save failed: {e}", RED); return
+
+    # Images → existing analyze_image
+    if saved_path.suffix.lower() in IMAGE_EXTS:
+        analyze_image(str(saved_path)); return
+
+    # Extract text
+    cprint(f"  {GRAY}Extracting text…{RESET}")
+    text_content = _gmail_attachment_text(saved_path)
+    if not text_content:
+        cprint(f"  Cannot extract readable text from this file ({att['mime_type']}).", YELLOW)
+        cprint(f"  File saved at: {saved_path}", GRAY)
+        return
+
+    cprint(f"  {GRAY}Summarizing…{RESET}")
+    stream_local(
+        f"Summarize the following document from an email attachment.\n"
+        f"Filename: {att['filename']}\n\n"
+        f"{text_content}\n\n"
+        f"Give key points, numbers, dates, and any action items. Be concise.",
+        system="You are Adwi summarizing an email attachment for Suneel. Be practical and brief."
+    )
 
 
 def cmd_gmail_rewrite_draft(text: str = "") -> None:
@@ -3868,7 +4306,7 @@ def cmd_gmail_rewrite_draft(text: str = "") -> None:
     )
     if not new_body or new_body.startswith("[LLM error"):
         cprint(f"  Rewrite failed: {new_body}", RED); return
-    # Update draft in Gmail
+    # Update draft in Gmail — preserve existing CC/BCC
     try:
         gh       = _gmail()
         draft_id = draft["draft_id"]
@@ -3876,6 +4314,8 @@ def cmd_gmail_rewrite_draft(text: str = "") -> None:
             draft_id, draft["to"], draft["subject"], new_body,
             thread_id=draft.get("thread_id"),
             message_id_header=draft.get("message_id", ""),
+            cc=draft.get("cc") or "",
+            bcc=draft.get("bcc") or "",
         )
     except Exception as e:
         cprint(f"  {YELLOW}Gmail draft update failed ({e}) — preview reflects new content.{RESET}")
@@ -3905,9 +4345,13 @@ def cmd_gmail_send_draft() -> None:
         return
     draft_id = draft.get("draft_id")
     to       = draft.get("to", "")
+    cc       = draft.get("cc") or ""
+    bcc      = draft.get("bcc") or ""
     subject  = draft.get("subject", "")
     adwi_head("Gmail — Send Draft")
     cprint(f"  To:      {to}", "")
+    if cc:  cprint(f"  CC:      {cc}", "")
+    if bcc: cprint(f"  BCC:     {bcc}", "")
     cprint(f"  Subject: {subject}", "")
     ans = input(f"  {YELLOW}Send this email? (y/n){RESET} ").strip().lower()
     if ans not in ("y", "yes"):
@@ -5953,6 +6397,16 @@ def dispatch_natural(text: str):
         cmd_gmail_cancel_draft()
     elif intent == "gmail_rewrite_draft":
         cmd_gmail_rewrite_draft(text)
+    elif intent == "gmail_add_cc":
+        cmd_gmail_add_cc(text)
+    elif intent == "gmail_add_bcc":
+        cmd_gmail_add_bcc(text)
+    elif intent == "gmail_list_attachments":
+        cmd_gmail_list_attachments(text)
+    elif intent == "gmail_save_attachment":
+        cmd_gmail_save_attachment(text)
+    elif intent == "gmail_summarize_attachment":
+        cmd_gmail_summarize_attachment(text)
     elif intent == "gmail_read":
         if re.search(r"\bthis\s+(email|mail|message)\b", text, re.I):
             frag = re.sub(r".*?\bthis\s+(email|mail|message)\s*", "", text, flags=re.I).strip()
@@ -6238,6 +6692,16 @@ def handle(line: str) -> bool:
     elif line == "/gmail-cancel-draft": cmd_gmail_cancel_draft()
     elif line == "/gmail-rewrite": cmd_gmail_rewrite_draft("")
     elif line.startswith("/gmail-rewrite "): cmd_gmail_rewrite_draft(line[15:].strip())
+    elif line == "/gmail-add-cc": cmd_gmail_add_cc("")
+    elif line.startswith("/gmail-add-cc "): cmd_gmail_add_cc(line[14:].strip())
+    elif line == "/gmail-add-bcc": cmd_gmail_add_bcc("")
+    elif line.startswith("/gmail-add-bcc "): cmd_gmail_add_bcc(line[15:].strip())
+    elif line == "/gmail-attachments": cmd_gmail_list_attachments("")
+    elif line.startswith("/gmail-attachments "): cmd_gmail_list_attachments(line[19:].strip())
+    elif line == "/gmail-save-attachment": cmd_gmail_save_attachment("")
+    elif line.startswith("/gmail-save-attachment "): cmd_gmail_save_attachment(line[23:].strip())
+    elif line == "/gmail-summarize-attachment": cmd_gmail_summarize_attachment("")
+    elif line.startswith("/gmail-summarize-attachment "): cmd_gmail_summarize_attachment(line[28:].strip())
     # ── Self-repair commands (confirm before patching) ──
     elif line.startswith("/fix-error"): cmd_fix_error(line[10:].strip())
     elif line == "/repair-adwi": cmd_repair_adwi()
