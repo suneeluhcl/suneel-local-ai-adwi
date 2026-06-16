@@ -38,6 +38,7 @@ ALL_INTENTS = [
     "gmail_draft_reply","gmail_compose","gmail_show_draft","gmail_send_draft","gmail_cancel_draft","gmail_rewrite_draft",
     "gmail_add_cc","gmail_add_bcc",
     "gmail_list_attachments","gmail_save_attachment","gmail_summarize_attachment",
+    "gmail_attach_file",
     "sync",
     "nightly_status","nightly_run",
     "fix_error","patch_adwi","inspect_code","test_adwi","eval_routing","eval_adwi",
@@ -322,6 +323,10 @@ REGEX_INTENTS = [
     # FIX-RC-001: \b around "test" prevents "latest" substring false positive
     (re.compile(r"\b(run|execute|test)\b.{0,15}(this |the )?(python|code|script)\b", re.I), "run_code"),
     (re.compile(r"(benchmark|speed.?test|how fast|tokens? per second).{0,20}(adwi|model|local|ollama)\b", re.I), "benchmark"),
+    # gmail Phase 7: attach-file intent — MUST precede gmail_rewrite_draft
+    (re.compile(r"\battach\b.{0,50}\b(?:pdf|document|file|spreadsheet|invoice|report|deck|image|photo|attachment)\b", re.I), "gmail_attach_file"),
+    (re.compile(r"\b(?:add|include)\b.{0,20}\b(?:the\s+)?(?:pdf|spreadsheet|invoice|report|deck|image|attachment)\b.{0,30}\b(?:(?:to|in)\s+(?:(?:this|the)\s+)?(?:draft|email|message|reply))\b", re.I), "gmail_attach_file"),
+    (re.compile(r"\battach\b.{0,30}\b(?:that|the|saved)\b.{0,20}\battachment\b", re.I), "gmail_attach_file"),
     # gmail Phase 4: rewrite intent — MUST precede Phase 3 patterns
     (re.compile(r"\b(?:make|rewrite|revise|edit)\b.{0,20}\b(?:it|the\s+draft|the\s+reply|this|the\s+email)\b.{0,40}\b(?:shorter|longer|brief(?:er)?|concis(?:e|er)|professional(?:ly)?|formal(?:ly)?|casual(?:ly)?|warm(?:er|ly)?|friendli(?:er)?|direct(?:ly)?|clear(?:er)?)\b", re.I), "gmail_rewrite_draft"),
     (re.compile(r"\b(?:mention|add|include)\b.{0,50}\b(?:in|to)\s+(?:the\s+)?(?:draft|reply|email|message)\b", re.I), "gmail_rewrite_draft"),

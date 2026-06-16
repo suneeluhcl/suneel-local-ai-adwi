@@ -793,6 +793,12 @@ _REGEX_INTENTS = [
     (re.compile(r"\b(bechmark|benchamrk|benchmarck)\b", re.I), "benchmark"),
     (re.compile(r"(benchmark|speed.?test|how fast|tokens? per second).{0,20}(adwi|model|local|ollama)\b", re.I), "benchmark"),
 
+    # ── Gmail Phase 7: attach-file intent — MUST precede gmail_rewrite_draft ─────────────────
+    # ("add the PDF to this draft" would otherwise match gmail_rewrite_draft's add/include pattern)
+    (re.compile(r"\battach\b.{0,50}\b(?:pdf|document|file|spreadsheet|invoice|report|deck|image|photo|attachment)\b", re.I), "gmail_attach_file"),
+    (re.compile(r"\b(?:add|include)\b.{0,20}\b(?:the\s+)?(?:pdf|spreadsheet|invoice|report|deck|image|attachment)\b.{0,30}\b(?:(?:to|in)\s+(?:(?:this|the)\s+)?(?:draft|email|message|reply))\b", re.I), "gmail_attach_file"),
+    (re.compile(r"\battach\b.{0,30}\b(?:that|the|saved)\b.{0,20}\battachment\b", re.I), "gmail_attach_file"),
+
     # ── Gmail Phase 4: rewrite intent — MUST precede Phase 3 send/cancel patterns ──────────
     # Requires "it/the draft/the reply/this" + a style word, or "mention/add X to the draft"
     (re.compile(r"\b(?:make|rewrite|revise|edit)\b.{0,20}\b(?:it|the\s+draft|the\s+reply|this|the\s+email)\b.{0,40}\b(?:shorter|longer|brief(?:er)?|concis(?:e|er)|professional(?:ly)?|formal(?:ly)?|casual(?:ly)?|warm(?:er|ly)?|friendli(?:er)?|direct(?:ly)?|clear(?:er)?)\b", re.I), "gmail_rewrite_draft"),
@@ -1105,6 +1111,7 @@ _ALL_INTENTS = [
     "gmail_send_draft", "gmail_cancel_draft", "gmail_rewrite_draft",
     "gmail_add_cc", "gmail_add_bcc",
     "gmail_list_attachments", "gmail_save_attachment", "gmail_summarize_attachment",
+    "gmail_attach_file",
     # n8n / automation
     "sync",
     # Nightly
@@ -1205,6 +1212,11 @@ _INTENT_SYSTEM = (
     "                      'download the invoice', 'save the first attachment', 'open the PDF'\n"
     "   'gmail_summarize_attachment': save and LLM-summarize an attachment — 'summarize the PDF',\n"
     "                      'what's in the attached document', 'tldr the invoice'\n"
+    "   'gmail_attach_file': attach a local file to the current outbound draft — 'attach the PDF',\n"
+    "                      'add the invoice to this draft', 'attach that saved attachment',\n"
+    "                      'include the report in the email'. Always requires an active draft.\n"
+    "                      NEVER use for incoming/inbound email attachments — use gmail_list_attachments\n"
+    "                      or gmail_save_attachment for reading/saving received files.\n"
     "   'generate_image' : ONLY when creating a brand-new image/picture/artwork/visual output.\n"
     "                      NEVER for explanations, comparisons, or code/model concepts.\n"
     "                      'generation' as a software concept (code generation, token generation,\n"
@@ -3264,8 +3276,9 @@ _GMAIL_CTX: dict = {
     "pending":           None,  # pending mutation (Phase 2): {action, ids, count, description}
     "pending_recipient": None,  # Phase 4: {name, instruction, candidates, mode, subject, cc, bcc}
     "contacts":          {},    # Phase 5: session contact cache {normalized_name: {email, display}}
-    "attachments":       [],    # Phase 6: attachment metadata list from current email/thread
+    "attachments":        [],   # Phase 6: attachment metadata list from current email/thread
     "current_attachment": None, # Phase 6: last selected/saved attachment dict
+    "pending_attach":     None, # Phase 7: file disambiguation candidates [{path, filename, size}]
 }
 
 _GMAIL_ACTION_PAST = {
@@ -3658,7 +3671,12 @@ def cmd_gmail_cancel() -> None:
     """Cancel a pending Gmail mutation."""
     pending = _GMAIL_CTX.get("pending")
     if not pending:
-        cprint("  No pending Gmail action.", GRAY); return
+        if _GMAIL_CTX.get("draft"):
+            cprint("  No pending Gmail action to cancel.", GRAY)
+            cprint("  (You have an active draft — say 'cancel draft' to discard it.)", YELLOW)
+        else:
+            cprint("  No pending Gmail action.", GRAY)
+        return
     desc = pending.get("description", "pending action")
     _GMAIL_CTX["pending"] = None
     cprint(f"  Cancelled: {desc}", GRAY)
@@ -3670,13 +3688,14 @@ def cmd_gmail_cancel() -> None:
 def _gmail_draft_preview(draft_ctx: dict) -> None:
     """Render a draft preview box from a draft context dict."""
     W = 60
-    mode    = draft_ctx.get("mode", "compose").title()
-    to      = (draft_ctx.get("to") or "")[:W-11]
-    cc      = draft_ctx.get("cc") or ""
-    bcc     = draft_ctx.get("bcc") or ""
-    subject = (draft_ctx.get("subject") or "")[:W-11]
-    body    = (draft_ctx.get("body") or "").strip()
-    lines   = body.splitlines()
+    mode      = draft_ctx.get("mode", "compose").title()
+    to        = (draft_ctx.get("to") or "")[:W-11]
+    cc        = draft_ctx.get("cc") or ""
+    bcc       = draft_ctx.get("bcc") or ""
+    subject   = (draft_ctx.get("subject") or "")[:W-11]
+    body      = (draft_ctx.get("body") or "").strip()
+    out_atts  = draft_ctx.get("outbound_attachments") or []
+    lines     = body.splitlines()
     cprint(f"\n  ┌{'─'*W}┐", GRAY)
     cprint(f"  │  {BOLD}Draft {mode:<{W-10}}{RESET}│")
     cprint(f"  ├{'─'*W}┤", GRAY)
@@ -3686,6 +3705,11 @@ def _gmail_draft_preview(draft_ctx: dict) -> None:
     if bcc:
         cprint(f"  │  {CYAN}BCC:{RESET}     {bcc[:W-11]:<{W-11}}{RESET}│")
     cprint(f"  │  {CYAN}Subject:{RESET} {subject:<{W-11}}{RESET}│")
+    for a in out_atts:
+        fname = a.get("filename", "?")[:W-11]
+        sz    = _human_size(a.get("size", 0)) if a.get("size") else ""
+        label = f"{fname}  {sz}".strip()
+        cprint(f"  │  {CYAN}\U0001f4ce{RESET}      {label[:W-11]:<{W-11}}{RESET}│")
     cprint(f"  ├{'─'*W}┤", GRAY)
     for ln in lines[:8]:
         cprint(f"  │  {DIM}{ln[:W-4]:<{W-4}}{RESET}│")
@@ -4024,6 +4048,184 @@ def _gmail_pick_attachment(text: str) -> dict | None:
     return None
 
 
+# ── Gmail Phase 7: outbound attachment helpers ────────────────────────────────
+
+_ATTACH_SAFE_EXTS = {
+    ".pdf", ".docx", ".doc", ".xlsx", ".xls", ".csv",
+    ".txt", ".md", ".pptx", ".ppt", ".epub", ".rtf",
+    ".png", ".jpg", ".jpeg", ".gif", ".webp",
+    ".zip",
+}
+_ATTACH_MAX_MB = 20  # reject files larger than this
+
+
+def _gmail_resolve_attach_file(text: str) -> tuple:
+    """
+    Resolve a natural-language file reference to a local safe file for attachment.
+    Returns (resolved_Path_or_None, candidates_list).
+    Checks safe_to_read() on every candidate — blocked/secret files are excluded.
+    """
+    low = text.lower()
+
+    # "that saved attachment" / "the saved attachment" → reuse Phase 6 saved file
+    if (re.search(r"\b(?:that|the|saved)\b", low) and
+            re.search(r"\battachment\b", low)):
+        ca = _GMAIL_CTX.get("current_attachment") or {}
+        sp = ca.get("saved_path", "")
+        if sp and Path(sp).exists():
+            ok, _ = safe_to_read(sp)
+            if ok:
+                return Path(sp), []
+
+    # Strip meta-words to extract the search query
+    query = re.sub(r"^\s*(?:attach|add|include)\s+(?:the\s+|a\s+)?", "", text, flags=re.I).strip()
+    query = re.sub(r"\s+(?:to|from|in|at)\s+(?:this|the)\s+(?:draft|email|message|reply)\s*$",
+                   "", query, flags=re.I).strip()
+    query = re.sub(
+        r"\b(?:the\s+)?(?:file|document|pdf|spreadsheet|image|invoice|report|attachment|deck|photo|picture)\b",
+        "", query, flags=re.I
+    ).strip().lower()
+
+    if not query:
+        return None, []
+
+    # Search safe directories in priority order
+    search_dirs = [
+        ATTACH_SAVE_DIR,
+        HOME / "Downloads",
+        NOTES,
+        BASE / "docs",
+        BASE / "obsidian-vault",
+    ]
+    candidates: list[Path] = []
+    seen: set[str] = set()
+    for d in search_dirs:
+        if not d.exists():
+            continue
+        ok_dir, _ = safe_to_read(d)
+        if not ok_dir:
+            continue
+        for f in d.iterdir():
+            if not f.is_file():
+                continue
+            if f.suffix.lower() not in _ATTACH_SAFE_EXTS:
+                continue
+            if str(f) in seen:
+                continue
+            ok_f, _ = safe_to_read(f)
+            if not ok_f:
+                continue
+            try:
+                sz = f.stat().st_size
+            except OSError:
+                continue
+            if sz > _ATTACH_MAX_MB * 1024 * 1024:
+                continue
+            if query in f.name.lower():
+                candidates.append(f)
+                seen.add(str(f))
+
+    if len(candidates) == 1:
+        return candidates[0], []
+    return None, candidates[:8]
+
+
+def cmd_gmail_attach_file(text: str = "") -> None:
+    """Attach a local file to the current draft (safe path check; updates Gmail draft)."""
+    token = HOME / "SuneelWorkSpace" / "secrets" / "gmail-token.json"
+    if not token.exists():
+        cprint("  Gmail not authorized — run /gmail-auth first", RED); return
+    draft = _GMAIL_CTX.get("draft")
+    if not draft:
+        cprint("  No current draft. Compose or reply first, then attach.", YELLOW); return
+
+    resolved, candidates = _gmail_resolve_attach_file(text)
+
+    if resolved is None and not candidates:
+        cprint("  No matching safe file found.", YELLOW)
+        cprint(f"  Say '/gmail-attach <path>' with an explicit path, or check ~/SuneelWorkSpace/gmail-attachments/", GRAY)
+        return
+
+    if resolved is None and candidates:
+        # Disambiguation
+        cprint(f"  {len(candidates)} files match — choose one:", YELLOW)
+        for i, p in enumerate(candidates, 1):
+            try:
+                sz = _human_size(p.stat().st_size)
+            except OSError:
+                sz = "?"
+            cprint(f"  {i}. {p.name}  {GRAY}({sz}  {p.parent}){RESET}")
+        _GMAIL_CTX["pending_attach"] = [
+            {"path": str(p), "filename": p.name,
+             "size": p.stat().st_size if p.exists() else 0}
+            for p in candidates
+        ]
+        cprint(f"\n  {YELLOW}Type a number to attach, or '/gmail-attach <full-path>'{RESET}")
+        return
+
+    _do_attach_file(resolved)
+
+
+def _do_attach_file(path: Path) -> None:
+    """Attach a verified safe Path to the current draft and update Gmail."""
+    draft = _GMAIL_CTX.get("draft")
+    if not draft:
+        cprint("  No current draft.", YELLOW); return
+
+    ok, reason = safe_to_read(path)
+    if not ok:
+        cprint(f"  Cannot attach: {reason}", RED); return
+
+    try:
+        sz = path.stat().st_size
+    except OSError as e:
+        cprint(f"  Cannot read file: {e}", RED); return
+
+    if sz > _ATTACH_MAX_MB * 1024 * 1024:
+        cprint(f"  File too large ({_human_size(sz)}). Max per-file limit is {_ATTACH_MAX_MB} MB.", RED); return
+
+    adwi_head("Gmail — Attach File")
+    cprint(f"  File: {path.name}  {GRAY}({_human_size(sz)}  {path.parent}){RESET}", "")
+
+    out_atts = draft.setdefault("outbound_attachments", [])
+    # Avoid duplicate
+    if any(a["path"] == str(path) for a in out_atts):
+        cprint(f"  Already attached: {path.name}", YELLOW); return
+
+    out_atts.append({"path": str(path), "filename": path.name, "size": sz})
+    att_paths = [a["path"] for a in out_atts]
+
+    try:
+        gh = _gmail()
+        gh.update_draft(
+            draft["draft_id"], draft["to"], draft["subject"], draft["body"],
+            thread_id=draft.get("thread_id"),
+            message_id_header=draft.get("message_id", ""),
+            cc=draft.get("cc") or "",
+            bcc=draft.get("bcc") or "",
+            attachments=att_paths,
+        )
+        cprint(f"  ✓ Attached: {path.name}", GREEN)
+    except Exception as e:
+        cprint(f"  {YELLOW}Gmail draft update failed ({e}) — attachment recorded locally.{RESET}")
+
+    _gmail_draft_preview(draft)
+    _GMAIL_CTX["pending_attach"] = None
+
+
+def cmd_gmail_attach_choice(selection: int) -> None:
+    """Handle bare-number selection from attachment file disambiguation list."""
+    candidates = _GMAIL_CTX.get("pending_attach") or []
+    if not candidates:
+        cprint("  No active file disambiguation.", GRAY); return
+    idx = selection - 1
+    if idx < 0 or idx >= len(candidates):
+        cprint(f"  Please choose a number between 1 and {len(candidates)}.", YELLOW); return
+    chosen = candidates[idx]
+    _GMAIL_CTX["pending_attach"] = None
+    _do_attach_file(Path(chosen["path"]))
+
+
 def cmd_gmail_recipient_choice(selection: int) -> None:
     """Handle a bare-number selection from recipient disambiguation list."""
     pr = _GMAIL_CTX.get("pending_recipient")
@@ -4083,6 +4285,7 @@ def cmd_gmail_add_cc(text: str = "") -> None:
             message_id_header=draft.get("message_id", ""),
             cc=new_cc,
             bcc=draft.get("bcc") or "",
+            attachments=[a["path"] for a in draft.get("outbound_attachments") or []],
         )
     except Exception as e:
         cprint(f"  {YELLOW}Gmail draft update failed ({e}) — CC added locally.{RESET}")
@@ -4119,6 +4322,7 @@ def cmd_gmail_add_bcc(text: str = "") -> None:
             message_id_header=draft.get("message_id", ""),
             cc=draft.get("cc") or "",
             bcc=new_bcc,
+            attachments=[a["path"] for a in draft.get("outbound_attachments") or []],
         )
     except Exception as e:
         cprint(f"  {YELLOW}Gmail draft update failed ({e}) — BCC added locally.{RESET}")
@@ -4306,7 +4510,7 @@ def cmd_gmail_rewrite_draft(text: str = "") -> None:
     )
     if not new_body or new_body.startswith("[LLM error"):
         cprint(f"  Rewrite failed: {new_body}", RED); return
-    # Update draft in Gmail — preserve existing CC/BCC
+    # Update draft in Gmail — preserve existing CC/BCC and outbound attachments
     try:
         gh       = _gmail()
         draft_id = draft["draft_id"]
@@ -4316,6 +4520,7 @@ def cmd_gmail_rewrite_draft(text: str = "") -> None:
             message_id_header=draft.get("message_id", ""),
             cc=draft.get("cc") or "",
             bcc=draft.get("bcc") or "",
+            attachments=[a["path"] for a in draft.get("outbound_attachments") or []],
         )
     except Exception as e:
         cprint(f"  {YELLOW}Gmail draft update failed ({e}) — preview reflects new content.{RESET}")
@@ -6401,6 +6606,8 @@ def dispatch_natural(text: str):
         cmd_gmail_add_cc(text)
     elif intent == "gmail_add_bcc":
         cmd_gmail_add_bcc(text)
+    elif intent == "gmail_attach_file":
+        cmd_gmail_attach_file(text)
     elif intent == "gmail_list_attachments":
         cmd_gmail_list_attachments(text)
     elif intent == "gmail_save_attachment":
@@ -6535,6 +6742,11 @@ def handle(line: str) -> bool:
     # Phase 4: recipient disambiguation — bare digit selection when pending_recipient is set
     if _GMAIL_CTX.get("pending_recipient") and re.match(r'^[1-9]$', line):
         cmd_gmail_recipient_choice(int(line))
+        return True
+
+    # Phase 7: outbound-attachment file disambiguation — bare digit when pending_attach is set
+    if _GMAIL_CTX.get("pending_attach") and re.match(r'^[1-9]$', line):
+        cmd_gmail_attach_choice(int(line))
         return True
 
     # Detect shell commands typed by mistake into the adwi prompt
@@ -6702,6 +6914,8 @@ def handle(line: str) -> bool:
     elif line.startswith("/gmail-save-attachment "): cmd_gmail_save_attachment(line[23:].strip())
     elif line == "/gmail-summarize-attachment": cmd_gmail_summarize_attachment("")
     elif line.startswith("/gmail-summarize-attachment "): cmd_gmail_summarize_attachment(line[28:].strip())
+    elif line == "/gmail-attach": cmd_gmail_attach_file("")
+    elif line.startswith("/gmail-attach "): cmd_gmail_attach_file(line[14:].strip())
     # ── Self-repair commands (confirm before patching) ──
     elif line.startswith("/fix-error"): cmd_fix_error(line[10:].strip())
     elif line == "/repair-adwi": cmd_repair_adwi()

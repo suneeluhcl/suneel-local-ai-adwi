@@ -38,6 +38,7 @@ ALL_INTENTS = [
     "gmail_draft_reply","gmail_compose","gmail_show_draft","gmail_send_draft","gmail_cancel_draft","gmail_rewrite_draft",
     "gmail_add_cc","gmail_add_bcc",
     "gmail_list_attachments","gmail_save_attachment","gmail_summarize_attachment",
+    "gmail_attach_file",
     "sync",
     "nightly_status","nightly_run",
     "fix_error","patch_adwi","inspect_code","test_adwi","eval_routing","eval_adwi",
@@ -353,6 +354,10 @@ REGEX_INTENTS = [
     (re.compile(r"\b(inference|llm|model|ollama).{0,20}\b(throughput|latency\s+benchmark|speed\s+test)\b", re.I), "benchmark"),
     (re.compile(r"\b(bechmark|benchamrk|benchmarck)\b", re.I), "benchmark"),
     (re.compile(r"(benchmark|speed.?test|how fast|tokens? per second).{0,20}(adwi|model|local|ollama)\b", re.I), "benchmark"),
+    # gmail Phase 7: attach-file intent — MUST precede gmail_rewrite_draft
+    (re.compile(r"\battach\b.{0,50}\b(?:pdf|document|file|spreadsheet|invoice|report|deck|image|photo|attachment)\b", re.I), "gmail_attach_file"),
+    (re.compile(r"\b(?:add|include)\b.{0,20}\b(?:the\s+)?(?:pdf|spreadsheet|invoice|report|deck|image|attachment)\b.{0,30}\b(?:(?:to|in)\s+(?:(?:this|the)\s+)?(?:draft|email|message|reply))\b", re.I), "gmail_attach_file"),
+    (re.compile(r"\battach\b.{0,30}\b(?:that|the|saved)\b.{0,20}\battachment\b", re.I), "gmail_attach_file"),
     # gmail Phase 4: rewrite intent — MUST precede Phase 3 patterns
     (re.compile(r"\b(?:make|rewrite|revise|edit)\b.{0,20}\b(?:it|the\s+draft|the\s+reply|this|the\s+email)\b.{0,40}\b(?:shorter|longer|brief(?:er)?|concis(?:e|er)|professional(?:ly)?|formal(?:ly)?|casual(?:ly)?|warm(?:er|ly)?|friendli(?:er)?|direct(?:ly)?|clear(?:er)?)\b", re.I), "gmail_rewrite_draft"),
     (re.compile(r"\b(?:mention|add|include)\b.{0,50}\b(?:in|to)\s+(?:the\s+)?(?:draft|reply|email|message)\b", re.I), "gmail_rewrite_draft"),
@@ -910,6 +915,198 @@ def build_corpus() -> list[dict]:
         "what mail do i have","email please","show unread emails",
     ]:
         add(p, "comms", "gmail", "easy", fam=F)
+
+    # ─────────────────────────────────────────────────────────────────────────
+    # GMAIL PHASE 1 — open / read / thread / summarize / list_category  (55 scenarios)
+    # ─────────────────────────────────────────────────────────────────────────
+    for p in [
+        "open the email from Rahul","read the message from Priya",
+        "open the latest email from my manager","find and open the email about the proposal",
+        "open the email about the Q3 review","read email from noreply@github.com",
+    ]:
+        add(p, "comms", "gmail_open", "easy", fam="gmail_open")
+
+    for p in [
+        "read #1","open #3","read the first email","open the latest message",
+        "open the most recent email","read the newest email","show me the top email",
+    ]:
+        add(p, "comms", "gmail_read", "easy", fam="gmail_read")
+
+    for p in [
+        "summarize this email","summarize it","tldr that","tldr this email",
+        "give me a summary of this message","what does this email say",
+        "brief me on this email","summarize the message",
+    ]:
+        add(p, "comms", "gmail_summarize", "easy", fam="gmail_summarize")
+
+    for p in [
+        "summarize the thread","tldr the thread","show me the thread summary",
+        "summarize this conversation","what's in this email thread",
+    ]:
+        add(p, "comms", "gmail_summarize", "medium", fam="gmail_summarize",
+            accept=["gmail_summarize", "gmail_thread"])
+
+    for p in [
+        "show the email thread","open the conversation","view the thread",
+        "show me the email chain","get the full thread",
+    ]:
+        add(p, "comms", "gmail_thread", "easy", fam="gmail_thread")
+
+    for p in [
+        "show my promotions","list promotional emails","check my promo inbox",
+        "show spam emails","list my spam","check social emails",
+        "show social tab","list newsletters","show me the updates folder",
+        "what's in my promotions","open spam folder",
+    ]:
+        add(p, "comms", "gmail_list_category", "easy", fam="gmail_list_category")
+
+    # ─────────────────────────────────────────────────────────────────────────
+    # GMAIL PHASE 2 — archive / trash / mark_read / mark_unread / confirm / cancel  (45 scenarios)
+    # ─────────────────────────────────────────────────────────────────────────
+    for p in [
+        "archive all my promotions","archive those emails","archive these messages",
+        "archive all promotional emails","archive emails from newsletters",
+        "archive that email",
+    ]:
+        add(p, "comms", "gmail_archive", "easy", fam="gmail_archive")
+    add("move my promos to archive", "comms", "gmail_archive", "medium", fam="gmail_archive",
+        accept=["gmail_archive"])
+
+    for p in [
+        "trash all spam emails","trash those messages","delete all promotional emails",
+        "trash these emails","delete junk mail","trash the newsletters",
+    ]:
+        add(p, "comms", "gmail_trash", "easy", fam="gmail_trash")
+    add("move spam to trash", "comms", "gmail_trash", "medium", fam="gmail_trash",
+        accept=["gmail_trash"])
+
+    for p in [
+        "mark all as read","mark them as read","mark those emails as read",
+        "mark this as read","mark everything as read",
+    ]:
+        add(p, "comms", "gmail_mark_read", "easy", fam="gmail_mark_read")
+
+    for p in [
+        "mark this as unread","mark it unread","mark those as unread",
+        "mark the email as unread",
+    ]:
+        add(p, "comms", "gmail_mark_unread", "easy", fam="gmail_mark_unread")
+
+    for p in [
+        "confirm","yes do it","yes go ahead",
+        "yes confirm","do it",
+    ]:
+        add(p, "comms", "gmail_confirm", "easy", fam="gmail_confirm")
+
+    for p in [
+        "cancel","never mind","abort","stop that",
+        "cancel that",
+    ]:
+        add(p, "comms", "gmail_cancel", "easy", fam="gmail_cancel")
+
+    # ─────────────────────────────────────────────────────────────────────────
+    # GMAIL PHASE 3 — draft_reply / compose / send / cancel_draft / show_draft  (55 scenarios)
+    # ─────────────────────────────────────────────────────────────────────────
+    for p in [
+        "draft a reply","reply saying I'll get back to you tomorrow",
+        "reply saying thanks for the update","respond saying sounds good",
+        "write back that I received it","reply to this saying noted",
+        "draft a reply to this thread","respond saying I'll review it",
+    ]:
+        add(p, "comms", "gmail_draft_reply", "easy", fam="gmail_draft_reply")
+
+    for p in [
+        "compose a new email","write an email to Priya",
+        "email Rahul saying thanks for the proposal",
+        "send an email to my team","write a new message to Suneel",
+        "compose an email to the client","write email to boss saying I finished",
+        "email Priya saying I'll call you back","compose message to noreply@example.com",
+        "write a new email",
+    ]:
+        add(p, "comms", "gmail_compose", "easy", fam="gmail_compose")
+
+    for p in [
+        "send it","send the draft","go ahead and send it",
+        "send now","send the reply","send the response",
+        "send this draft",
+    ]:
+        add(p, "comms", "gmail_send_draft", "easy", fam="gmail_send_draft")
+
+    for p in [
+        "cancel the draft","discard the draft","delete the draft",
+        "abort the draft","forget the draft",
+    ]:
+        add(p, "comms", "gmail_cancel_draft", "easy", fam="gmail_cancel_draft")
+
+    for p in [
+        "show the draft","preview the draft","view the draft",
+        "what does the draft say","display the current draft",
+        "read back the draft",
+    ]:
+        add(p, "comms", "gmail_show_draft", "easy", fam="gmail_show_draft")
+
+    # ─────────────────────────────────────────────────────────────────────────
+    # GMAIL PHASE 4 — rewrite_draft  (10 scenarios)
+    # ─────────────────────────────────────────────────────────────────────────
+    for p in [
+        "make it shorter","make the draft shorter","rewrite it to be more professional",
+        "rewrite the draft to be more concise","edit this to be more direct",
+        "make the email briefer","make it more formal","rewrite this more casually",
+        "mention the deadline in the email","add the shipping details to the draft",
+    ]:
+        add(p, "comms", "gmail_rewrite_draft", "medium", fam="gmail_rewrite_draft")
+
+    # ─────────────────────────────────────────────────────────────────────────
+    # GMAIL PHASE 5 — add_cc / add_bcc  (12 scenarios)
+    # ─────────────────────────────────────────────────────────────────────────
+    for p in [
+        "add cc Priya","cc Priya on this draft","cc me on the email",
+        "cc the manager on this message","also cc my assistant",
+        "add cc manager@company.com",
+    ]:
+        add(p, "comms", "gmail_add_cc", "medium", fam="gmail_add_cc")
+
+    for p in [
+        "add bcc myself","bcc Rahul on this draft","bcc me to the message",
+        "also bcc my boss","add bcc boss@company.com",
+        "bcc the team on this email",
+    ]:
+        add(p, "comms", "gmail_add_bcc", "medium", fam="gmail_add_bcc")
+
+    # ─────────────────────────────────────────────────────────────────────────
+    # GMAIL PHASE 6 — list_attachments / save_attachment / summarize_attachment  (20 scenarios)
+    # ─────────────────────────────────────────────────────────────────────────
+    for p in [
+        "show attachments","list attachments on this email",
+        "any attachments?","what files are attached","show me the files in this email",
+        "are there any attachments",
+    ]:
+        add(p, "comms", "gmail_list_attachments", "easy", fam="gmail_list_attachments")
+
+    for p in [
+        "save the PDF","download the invoice","save the first attachment",
+        "download that document","save the attached file",
+        "open the PDF",
+    ]:
+        add(p, "comms", "gmail_save_attachment", "easy", fam="gmail_save_attachment")
+
+    for p in [
+        "summarize the attached PDF","what's in the attachment","tldr the invoice",
+        "summarize the document","what does the attached file say",
+        "summarize the spreadsheet",
+    ]:
+        add(p, "comms", "gmail_summarize_attachment", "medium", fam="gmail_summarize_attachment")
+
+    # ─────────────────────────────────────────────────────────────────────────
+    # GMAIL PHASE 7 — attach_file  (10 scenarios)
+    # ─────────────────────────────────────────────────────────────────────────
+    for p in [
+        "attach the PDF to this draft","attach the invoice","add the spreadsheet to this email",
+        "include the report in the draft","attach that saved attachment",
+        "attach the deck to this reply","add the PDF to this draft",
+        "include the invoice in this email","attach the document","attach the image",
+    ]:
+        add(p, "comms", "gmail_attach_file", "medium", fam="gmail_attach_file")
 
     # ─────────────────────────────────────────────────────────────────────────
     # WEB SEARCH  (45 scenarios)

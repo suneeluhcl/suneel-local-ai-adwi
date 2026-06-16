@@ -42,6 +42,7 @@
     "/gmail-add-bcc",
     "/gmail-add-cc",
     "/gmail-archive",
+    "/gmail-attach",
     "/gmail-attachments",
     "/gmail-auth",
     "/gmail-cancel",
@@ -225,5 +226,5 @@
     "MODEL_NLU_FALLBACK": "qwen3:0.6b"
   },
   "ts": "2026-06-16",
-  "_hash": "a90463cb43944463"
+  "_hash": "39170df8246610bb"
 }

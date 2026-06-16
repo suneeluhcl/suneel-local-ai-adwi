@@ -378,5 +378,304 @@ class TestRegressions(unittest.TestCase):
         self.assertEqual(_classify("deep diagnostic please"), "doctor")
 
 
+# ---------------------------------------------------------------------------
+# Gmail Phases 1–3: read / open / thread / summarize / list_category
+#                   archive / trash / mark_read / mark_unread / confirm / cancel
+#                   draft_reply / compose / send / cancel_draft / show_draft
+# ---------------------------------------------------------------------------
+
+class TestGmailRoutingPhases1to3(unittest.TestCase):
+    """Routing for Gmail Phases 1-3 — no Ollama required; pure regex."""
+
+    # ── Phase 1 read / open ─────────────────────────────────────────────────
+
+    def test_open_email_from_sender(self):
+        self.assertEqual(_classify("open the email from Rahul"), "gmail_open")
+
+    def test_open_latest_from(self):
+        self.assertEqual(_classify("open the latest email from Priya"), "gmail_open")
+
+    def test_read_email_number(self):
+        self.assertEqual(_classify("read #3"), "gmail_read")
+
+    def test_read_first(self):
+        self.assertEqual(_classify("open the latest email"), "gmail_read")
+
+    def test_summarize_this_email(self):
+        self.assertEqual(_classify("summarize this email"), "gmail_summarize")
+
+    def test_summarize_it_followup(self):
+        # Classic multi-turn follow-up after opening an email
+        self.assertEqual(_classify("summarize it"), "gmail_summarize")
+
+    def test_tldr_that(self):
+        self.assertEqual(_classify("tldr that"), "gmail_summarize")
+
+    def test_tldr_thread(self):
+        self.assertEqual(_classify("tldr the thread"), "gmail_summarize")
+
+    def test_show_thread(self):
+        self.assertEqual(_classify("show the thread"), "gmail_thread")
+
+    def test_open_conversation(self):
+        self.assertEqual(_classify("open the email conversation"), "gmail_thread")
+
+    def test_list_promotions(self):
+        self.assertEqual(_classify("show my promotions"), "gmail_list_category")
+
+    def test_list_spam(self):
+        self.assertEqual(_classify("show spam"), "gmail_list_category")
+
+    def test_list_social(self):
+        self.assertEqual(_classify("list social emails"), "gmail_list_category")
+
+    # ── Phase 2 mutations ───────────────────────────────────────────────────
+
+    def test_archive_promotions(self):
+        self.assertEqual(_classify("archive all my promotions"), "gmail_archive")
+
+    def test_archive_those(self):
+        self.assertEqual(_classify("archive those emails"), "gmail_archive")
+
+    def test_archive_from(self):
+        self.assertEqual(_classify("archive emails from newsletters"), "gmail_archive")
+
+    def test_trash_spam(self):
+        self.assertEqual(_classify("trash all spam emails"), "gmail_trash")
+
+    def test_trash_those(self):
+        self.assertEqual(_classify("trash those messages"), "gmail_trash")
+
+    def test_delete_promo_emails(self):
+        self.assertEqual(_classify("delete all promotional emails"), "gmail_trash")
+
+    def test_mark_as_read(self):
+        self.assertEqual(_classify("mark all as read"), "gmail_mark_read")
+
+    def test_mark_them_read(self):
+        self.assertEqual(_classify("mark them as read"), "gmail_mark_read")
+
+    def test_mark_as_unread(self):
+        self.assertEqual(_classify("mark this as unread"), "gmail_mark_unread")
+
+    def test_confirm_standalone(self):
+        self.assertEqual(_classify("confirm"), "gmail_confirm")
+
+    def test_yes_do_it(self):
+        self.assertEqual(_classify("yes do it"), "gmail_confirm")
+
+    def test_cancel_mutation(self):
+        self.assertEqual(_classify("cancel"), "gmail_cancel")
+
+    def test_never_mind(self):
+        self.assertEqual(_classify("never mind"), "gmail_cancel")
+
+    # ── Phase 3 draft / compose / send ──────────────────────────────────────
+
+    def test_draft_reply_explicit(self):
+        self.assertEqual(_classify("draft a reply"), "gmail_draft_reply")
+
+    def test_reply_saying(self):
+        self.assertEqual(_classify("reply saying I'll get back to you"), "gmail_draft_reply")
+
+    def test_respond_saying(self):
+        self.assertEqual(_classify("respond saying sounds good"), "gmail_draft_reply")
+
+    def test_write_back_that(self):
+        self.assertEqual(_classify("write back that I received it"), "gmail_draft_reply")
+
+    def test_compose_new_email(self):
+        self.assertEqual(_classify("compose a new email"), "gmail_compose")
+
+    def test_write_email(self):
+        self.assertEqual(_classify("write an email to Priya"), "gmail_compose")
+
+    def test_email_saying(self):
+        self.assertEqual(_classify("email Rahul saying thanks for the update"), "gmail_compose")
+
+    def test_send_it(self):
+        self.assertEqual(_classify("send it"), "gmail_send_draft")
+
+    def test_send_the_draft(self):
+        self.assertEqual(_classify("send the draft"), "gmail_send_draft")
+
+    def test_go_ahead_send(self):
+        self.assertEqual(_classify("go ahead and send it"), "gmail_send_draft")
+
+    def test_send_the_reply(self):
+        self.assertEqual(_classify("send the reply"), "gmail_send_draft")
+
+    def test_cancel_draft(self):
+        self.assertEqual(_classify("cancel the draft"), "gmail_cancel_draft")
+
+    def test_discard_draft(self):
+        self.assertEqual(_classify("discard the draft"), "gmail_cancel_draft")
+
+    def test_show_draft(self):
+        self.assertEqual(_classify("show the draft"), "gmail_show_draft")
+
+    def test_preview_draft(self):
+        self.assertEqual(_classify("preview the draft"), "gmail_show_draft")
+
+    def test_what_does_draft_say(self):
+        self.assertEqual(_classify("what does the draft say"), "gmail_show_draft")
+
+    # ── cancel vs cancel_draft ordering ─────────────────────────────────────
+
+    def test_cancel_vs_cancel_draft_mutation(self):
+        # Bare "cancel" → gmail_cancel (mutation cancel, NOT draft cancel)
+        self.assertEqual(_classify("cancel"), "gmail_cancel")
+
+    def test_cancel_draft_not_cancel(self):
+        # "cancel the draft" must NOT hit gmail_cancel (hits gmail_cancel_draft)
+        result = _classify("cancel the draft")
+        self.assertEqual(result, "gmail_cancel_draft")
+        self.assertNotEqual(result, "gmail_cancel")
+
+
+# ---------------------------------------------------------------------------
+# Gmail Phases 4–7: rewrite / CC-BCC / inbound attachments / outbound attachments
+# ---------------------------------------------------------------------------
+
+class TestGmailRoutingPhases4to7(unittest.TestCase):
+    """Routing for Gmail Phases 4-7 — pure regex, no Ollama needed."""
+
+    # ── Phase 4 rewrite ─────────────────────────────────────────────────────
+
+    def test_make_it_shorter(self):
+        self.assertEqual(_classify("make it shorter"), "gmail_rewrite_draft")
+
+    def test_rewrite_professional(self):
+        self.assertEqual(_classify("rewrite the draft to be more professional"), "gmail_rewrite_draft")
+
+    def test_make_email_briefer(self):
+        self.assertEqual(_classify("make the email briefer"), "gmail_rewrite_draft")
+
+    def test_edit_more_direct(self):
+        self.assertEqual(_classify("edit this to be more direct"), "gmail_rewrite_draft")
+
+    def test_mention_in_email(self):
+        self.assertEqual(_classify("mention the deadline in the email"), "gmail_rewrite_draft")
+
+    def test_add_note_to_draft(self):
+        # "add a note about X to the draft" → rewrite_draft (no file-type keyword)
+        self.assertEqual(_classify("add a note about shipping costs to the draft"), "gmail_rewrite_draft")
+
+    # ── Phase 5 CC / BCC ────────────────────────────────────────────────────
+
+    def test_add_cc(self):
+        self.assertEqual(_classify("add cc Priya"), "gmail_add_cc")
+
+    def test_cc_on_draft(self):
+        self.assertEqual(_classify("cc Priya on this draft"), "gmail_add_cc")
+
+    def test_cc_on_this_email(self):
+        self.assertEqual(_classify("cc me on the email"), "gmail_add_cc")
+
+    def test_add_bcc(self):
+        self.assertEqual(_classify("add bcc myself"), "gmail_add_bcc")
+
+    def test_bcc_on_draft(self):
+        self.assertEqual(_classify("bcc Rahul on this draft"), "gmail_add_bcc")
+
+    def test_bcc_to_message(self):
+        self.assertEqual(_classify("bcc me to the message"), "gmail_add_bcc")
+
+    # ── Phase 6 inbound attachments ─────────────────────────────────────────
+
+    def test_show_attachments(self):
+        self.assertEqual(_classify("show attachments"), "gmail_list_attachments")
+
+    def test_list_attachments(self):
+        self.assertEqual(_classify("list attachments on this email"), "gmail_list_attachments")
+
+    def test_any_attachments(self):
+        self.assertEqual(_classify("any attachments?"), "gmail_list_attachments")
+
+    def test_what_files_attached(self):
+        self.assertEqual(_classify("what files are attached"), "gmail_list_attachments")
+
+    def test_save_pdf(self):
+        self.assertEqual(_classify("save the PDF"), "gmail_save_attachment")
+
+    def test_download_invoice(self):
+        self.assertEqual(_classify("download the invoice"), "gmail_save_attachment")
+
+    def test_save_first_attachment(self):
+        self.assertEqual(_classify("save the first attachment"), "gmail_save_attachment")
+
+    def test_summarize_attached_pdf(self):
+        self.assertEqual(_classify("summarize the attached PDF"), "gmail_summarize_attachment")
+
+    def test_whats_in_attachment(self):
+        self.assertEqual(_classify("what's in the attachment"), "gmail_summarize_attachment")
+
+    def test_tldr_invoice(self):
+        self.assertEqual(_classify("tldr the invoice"), "gmail_summarize_attachment")
+
+    # ── Phase 7 outbound attach ─────────────────────────────────────────────
+
+    def test_attach_pdf_to_draft(self):
+        self.assertEqual(_classify("attach the PDF to this draft"), "gmail_attach_file")
+
+    def test_attach_invoice_bare(self):
+        self.assertEqual(_classify("attach the invoice"), "gmail_attach_file")
+
+    def test_add_spreadsheet_to_email(self):
+        self.assertEqual(_classify("add the spreadsheet to this email"), "gmail_attach_file")
+
+    def test_include_report_in_the_draft(self):
+        self.assertEqual(_classify("include the report in the draft"), "gmail_attach_file")
+
+    def test_include_report_in_this_draft(self):
+        self.assertEqual(_classify("include the report in this draft"), "gmail_attach_file")
+
+    def test_attach_saved_attachment(self):
+        self.assertEqual(_classify("attach that saved attachment"), "gmail_attach_file")
+
+    def test_attach_deck_to_reply(self):
+        self.assertEqual(_classify("attach the deck to this reply"), "gmail_attach_file")
+
+    def test_attach_document(self):
+        self.assertEqual(_classify("attach the document"), "gmail_attach_file")
+
+    # ── Ordering guards: Phase 7 must beat Phase 4 ─────────────────────────
+
+    def test_add_pdf_beats_rewrite(self):
+        # gmail_attach_file must win over gmail_rewrite_draft
+        result = _classify("add the PDF to this draft")
+        self.assertEqual(result, "gmail_attach_file")
+        self.assertNotEqual(result, "gmail_rewrite_draft")
+
+    def test_include_invoice_beats_rewrite(self):
+        result = _classify("include the invoice in the email")
+        self.assertEqual(result, "gmail_attach_file")
+        self.assertNotEqual(result, "gmail_rewrite_draft")
+
+    def test_text_only_add_is_rewrite(self):
+        # No file-type keyword → gmail_rewrite_draft, not gmail_attach_file
+        result = _classify("add a paragraph about the timeline to the email")
+        self.assertEqual(result, "gmail_rewrite_draft")
+        self.assertNotEqual(result, "gmail_attach_file")
+
+    # ── Phase 6 inbound must not bleed into Phase 7 outbound ───────────────
+
+    def test_save_attachment_not_attach_file(self):
+        # save/download → gmail_save_attachment, not gmail_attach_file
+        result = _classify("save the attached document")
+        self.assertEqual(result, "gmail_save_attachment")
+        self.assertNotEqual(result, "gmail_attach_file")
+
+    def test_summarize_pdf_not_attach_file(self):
+        result = _classify("summarize the PDF")
+        self.assertEqual(result, "gmail_summarize_attachment")
+        self.assertNotEqual(result, "gmail_attach_file")
+
+    def test_list_attachments_not_attach_file(self):
+        result = _classify("show attachments on this email")
+        self.assertEqual(result, "gmail_list_attachments")
+        self.assertNotEqual(result, "gmail_attach_file")
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
