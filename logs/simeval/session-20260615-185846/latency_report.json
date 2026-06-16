@@ -1,0 +1,13 @@
+{
+  "llm_call_count": 1,
+  "regex_call_count": 4,
+  "avg_latency_ms": 2710.8,
+  "p95_latency_ms": 2710.8,
+  "slowest_20": [
+    {
+      "prompt": "check my disk",
+      "latency_ms": 2710.8,
+      "intent": "disk_usage"
+    }
+  ]
+}

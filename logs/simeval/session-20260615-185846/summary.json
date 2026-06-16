@@ -1,0 +1,16 @@
+{
+  "session_id": "session-20260615-185846",
+  "total": 5,
+  "passed": 5,
+  "warned": 0,
+  "failed": 0,
+  "errors": 0,
+  "pass_rate_pct": 100.0,
+  "regex_hits": 4,
+  "llm_calls": 1,
+  "avg_latency_ms": 2710.8,
+  "p95_latency_ms": 2710.8,
+  "failure_cluster_summary": {},
+  "unstable_families": 0,
+  "new_fixtures_generated": 0
+}
