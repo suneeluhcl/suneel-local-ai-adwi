@@ -542,6 +542,10 @@ _REGEX_INTENTS = [
 
     # ── File operations ──────────────────────────────────────────────────────────
     # file_search before file_list; both before file_read
+    (re.compile(r"\b(safe|can i|suggest|what can i)\b.{0,20}(delet|remov|trash|wipe)\b", re.I), "cleanup"),
+    (re.compile(r"\b(safe.deletion|deletion.candidate|safe.to.delete|safe.to.remove)\b", re.I), "cleanup"),
+    (re.compile(r"\bfree up\b.{0,20}(space|storage|disk|drive)\b", re.I), "cleanup"),
+    (re.compile(r"\b(prune|purge|wipe|clear)\b.{0,20}(files?|folder|cache|temp|log)\b", re.I), "cleanup"),
     (re.compile(r"\b(find|search for|locate|look for)\b.{0,20}\bfiles?\b", re.I), "file_search"),
     (re.compile(r"\bfind (all |every )?.{0,10}\.(py|js|ts|yaml|yml|json|txt|md|sh|toml)\b", re.I), "file_search"),
     (re.compile(r"\bls\b", re.I), "file_list"),
