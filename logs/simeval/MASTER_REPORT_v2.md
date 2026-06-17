@@ -388,4 +388,27 @@ Ordered by (estimated_impact × confidence / effort):
   - 7328ms | `today's obsidian note`
   - 7298ms | `branch info`
   - 7243ms | `look up in vault: python notes`
+
+---
+## Appendix: Gmail Burn-in Stage 3 Update (2026-06-17)
+
+**New baselines after Gmail burn-in (Stages 1–3):**
+
+| Eval | Scenarios | Previous | After burn-in | Gain |
+|------|-----------|----------|---------------|------|
+| P1 | ~1,619 | 90.7% | **92.0%** | +1.3pp |
+| P2 | 561 | 83.9% | **87.2%** | +3.3pp |
+| Combined | ~2,180 | 89.0% | **90.7%** | +1.7pp |
+
+**Patches applied:**
+- Stage 1 (Phase B/C): 12 FIX-STRESS patches — gmail schedule/send/compose/draft/attachment/inbox/mutation NLU coverage
+- Stage 2 (stress suite): 317-test Gmail stress suite (`adwi/simlab/tests/test_gmail_burnin.py` + `test_gmail_stress.py`)
+- Stage 3 (final repair): 4 FIX-STAGE3 patches — `open the latest message`→gmail_read, `which draft has the PDF attached`→gmail_list_drafts, `send an email to X`→gmail_compose, `send the email`→gmail_send_draft
+
+**Remaining Gmail failures (16/1619 P1, 1/561 P2) — all pre-existing or LLM routing:**
+- `gmail_summarize→gmail` (3): bare "this email" prompts hit gmail catch-all first (ordering constraint)
+- LLM-routed failures (7): gmail_confirm→chat, gmail_add_cc/bcc→gmail, gmail_save_attachment→file_save, gmail_schedule_send→nightly_status, gmail_list_category→obsidian_search
+- `gmail_tasks_save→obsidian_daily`, `memory_recall→gmail_followup_reminder` (2): pre-existing cross-intent bleed
+
+**Safety constraints honored:** No live mailbox mutations, no real sends, no credential changes, no security boundary weakening throughout all burn-in stages.
   - 7197ms | `how do i fix aiohttp.ClientConnectorError: Cannot connect to`

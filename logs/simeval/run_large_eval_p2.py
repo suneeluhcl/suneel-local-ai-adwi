@@ -219,6 +219,8 @@ REGEX_INTENTS = [
     (re.compile(r"\brun.{0,10}daily.{0,10}(improve|maintenance|self.?improve)\b", re.I), "daily_improve"),
     # gmail Phase 15 early guards — MUST precede web_search and git_status
     (re.compile(r"\bwhat\s+changed\b.{0,30}\b(?:reply|thread|email|message|conversation)\b", re.I), "gmail_thread_intel"),
+    # FIX-STAGE3-001: "open/read/show the latest message" → gmail_read, not thread_intel
+    (re.compile(r"\b(?:open|read|show)\b.{0,10}\blatest\s+(?:message|email|mail)\b", re.I), "gmail_read"),
     (re.compile(r"\blatest\s+(?:reply|message|delta)\b", re.I), "gmail_thread_intel"),
     (re.compile(r"\blatest\s+update\b.{0,30}\b(?:thread|email|conversation|message)\b", re.I), "gmail_thread_intel"),
     # gmail Phase 17 early guard — "save tasks to daily note" must precede obsidian_daily
@@ -382,6 +384,8 @@ REGEX_INTENTS = [
     (re.compile(r"\bwhat\b.{0,30}\b(?:attached|attachment)\b.{0,30}\b(?:document|pdf|file|spreadsheet|invoice)?\b.{0,15}\bsay\b", re.I), "gmail_summarize_attachment"),
     (re.compile(r"\b(?:save|download|open)\b.{0,30}\b(?:the\s+)?(?:attached\s+)?(?:attachment|pdf|document|invoice|receipt|image|spreadsheet)\b", re.I), "gmail_save_attachment"),
     (re.compile(r"\b(?:save|download)\b.{0,25}\b(?:that|this|first|second|third)\b.{0,20}\b(?:attachment|file|pdf|document)\b", re.I), "gmail_save_attachment"),
+    # FIX-STAGE3-002: "which draft has the PDF attached" → list_drafts, not list_attachments
+    (re.compile(r"\bwhich\s+draft\b", re.I), "gmail_list_drafts"),
     (re.compile(r"\b(?:show|list|view|see)\b.{0,25}\battachment", re.I), "gmail_list_attachments"),
     (re.compile(r"\battachment.{0,25}\b(?:on|in|for|from)\b", re.I), "gmail_list_attachments"),
     (re.compile(r"\bany\s+attachments?\b", re.I), "gmail_list_attachments"),
@@ -452,7 +456,8 @@ REGEX_INTENTS = [
     (re.compile(r"^(?:go\s+ahead\s+and\s+)?send(?:\s+it|\s+the\s+draft|\s+now)?\s*$", re.I), "gmail_send_draft"),
     (re.compile(r"\bsend\b.{0,20}\b(?:the\s+)?draft\b", re.I), "gmail_send_draft"),
     (re.compile(r"\bsend\b.{0,15}\b(?:the\s+)?(?:reply|response)\b", re.I), "gmail_send_draft"),
-    (re.compile(r"\bsend\b.{0,20}\b(?:the\s+)?(?:email|mail|message)\b", re.I), "gmail_send_draft"),
+    # FIX-STAGE3-003: "send an email to X" is compose; only "send the email/message" is send_draft
+    (re.compile(r"\bsend\b.{0,20}\bthe\s+(?:email|mail|message)\b", re.I), "gmail_send_draft"),
     (re.compile(r"\b(?:looks?\s+good|lgtm|approved?|good\s+to\s+go)\b.{0,25}\bsend\b", re.I), "gmail_send_draft"),
     (re.compile(r"\b(?:cancel|discard|delete|clear|abort)\b.{0,20}\b(?:the\s+)?draft\b", re.I), "gmail_cancel_draft"),
     (re.compile(r"\b(?:forget|throw\s+away)\b.{0,20}\b(?:the\s+)?draft\b", re.I), "gmail_cancel_draft"),
@@ -491,6 +496,8 @@ REGEX_INTENTS = [
     (re.compile(r"\b(?:respond|write\s+back)\b.{0,30}\b(?:saying|that|to\s+(?:it|this|that))\b", re.I), "gmail_draft_reply"),
     (re.compile(r"\b(?:compose|write)\b.{0,20}\b(?:an?\s+)?(?:new\s+)?(?:email|mail|message)\b", re.I), "gmail_compose"),
     (re.compile(r"\bemail\b.{0,40}\b(?:saying|to\s+say|to\s+tell|that)\b", re.I), "gmail_compose"),
+    # FIX-STAGE3-003b: "send an email to X" is compose (send_draft requires "the" after FIX-STAGE3-003)
+    (re.compile(r"\bsend\b.{0,15}\ban?\s+(?:email|mail|message)\b", re.I), "gmail_compose"),
     # gmail Phase 2: mutation intents — MUST precede gmail_open / gmail_list_category
     (re.compile(r"^confirm\s*$", re.I), "gmail_confirm"),
     (re.compile(r"^yes,?\s+do\s+it\s*$", re.I), "gmail_confirm"),

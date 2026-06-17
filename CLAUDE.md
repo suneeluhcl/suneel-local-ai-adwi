@@ -30,15 +30,15 @@ Adwi is a local AI operating system running on an Apple Silicon Mac. It is not a
 
 ---
 
-## Current NLU quality (as of 2026-06-16)
+## Current NLU quality (as of 2026-06-17)
 
-| Eval | Scenarios | Pre-NHR | Post-NHR (session 1) | Post-session-2 | Post-session-3 | Total gain |
-|------|-----------|---------|----------------------|----------------|----------------|------------|
-| Large eval P1 | 1,444 | 78.0% | 83.7% | 88.6% | **90.7%** | +12.7pp |
-| Large eval P2 (weak-family targeting) | 446 | 68.6% | 77.6% | 81.4% | **83.9%** | +15.3pp |
-| **Combined** | **1,881** | **75.8%** | **82.1%** | **86.0%** | **89.0%** | **+13.2pp** |
+| Eval | Scenarios | Pre-NHR | Post-NHR (session 1) | Post-session-2 | Post-session-3 | Gmail burn-in | Total gain |
+|------|-----------|---------|----------------------|----------------|----------------|---------------|------------|
+| Large eval P1 | ~1,619 | 78.0% | 83.7% | 88.6% | 90.7% | **92.0%** | +14.0pp |
+| Large eval P2 (weak-family targeting) | 561 | 68.6% | 77.6% | 81.4% | 83.9% | **87.2%** | +18.6pp |
+| **Combined** | **~2,180** | **75.8%** | **82.1%** | **86.0%** | **89.0%** | **90.7%** | **+14.9pp** |
 
-**All 10 NHR items (NHR-001 through NHR-010) applied 2026-06-16. 13 session-2 patches and 9 session-3 patches applied 2026-06-16. 8 session-4 code-review hardening fixes applied 2026-06-16 (no new eval run — pass rate expected ≥ 89.0%).**
+**All 10 NHR items (NHR-001 through NHR-010) applied 2026-06-16. 13 session-2 patches and 9 session-3 patches applied 2026-06-16. 8 session-4 code-review hardening fixes applied 2026-06-16. Gmail burn-in (Stages 1-3) applied 2026-06-17: 12 FIX-STRESS patterns (Phase B/C burn-in) + 4 FIX-STAGE3 patterns (Stage 3 repair).**
 
 Session-2 applied 11 regex patch groups (FIX-LF-001, FIX-OLD-001, FIX-DUP-001, FIX-ORG-002, FIX-CLEANUP-003, FIX-HEAL-001, FIX-BROWSE-001, FIX-WEB-001, FIX-ERR-002, FIX-EVAL-002, FIX-TEST-002, FIX-MEMSCAN-002) and 1 INTENT_SYSTEM clarification (FIX-BENCH-001).
 
@@ -46,7 +46,9 @@ Session-3 applied 9 regex patch groups (FIX-CLEAN-004, FIX-NOTES-001, FIX-STATUS
 
 Session-4 applied 8 false-positive hardening fixes identified by post-session-3 code review: FIX-S3-002 gap tightened, FIX-S3-008 `different` removed, FIX-STATUS-002 broad line deleted, FIX-NIGHT-001 context tightened, FIX-S3-001 bare `tps` removed, FIX-S3-006 bare `kb` removed, FIX-MEMCTX-001 negative lookahead added, FIX-S3-004 duplicate typo removed.
 
-**Current baseline: 89.0% combined.** Remaining targets: `chat` bleed (32 cases — mostly advisory questions mislabeled), `__none__` (30 — irreducible safety blocks), `cleanup` (16 remaining), `web_search` (7), `organize` (4).
+Gmail burn-in (2026-06-17) applied 12 FIX-STRESS patches (schedule/send/compose/draft/attachment/inbox/mutation coverage) and 4 FIX-STAGE3 patches (open-latest-message→gmail_read, which-draft→gmail_list_drafts, send-an-email-to-X→gmail_compose, send-the-email→gmail_send_draft). 317-test Gmail stress suite added at `adwi/simlab/tests/`.
+
+**Current baseline: 90.7% combined.** Remaining targets: `chat` bleed (~30 cases — advisory questions mislabeled), `__none__` (24 — irreducible safety blocks), `cleanup` (7 remaining), `organize` (4).
 
 Changes are synchronized across all 3 files: `adwi/adwi_cli.py`, `logs/simeval/run_large_eval.py`, `logs/simeval/run_large_eval_p2.py`.
 

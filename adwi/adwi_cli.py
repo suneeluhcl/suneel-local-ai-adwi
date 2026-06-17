@@ -647,6 +647,8 @@ _REGEX_INTENTS = [
     # ── Gmail Phase 15 early guards — MUST precede web_search and git_status ────
     # "what changed in the last reply/thread" must beat git_status "what changed"
     (re.compile(r"\bwhat\s+changed\b.{0,30}\b(?:reply|thread|email|message|conversation)\b", re.I), "gmail_thread_intel"),
+    # FIX-STAGE3-001: "open/read/show the latest message" → gmail_read, not thread_intel
+    (re.compile(r"\b(?:open|read|show)\b.{0,10}\blatest\s+(?:message|email|mail)\b", re.I), "gmail_read"),
     # "latest reply/message/delta" are email-specific, safe before web_search
     (re.compile(r"\blatest\s+(?:reply|message|delta)\b", re.I), "gmail_thread_intel"),
     # "latest update in this thread/email" must beat web_search "latest ... update"
@@ -872,6 +874,8 @@ _REGEX_INTENTS = [
     # gmail_save_attachment — "save/download/open the PDF/attachment/invoice"
     (re.compile(r"\b(?:save|download|open)\b.{0,30}\b(?:the\s+)?(?:attached\s+)?(?:attachment|pdf|document|invoice|receipt|image|spreadsheet)\b", re.I), "gmail_save_attachment"),
     (re.compile(r"\b(?:save|download)\b.{0,25}\b(?:that|this|first|second|third)\b.{0,20}\b(?:attachment|file|pdf|document)\b", re.I), "gmail_save_attachment"),
+    # FIX-STAGE3-002: "which draft has the PDF attached" → list_drafts, not list_attachments
+    (re.compile(r"\bwhich\s+draft\b", re.I), "gmail_list_drafts"),
     # gmail_list_attachments — "show/list attachments", "any files attached?"
     (re.compile(r"\b(?:show|list|view|see)\b.{0,25}\battachment", re.I), "gmail_list_attachments"),
     (re.compile(r"\battachment.{0,25}\b(?:on|in|for|from)\b", re.I), "gmail_list_attachments"),
@@ -991,7 +995,8 @@ _REGEX_INTENTS = [
     (re.compile(r"^(?:go\s+ahead\s+and\s+)?send(?:\s+it|\s+the\s+draft|\s+now)?\s*$", re.I), "gmail_send_draft"),
     (re.compile(r"\bsend\b.{0,20}\b(?:the\s+)?draft\b", re.I), "gmail_send_draft"),
     (re.compile(r"\bsend\b.{0,15}\b(?:the\s+)?(?:reply|response)\b", re.I), "gmail_send_draft"),
-    (re.compile(r"\bsend\b.{0,20}\b(?:the\s+)?(?:email|mail|message)\b", re.I), "gmail_send_draft"),
+    # FIX-STAGE3-003: "send an email to X" is compose; only "send the email/message" is send_draft
+    (re.compile(r"\bsend\b.{0,20}\bthe\s+(?:email|mail|message)\b", re.I), "gmail_send_draft"),
     (re.compile(r"\b(?:looks?\s+good|lgtm|approved?|good\s+to\s+go)\b.{0,25}\bsend\b", re.I), "gmail_send_draft"),
     # gmail_cancel_draft — requires "draft" qualifier (more specific than bare gmail_cancel)
     (re.compile(r"\b(?:cancel|discard|delete|clear|abort)\b.{0,20}\b(?:the\s+)?draft\b", re.I), "gmail_cancel_draft"),
@@ -1008,9 +1013,11 @@ _REGEX_INTENTS = [
     (re.compile(r"\breply\b.{0,30}\b(?:saying|that|with|to\s+(?:it|this|that|the\s+email|the\s+thread|the\s+latest))\b", re.I), "gmail_draft_reply"),
     (re.compile(r"\b(?:respond|write\s+back)\b.{0,30}\b(?:saying|that|to\s+(?:it|this|that))\b", re.I), "gmail_draft_reply"),
     (re.compile(r"\breply\b.{0,30}\bto\s+(?:the\s+)?(?:latest|last|current)\b", re.I), "gmail_draft_reply"),
-    # gmail_compose — "compose an email to X", "email X saying Y", "write an email to X"
+    # gmail_compose — "compose an email to X", "email X saying Y", "write an email to X", "send an email to X"
     (re.compile(r"\b(?:compose|write)\b.{0,20}\b(?:an?\s+)?(?:new\s+)?(?:email|mail|message)\b", re.I), "gmail_compose"),
     (re.compile(r"\bemail\b.{0,40}\b(?:saying|to\s+say|to\s+tell|that)\b", re.I), "gmail_compose"),
+    # FIX-STAGE3-003b: "send an email to X" is compose (send_draft requires "the" after FIX-STAGE3-003)
+    (re.compile(r"\bsend\b.{0,15}\ban?\s+(?:email|mail|message)\b", re.I), "gmail_compose"),
 
     # ── Gmail Phase 2: mutation intents — MUST precede gmail_open / gmail_list_category ──
     # gmail_confirm — anchored bare inputs; dispatch checks _GMAIL_CTX["pending"] before acting
