@@ -412,3 +412,60 @@ Ordered by (estimated_impact × confidence / effort):
 
 **Safety constraints honored:** No live mailbox mutations, no real sends, no credential changes, no security boundary weakening throughout all burn-in stages.
   - 7197ms | `how do i fix aiohttp.ClientConnectorError: Cannot connect to`
+---
+
+## Appendix C — Stabilization Sprint (2026-06-17)
+
+**Branch:** `nlu-stabilize-2026-06-17` → merged to `main`
+**Goal:** Eliminate chat bleed (~30 P1 failures), fix benchmark family (~6), fix organize family (~4).
+**Result:** P1 92.6%, P2 88.8%, Combined ~91.7% (+1.0pp from Gmail burn-in baseline).
+
+### Patches applied
+
+| Fix ID | Family | Approach |
+|--------|--------|----------|
+| FIX-SPRINT-001a/b/c | benchmark | `how fast is [model]`, tokens/sec, inference speed/perf guards before status |
+| FIX-SPRINT-002 | what_next | `generate ideas for adwi`, `brainstorm improvements`, `low-hanging fruit` guards before capabilities |
+| FIX-SPRINT-003 | inspect_code | `[snake_case_fn] function in adwi`, `show the [fn] handler` before generate_image |
+| FIX-SPRINT-004 | cleanup | `purge/delete/clear/clean old [cache/downloads/...]` before old_files |
+| FIX-SPRINT-005 | chat (disk advisory) | `what generates disk usage`, `how does storage fill up` → chat before disk_usage |
+| FIX-SPRINT-006 | implement_idea | `implement the suggested/recommended/proposed` before what_next |
+| FIX-SPRINT-007 | web_search | `search web for X and summarize` before gmail_summarize |
+| FIX-SPRINT-ORG | organize | extended pattern set + advisory `how to structure` queries |
+| FIX-SCHED-001 | gmail_schedule_send | `^schedule for [weekday]` start-anchored (avoids "on schedule for X" FP) |
+| FIX-STAGE3-001 | gmail_read | add `(?!\s+from\b)` — "open latest email from X" → gmail_open, not gmail_read |
+| Status gap | status | `services?` + `everything` in entity list, `down|offline|unavailable` in state list |
+
+### _INTENT_SYSTEM additions
+- `organize` — "structure/tidy files/folders/workspace; even when phrased as a question"
+- `cleanup` — "delete/remove/purge unwanted files; NOT organize (structure-focused)"
+- `benchmark` — "measure inference speed; for advisory 'why is it slow?' → chat"
+- `status` — "check if services are up/down; 'is everything running?' counts"
+
+### Test suite growth
+| File | Tests |
+|------|-------|
+| `test_nlu_regex.py` (pre-existing + gaps fixed) | 390 |
+| `test_nlu_stabilize.py` (new, sprint coverage) | 75 |
+| `test_gmail_burnin.py` (burn-in, prior session) | 188 |
+| `test_gmail_stress.py` (burn-in, prior session) | 129 |
+| **Total** | **823** |
+
+### Final eval results (2026-06-17)
+
+| | P1 (1,808 scenarios) | P2 (561 scenarios) | Combined |
+|---|---|---|---|
+| Gmail burn-in baseline | 92.0% | 87.2% | 90.7% |
+| **Stabilization sprint final** | **92.6%** | **88.8%** | **~91.7%** |
+| Delta | +0.6pp | +1.6pp | +1.0pp |
+
+### Remaining failure analysis (P1, post-sprint)
+| Family | Failures | Notes |
+|--------|----------|-------|
+| `__none__` | 30 | Irreducible — blocked path safety probes |
+| `chat` | 28 | Advisory questions still bleeding to memory_recall, status, what_next |
+| `cleanup` | 7 | `cleanup→large_files` (5 cases) — large_files ordering issue |
+| `gmail_confirm` | 3 | Unstable family (40% consistency) — multi-turn context-dependent |
+| `memory_recall` | 5 | Cross-intent bleed with obsidian_search, gmail_followup |
+
+**Safety constraints honored throughout.** No live mailbox mutations, no real sends, no security boundary weakening.

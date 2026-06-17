@@ -114,51 +114,84 @@ INTENT_SYSTEM = (
 )
 
 REGEX_INTENTS = [
+    # ── Large files — BEFORE disk_usage (Bug 2: superset-ordering fix) ───────────
+    # "biggest/largest/heaviest files" must win over disk_usage's broader pattern
     (re.compile(r"\b(big(gest)?|large(st)?|heavy|huge)\b.{0,30}\bfiles?\b", re.I), "large_files"),
     (re.compile(r"\bfiles?\b.{0,20}(over|bigger than|larger than|more than)\s*\d", re.I), "large_files"),
     (re.compile(r"\b(top \d+|find).{0,20}(big(gest)?|large(st)?|heavy).{0,20}files?\b", re.I), "large_files"),
+    # NHR-001: additional synonyms — beat file_search on "fat/oversized files"
     (re.compile(r"\b(fat|oversize|oversized|bulky|enormous|massive|hefty)\b.{0,30}\bfiles?\b", re.I), "large_files"),
     # FIX-LF-001: space consumer / room / size-threshold patterns
     (re.compile(r"\b(top|bulk|biggest|heaviest)\b.{0,20}\bspace\s+(consumer|user|hog)s?\b", re.I), "large_files"),
     (re.compile(r"\bfiles?\b.{0,30}(take\s+up|taking\s+up|using)\b.{0,20}(the\s+)?most\s+(room|space|storage)\b", re.I), "large_files"),
     (re.compile(r"\b(which|what)\b.{0,10}files?\b.{0,30}(use|take|using|taking).{0,10}(the\s+)?most\s+(space|room)\b", re.I), "large_files"),
     (re.compile(r"\bfiles?\b.{0,20}exceed(ing)?\b.{0,10}\d+\s*(gb|mb|gigabyte|megabyte)\b", re.I), "large_files"),
+
+    # ── Disk / space (narrowed to disk/space/storage objects only) ───────────────
+    # FIX-SPRINT-005: advisory "what generates/causes disk usage" → skip disk_usage (LLM handles as chat)
+    # these must precede the disk_usage patterns below
+    (re.compile(r"\b(?:what|how)\b.{0,15}\b(?:generates?|causes?|creates?|contributes?\s+to|fills?)\b.{0,25}\b(?:disk|storage)\b", re.I), "chat"),
+    (re.compile(r"\bhow\s+does\b.{0,20}\b(?:disk|storage)\b", re.I), "chat"),
     (re.compile(r"(biggest|largest|heaviest|most space|taking up|using up|eating up).{0,40}(disk|storage|space)\b", re.I), "disk_usage"),
     (re.compile(r"(disk|storage|space).{0,40}(usage|breakdown|overview|used|free|full|analysis)", re.I), "disk_usage"),
-    (re.compile(r"(what|what.s|how much).{0,30}(space|room|storage|disk)", re.I), "disk_usage"),
+    # FIX-SPRINT-005b: "what's using disk" is action; "what" alone without "'s" → too broad
+    (re.compile(r"\bwhat.s\b.{0,30}(space|room|storage|disk)", re.I), "disk_usage"),
+    (re.compile(r"\bhow\s+much\b.{0,30}(space|room|storage|disk)", re.I), "disk_usage"),
     (re.compile(r"\bcheck\b.{0,10}\b(my\s+)?(disk|storage|space)\b", re.I), "disk_usage"),
     (re.compile(r"(free up|clean up).{0,20}(space|disk|storage|room)", re.I), "cleanup"),
+
+    # FIX-SPRINT-004: "purge old X", "remove leftover X" → cleanup BEFORE old_files steals them
+    # "purge old downloads", "remove leftover installers" are delete-intent (cleanup), not list-intent (old_files)
+    (re.compile(r"\b(?:purge|delete|clear|clean)\b.{0,5}\bold\b.{0,25}\b(?:downloads?|cache|temp|installers?|packages?|junk|logs?|files?)\b", re.I), "cleanup"),
+    (re.compile(r"\bremove\b.{0,10}\b(?:leftover|old|stale|unused)\b.{0,20}\b(?:installers?|packages?|downloads?|cache|temp)\b", re.I), "cleanup"),
+    # ── Old files ────────────────────────────────────────────────────────────────
     (re.compile(r"(old|haven.t (used|opened|touched)|stale|unused|not (used|opened|accessed)).{0,30}(file|folder|doc)", re.I), "old_files"),
     (re.compile(r"files?.{0,20}(not|never).{0,20}(used|opened).{0,20}(year|month|day)", re.I), "old_files"),
+    # File-first ordering: "files I haven't opened/used in a year"
     (re.compile(r"\bfiles?\b.{0,30}(haven.t|not).{0,5}(opened|used|accessed|touched)\b", re.I), "old_files"),
     # FIX-OLD-001: archaic/abandoned/leftover synonyms
     (re.compile(r"\b(archaic|abandoned|obsolete|leftover|outdated|legacy)\b.{0,30}(files?|data|stuff)?\b", re.I), "old_files"),
     (re.compile(r"\bhaven.t.{0,10}(used|opened|accessed|touched)\b.{0,30}(this\s+year|in\s+(a|one|two|several)\s+year)\b", re.I), "old_files"),
+
+    # ── Duplicates ───────────────────────────────────────────────────────────────
     (re.compile(r"(duplicate|identical|same file|copy|copies|redundant)", re.I), "duplicates"),
+    # NHR-001: additional synonyms — beat file_search on "find cloned/deduped files"
     (re.compile(r"\b(clone|cloned|dedup|deduplicat|same.content|bit.for.bit|identical.content)\b.{0,20}files?\b", re.I), "duplicates"),
-    # FIX-DUP-001: repeated / dedupe / typos
+    # FIX-DUP-001: "repeated" / "appear more than once" / "dedupe" / typos
     (re.compile(r"\b(repeated|appear.{0,10}more\s+than\s+once)\b.{0,30}(files?|photos?|images?)?\b", re.I), "duplicates"),
     (re.compile(r"\bdedupe\b.{0,30}(workspace|folder|files?|photos?)?\b", re.I), "duplicates"),
     (re.compile(r"\bdup(l?i?k|l?ic|l?ik)at", re.I), "duplicates"),
-    # FIX-CLEAN-004: cleanup BEFORE organize steals "clean up…folder"
+
+    # FIX-CLEAN-004: "clean up downloads/cache/trash" → cleanup BEFORE organize steals "clean up…folder"
     (re.compile(r"\bclean\s*up\b.{0,40}(my\s+)?(downloads?|desktop|cache|temp|trash|junk)\b", re.I), "cleanup"),
     (re.compile(r"\bremove\b.{0,20}\b(unneeded|unnecessary|useless|unwanted|redundant)\b", re.I), "cleanup"),
     (re.compile(r"\b(suggest|find|show)\b.{0,20}\bthings?\b.{0,25}\b(i\s+(can|could|should)\s+)?(remove|delete|trash|get\s+rid\s+of)\b", re.I), "cleanup"),
-    # FIX-NOTES-001: "find/search notes about X" → obsidian_search BEFORE rag_search
+    # FIX-NOTES-001: "find/search notes about X" → obsidian_search BEFORE rag_search swallows it
     (re.compile(r"\b(find|search)\s+(for\s+)?notes?\b.{0,20}\b(about|on|regarding)\b", re.I), "obsidian_search"),
     (re.compile(r"\bsearch\s+(for\s+)?notes?\s+for\b", re.I), "obsidian_search"),
-    (re.compile(r"(organiz|tidy|restructure|better structure|sort out|clean up).{0,30}(folder|file|download|desktop|document)", re.I), "organize"),
+    # ── Organize ─────────────────────────────────────────────────────────────────
+    (re.compile(r"(organiz|tidy|restructure|better structure|sort out|clean up).{0,30}(folder|file|download|desktop|document|workspace|project)", re.I), "organize"),
+    # FIX-SPRINT-ORG: "help organize my workspace", "how to structure my project folders"
+    (re.compile(r"\b(?:help|how\s+to|how\s+do\s+I|best\s+way\s+to)\b.{0,10}\b(?:organize|structure|arrange|tidy)\b.{0,30}\b(?:files?|folders?|workspace|project|notes?)\b", re.I), "organize"),
     # FIX-ORG-002: sort/arrange/structure synonyms — BEFORE file_search
     (re.compile(r"\b(sort|arrange|bring\s+order\s+to)\b.{0,30}(my\s+)?(files?|folders?|downloads?)\b", re.I), "organize"),
     (re.compile(r"\b(suggest|recommend)\b.{0,20}(a\s+)?(folder|file|project)\s*(structure|hierarchy|layout|organization)\b", re.I), "organize"),
     (re.compile(r"\bfile\s+organization\b", re.I), "organize"),
     (re.compile(r"\b(help\s+me\s+)?(organize|structure|arrange)\b.{0,20}(my\s+)?notes?\s*folder\b", re.I), "organize"),
     (re.compile(r"\b(oragnaize|organzie|oragnize)\b", re.I), "organize"),
+
+    # ── Cleanup suggestions ──────────────────────────────────────────────────────
     (re.compile(r"(what|which).{0,20}(can|should|could|to).{0,20}(delete|remove|trash|clear|get rid)", re.I), "cleanup"),
     (re.compile(r"(safe to delete|safely delete|safely remove)", re.I), "cleanup"),
+    # NHR-001: "find junk/clutter/garbage files" — beat generic file_search
     (re.compile(r"\b(junk|garbage|clutter|cruft)\b.{0,20}files?\b", re.I), "cleanup"),
+
+    # ── RAG / knowledge search — BEFORE file_search (notes-specific guard) ───────
     (re.compile(r"(search|find|look up|recall|what do i know).{0,30}(my notes|my knowledge|local knowledge|knowledge base|from notes)", re.I), "rag_search"),
     (re.compile(r"(in my notes|from my notes|check my notes).{0,30}(about|for|on)", re.I), "rag_search"),
+
+    # ── File operations ──────────────────────────────────────────────────────────
+    # file_search before file_list; both before file_read
     (re.compile(r"\b(safe|can i|suggest|what can i)\b.{0,20}(delet|remov|trash|wipe)\b", re.I), "cleanup"),
     (re.compile(r"\b(safe.deletion|deletion.candidate|safe.to.delete|safe.to.remove)\b", re.I), "cleanup"),
     (re.compile(r"\bfree up\b.{0,20}(space|storage|disk|drive)\b", re.I), "cleanup"),
@@ -184,74 +217,113 @@ REGEX_INTENTS = [
     (re.compile(r"\bread\b.{0,25}\.(py|js|ts|md|yaml|yml|json|txt|sh|toml|cfg|gitignore)\b", re.I), "file_read"),
     (re.compile(r"\bread\b.{0,20}(the file\b|file contents?\b|contents? of)\b", re.I), "file_read"),
     (re.compile(r"\b(show|display|cat)\b.{0,20}(contents? of|the file\b)\b", re.I), "file_read"),
-    # FIX-FR-001: "cat memory.py", "read config file"
+    # FIX-FR-001: "cat memory.py", "read the config file"
     (re.compile(r"\bcat\b.{0,25}\.(py|js|ts|md|yaml|yml|json|txt|sh|toml|cfg)\b", re.I), "file_read"),
     (re.compile(r"\bread\b.{0,30}\b(the\s+)?(main|config|configuration|settings?)\s+(python\s+)?(file|script)\b", re.I), "file_read"),
     # FIX-S3-002: "show the nightly.py source", "show me adwi/__init__.py" → file_read not inspect_code
     (re.compile(r"\b(show|display|print)\b.{0,10}\b\w+\.(py|js|ts|sh|md)\b", re.I), "file_read"),
     (re.compile(r"\b(show|display)\b.{0,15}\b(adwi/|src/|logs?/)\b", re.I), "file_read"),
+
+    # ── Doctor — BEFORE status (Bug 3 companion: deep check beats shallow) ───────
     (re.compile(r"\b(run doctor|doctor mode)\b", re.I), "doctor"),
     (re.compile(r"\b(full|deep|thorough|complete)\b.{0,15}\b(health.?check|diagnostic)\b", re.I), "doctor"),
     (re.compile(r"\brun\b.{0,15}\b(full\s+)?(diagnostic|health.?check)\b", re.I), "doctor"),
+
+    # ── Self-heal — BEFORE status (Bug 3: service-error superset fix) ────────────
+    # Pattern A: verb-first  — "fix/repair/broken/not working ... service"
     (re.compile(r"(fix|repair|restart|broken|not working|isn.t working|crashed|down).{0,20}(setup|stack|service|ollama|docker)", re.I), "self_heal"),
+    # Pattern B: subject-first — "docker/ollama/adwi ... not working/broken"
     (re.compile(r"(adwi|setup|stack|docker|ollama|service).{0,20}(not working|isn.t working|broken|crashed|crashing|failing)", re.I), "self_heal"),
+    # NHR-004: generic repair — "something is broken", "fix yourself", "self-heal"
     (re.compile(r"(something|things|everything).{0,20}(broken|not working|failing|crashed)", re.I), "self_heal"),
     (re.compile(r"\b(repair|fix|heal)\b.{0,15}\b(yourself|itself|adwi|setup|system|stack)(\s|$)", re.I), "self_heal"),
     (re.compile(r"\bself.?heal\b", re.I), "self_heal"),
-    # FIX-HEAL-001: service-down-then-fix / repair-local-AI patterns
+    # FIX-HEAL-001: "service is down fix it" and "repair my local AI" patterns
     (re.compile(r"\b(services?|containers?|docker|ollama|stack)\b.{0,15}\bdown\b.{0,20}\b(fix|repair|restart)\b", re.I), "self_heal"),
     (re.compile(r"\bnothing\b.{0,20}(working|running|connecting)\b.{0,20}(fix|repair|help)\b", re.I), "self_heal"),
     (re.compile(r"\b(repair|fix)\b.{0,15}\b(broken\s+containers?|local\s+ai|local\s+stack|my\s+local\s+ai)\b", re.I), "self_heal"),
     (re.compile(r"\badwi\b.{0,5}(self\s+repair|self.?fix)\b", re.I), "self_heal"),
-    # FIX-STATUS-002: "anything down", "is X available"
+
+    # FIX-SPRINT-001a: "how fast is X" must fire as benchmark BEFORE status grabs "is adwi responding"
+    (re.compile(r"\bhow\s+fast\b.{0,25}\b(adwi|ollama|llama\d*|qwen\d*|mistral|phi|gemma|llm|model|local\s+ai)\b", re.I), "benchmark"),
+    # ── Status (Bug 1: word boundaries stop substring false positives) ────────────
+    # FIX-STATUS-002: "anything down", "is X available" patterns
     (re.compile(r"\b(anything|something)\b.{0,15}\b(down|broken|offline|unavailable|not\s+responding)\b", re.I), "status"),
-    (re.compile(r"\b(is|are)\b.{0,20}\b(ollama|docker|adwi|n8n|redis|api|server|service|stack)\b.{0,15}\b(available|up|running|reachable|responding)\b", re.I), "status"),
+    (re.compile(r"\b(is|are)\b.{0,20}\b(ollama|docker|adwi|n8n|redis|api|server|services?|stack|everything)\b.{0,15}\b(available|up|running|reachable|responding|down|offline|unavailable)\b", re.I), "status"),
     (re.compile(r"(check|verify).{0,20}(setup|stack|services|system)", re.I), "status"),
+
+    # FIX-SPRINT-006: "implement the suggested improvement" → implement_idea BEFORE what_next's
+    # (suggest|recommend).{0,20}(improvement) pattern fires on "suggested improvement"
+    (re.compile(r"\b(?:implement|build|code\s+up|develop)\b.{0,20}\b(?:the\s+)?(?:suggested|recommended|proposed)\b", re.I), "implement_idea"),
+    # ── What next ────────────────────────────────────────────────────────────────
     (re.compile(r"(what|what.s).{0,20}(next|build|improve|add|create).{0,20}(adwi|setup|ai|local)", re.I), "what_next"),
     (re.compile(r"(suggest|recommend).{0,20}(next|improvement|feature|capability)", re.I), "what_next"),
+    # NHR-007: broader patterns — "adwi improvement ideas", "next feature for adwi"
     (re.compile(r"\b(adwi|local.?ai|my.?ai).{0,30}(improvement|enhancement|feature|idea|roadmap)\b", re.I), "what_next"),
     (re.compile(r"\bnext.{0,20}(feature|capability|improvement).{0,20}(adwi|ai|local|stack)\b", re.I), "what_next"),
-    # FIX-WHAT-002: advisory improvement → what_next BEFORE daily_improve
+
+    # FIX-WHAT-002: advisory improvement questions → what_next BEFORE daily_improve
     (re.compile(r"\b(how|what)\b.{0,15}\b(should|can|could|would)\b.{0,20}(improv|refactor|enhanc|optimiz).{0,20}\badwi\b", re.I), "what_next"),
     (re.compile(r"\bwhat\b.{0,15}\b(code\s+changes?|improvements?|refactors?)\b.{0,20}\b(adwi|better|make)\b", re.I), "what_next"),
     (re.compile(r"\bgenerate\b.{0,20}\b(todo|to.?do|task)\s+(list|items?)\b.{0,20}\badwi\b", re.I), "what_next"),
+    # ── Daily improve — NHR-006: no regex existed; LLM was routing to status/chat ─
     (re.compile(r"\b(daily.?improv|daily.?enhanc|daily.?routine)\b", re.I), "daily_improve"),
     (re.compile(r"\brun.{0,10}daily.{0,10}(improve|maintenance|self.?improve)\b", re.I), "daily_improve"),
-    # gmail Phase 15 early guards — MUST precede web_search and git_status
+
+    # ── Gmail Phase 15 early guards — MUST precede web_search and git_status ────
+    # "what changed in the last reply/thread" must beat git_status "what changed"
     (re.compile(r"\bwhat\s+changed\b.{0,30}\b(?:reply|thread|email|message|conversation)\b", re.I), "gmail_thread_intel"),
     # FIX-STAGE3-001: "open/read/show the latest message" → gmail_read, not thread_intel
-    (re.compile(r"\b(?:open|read|show)\b.{0,10}\blatest\s+(?:message|email|mail)\b", re.I), "gmail_read"),
+    # negative lookahead: "open the latest email from X" falls through to gmail_open
+    (re.compile(r"\b(?:open|read|show)\b.{0,10}\blatest\s+(?:message|email|mail)\b(?!\s+from\b)", re.I), "gmail_read"),
+    # "latest reply/message/delta" are email-specific, safe before web_search
     (re.compile(r"\blatest\s+(?:reply|message|delta)\b", re.I), "gmail_thread_intel"),
+    # "latest update in this thread/email" must beat web_search "latest ... update"
     (re.compile(r"\blatest\s+update\b.{0,30}\b(?:thread|email|conversation|message)\b", re.I), "gmail_thread_intel"),
-    # gmail Phase 17 early guard — "save tasks to daily note" must precede obsidian_daily
+
+    # ── Gmail Phase 17 early guard — "save tasks to daily note" must precede obsidian_daily ──
     (re.compile(r"\b(?:save|add|put|write|export)\b.{0,30}\b(?:tasks?|items?|checklist|action\s+items?|todos?)\b.{0,50}\bdaily\s+note\b", re.I), "gmail_tasks_save"),
-    # FIX-BROWSE-001: URL/domain visit patterns BEFORE web_search
+
+    # ── Browse — URL/domain visit patterns BEFORE web_search ─────────────────────
     (re.compile(r"\b(visit|browse\s+to|navigate\s+to)\b.{0,50}(https?://|\.(com|io|org|dev|net|ai|co|app))\b", re.I), "browse"),
     (re.compile(r"\bfetch\b.{0,40}(https?://|content\s+of\s+https?://)", re.I), "browse"),
     (re.compile(r"\b(open|go\s+to)\b.{0,20}(the\s+)?(homepage|website)\b.{0,40}https?://", re.I), "browse"),
     (re.compile(r"\bdownload\b.{0,30}(from\s+the\s+web|a\s+file\s+from\s+https?://)", re.I), "browse"),
+
+    # ── Web search ───────────────────────────────────────────────────────────────
     (re.compile(r"(search the web|web search|google|search online|look up online|find online|search internet).{0,50}", re.I), "web_search"),
     (re.compile(r"(what('s| is) (the latest|new in|current).{0,30}(release|version|update|news|changelog))", re.I), "web_search"),
-    # FIX-WEB-001: "look up X" patterns — BEFORE model_status
+    # FIX-WEB-001: "look up X guide/version/performance" patterns — BEFORE model_status
     (re.compile(r"\blook\s+up\b.{0,40}(version|guide|tutorial|how[\s-]to|docs?|documentation|performance|benchmark|comparison|ranking|list)\b", re.I), "web_search"),
     (re.compile(r"\bfind\b.{0,20}(the\s+)?(current|latest)\b.{0,20}\bversion\b.{0,30}\b(llama|ollama|qwen|mistral|phi|gemma|python|node)\b", re.I), "web_search"),
     # FIX-WEB-002: "search for the latest X" / "search for information about X"
     (re.compile(r"\bsearch\s+(for\s+)?(the\s+)?(latest|current|recent|newest)\b", re.I), "web_search"),
     (re.compile(r"\bsearch\s+for\b.{0,30}\b(information|info|details?|news|updates?|tutorial|guide|docs?)\b", re.I), "web_search"),
+
+    # ── Obsidian daily — BEFORE obsidian_search (Bug 4: daily-note guard) ────────
     (re.compile(r"\b(daily.?note|today.{0,5}note|obsidian.{0,5}daily)\b", re.I), "obsidian_daily"),
     (re.compile(r"\bopen\b.{0,15}\btoday.{0,5}\bnote\b", re.I), "obsidian_daily"),
     # FIX-OBS-002: entry/log/journal synonyms + "dailly" typo
     (re.compile(r"\b(show|read|open)\b.{0,15}\bmy\s+daily\s+(log|note|journal|entry|notes?)\b", re.I), "obsidian_daily"),
     (re.compile(r"\btoday.{0,5}\b(obsidian\s+)?(entry|journal|log)\b", re.I), "obsidian_daily"),
     (re.compile(r"\bda[il]{2,4}y\s+(note|entry|journal|log)\b", re.I), "obsidian_daily"),
+
+    # ── Obsidian vault ───────────────────────────────────────────────────────────
     (re.compile(r"(obsidian|vault|my notes?).{0,20}(search|find|look up|what do i have)", re.I), "obsidian_search"),
     (re.compile(r"(open|read|show).{0,10}(obsidian|vault|note).{0,30}", re.I), "obsidian_search"),
+    # Verb-first ordering: "search my obsidian vault / notes for ..."
     (re.compile(r"\bsearch\b.{0,20}\b(obsidian|vault)\b", re.I), "obsidian_search"),
+
+    # ── YouTube — NHR-002: non-URL phrasing (URL form handled by extract_youtube_url) ─
     (re.compile(r"\byoutube\b.{0,40}(summar|transcri|watch|clip|video|channel|tutorial)\b", re.I), "youtube"),
     (re.compile(r"(summar|transcri|explain).{0,20}\byoutube\b", re.I), "youtube"),
     (re.compile(r"\b(yt\s+video|youtu\.be|youtube\.com)\b", re.I), "youtube"),
+
+    # ── Browse / fetch URL ───────────────────────────────────────────────────────
     (re.compile(r"(browse|visit|open|fetch|go to|check out|navigate to).{0,15}(https?://|website|site|webpage|url|\.(com|io|org|dev|net))", re.I), "browse"),
-    # FIX-NIGHT-001: "generate summary of logs", bare "nightly", "last thing that ran"
+
+    # ── Nightly maintenance ──────────────────────────────────────────────────────
+    # FIX-NIGHT-001: "generate a summary of logs" / bare "nightly" / "last thing that ran"
     (re.compile(r"\bgenerate\b.{0,20}\b(summary|report|digest)\b.{0,20}\b(logs?|nightly|daily|adwi)\b", re.I), "nightly_status"),
     (re.compile(r"\bgenerate\b.{0,15}\bmy\s+daily\s+report\b", re.I), "nightly_status"),
     (re.compile(r"^nightly\s*$", re.I), "nightly_status"),
@@ -260,6 +332,8 @@ REGEX_INTENTS = [
     (re.compile(r"\b(when.{0,10}(did.{0,10})?nightly|last.{0,10}nightly|show.{0,10}nightly)\b", re.I), "nightly_status"),
     (re.compile(r"\bnightly.{0,10}log\b", re.I), "nightly_status"),
     (re.compile(r"\b(run nightly|trigger nightly|nightly maintenance|run.{0,10}daily maintenance)\b", re.I), "nightly_run"),
+
+    # ── Model status / switching ─────────────────────────────────────────────────
     (re.compile(r"\b(what|which)\b.{0,15}\bmodel\b.{0,20}\b(am i|are you|is active|running|using|current|loaded)\b", re.I), "model_status"),
     (re.compile(r"\bmodel\b.{0,15}\b(status|active|current|running|loaded|info)\b", re.I), "model_status"),
     (re.compile(r"\b(show|display)\b.{0,15}\bmodel\b.{0,20}\b(status|info|version)\b", re.I), "model_status"),
@@ -271,21 +345,30 @@ REGEX_INTENTS = [
     (re.compile(r"\buse\b.{0,10}\b(qwen|llama|mistral|phi|gemma)\b", re.I), "use_local"),
     (re.compile(r"\b(switch|change|use)\b.{0,15}(to\s+)?(cloud model|cloud api|cloud llm|gemini|openai)\b", re.I), "use_cloud"),
     (re.compile(r"\bswitch to cloud\b", re.I), "use_cloud"),
+
+    # ── Voice I/O ────────────────────────────────────────────────────────────────
     (re.compile(r"\b(voice input|voice mode|voice.{0,10}recording|start.{0,10}voice|listen.{0,10}voice)\b", re.I), "voice_in"),
     (re.compile(r"\bstart.{0,15}(recording|listening)\b", re.I), "voice_in"),
     (re.compile(r"\b(text.to.speech|tts\b|speak.{0,15}this|say.{0,20}(aloud|out loud)|read.{0,10}aloud|read.{0,10}this.{0,10}out)\b", re.I), "voice_out"),
+
+    # ── Backup status / log ──────────────────────────────────────────────────────
     (re.compile(r"\b(backup.{0,10}(status|health|check|recent|current)|last.{0,10}backup|when.{0,15}(was.{0,5})?backup)\b", re.I), "backup_status"),
     (re.compile(r"\bbackup.{0,15}(log|history|logs)\b", re.I), "backup_log"),
+
+    # ── Patch adwi — NHR-003: code changes via aider ─────────────────────────────
     (re.compile(r"\b(run|use|apply).{0,10}\baider\b", re.I), "patch_adwi"),
     (re.compile(r"\b(self.?patch|auto.?patch)\b.{0,20}(adwi|code|codebase)", re.I), "patch_adwi"),
     (re.compile(r"\bpatch\b.{0,15}\badwi\b", re.I), "patch_adwi"),
     # FIX-S3-009: typo "patcch adwi" + "apply adwi improvements" imperative
     (re.compile(r"\bpat[ct]ch\b.{0,15}\badwi\b", re.I), "patch_adwi"),
     (re.compile(r"\bapply\b.{0,20}\badwi\b.{0,20}\b(improvements?|patches?|fixes?|updates?)\b", re.I), "patch_adwi"),
+
+    # ── Inspect code — NHR-008: code review of adwi source files ─────────────────
     (re.compile(r"\b(inspect|review|look at|examine).{0,20}(adwi.{0,10}\.py|adwi.?code|adwi.?source)\b", re.I), "inspect_code"),
     (re.compile(r"\b(inspect|review).{0,15}(adwi_cli|nightly\.py|memory\.py|backup\.py|grader\.py)\b", re.I), "inspect_code"),
     (re.compile(r"\b(find bugs in|check for bugs in|code review).{0,20}\badwi\b", re.I), "inspect_code"),
-    # FIX-ERR-002: pasted exceptions and HTTP error codes
+
+    # ── Fix error / exception — catches pasted tracebacks and HTTP error codes ────
     (re.compile(r"\b(TypeError|ValueError|KeyError|AttributeError|SyntaxError|ImportError|ModuleNotFoundError|NameError|RuntimeError|IndexError|OSError|IOError|FileNotFoundError|PermissionError|ZeroDivisionError|StopIteration|AssertionError|RecursionError|MemoryError|TimeoutError|ConnectionError|UnicodeError|ValidationError)\b\s*:", re.I), "fix_error"),
     # FIX-S3-003: exception class name without colon (e.g. "getting ModuleNotFoundError when I run")
     (re.compile(r"\b(getting|seeing|got|had)\s+(a\s+)?(ModuleNotFoundError|TypeError|ValueError|KeyError|AttributeError|SyntaxError|ImportError|NameError|RuntimeError|IndexError|OSError|FileNotFoundError|PermissionError|ConnectionError|TimeoutError|ValidationError)\b", re.I), "fix_error"),
@@ -294,30 +377,38 @@ REGEX_INTENTS = [
     (re.compile(r"\bgetting\s+(a\s+)?\d{3}\b", re.I), "fix_error"),
     (re.compile(r"\b(fix|help.{0,5}fix)\s+this\s+(error|exception|bug)\b", re.I), "fix_error"),
     (re.compile(r"\[Errno\s+\d+\]", re.I), "fix_error"),
-    # FIX-EVAL-003: routing eval BEFORE test_adwi steals "test adwi routing"
+
+    # ── Eval / test ──────────────────────────────────────────────────────────────
+    # FIX-EVAL-003: routing eval patterns BEFORE test_adwi; "trigger routing evaluation" fix
     (re.compile(r"\b(test|check|evaluate|verify)\b.{0,15}\b(adwi\s+)?routing\b", re.I), "eval_routing"),
     (re.compile(r"\b(run|start|trigger|evaluate)\b.{0,20}\brouting\s+(eval(uation)?|tests?)\b", re.I), "eval_routing"),
     (re.compile(r"\badwi\b.{0,10}\beval\b.{0,10}\brouting\b", re.I), "eval_routing"),
-    (re.compile(r"\b(run|start|trigger).{0,15}(routing.?tests?|eval.?routing|routing eval)\b", re.I), "eval_routing"),
+    (re.compile(r"\b(run|start|trigger).{0,15}(routing.?tests?|eval.?routing|routing\s+eval(uation)?)\b", re.I), "eval_routing"),
     (re.compile(r"\b(run|start).{0,15}\b(adwi.?eval|eval.?adwi)\b", re.I), "eval_adwi"),
     (re.compile(r"\bevaluate\b.{0,10}\badwi\b", re.I), "eval_adwi"),
-    # FIX-EVAL-002: "run eval" / "start evaluation" patterns
+    # FIX-EVAL-002: "eval adwi pls", "start evaluation", "run eval" patterns
     (re.compile(r"\beval\s+adwi\b", re.I), "eval_adwi"),
     (re.compile(r"\bstart\b.{0,20}\b(adwi\s+)?(evaluation|eval)\b", re.I), "eval_adwi"),
     (re.compile(r"\b(run|execute|start)\b.{0,10}\beval\b(?!\s*[_\-]?\s*routing)", re.I), "eval_adwi"),
     (re.compile(r"\b(run|execute).{0,15}(adwi.?tests?|test.?adwi)\b", re.I), "test_adwi"),
-    # FIX-TEST-002: "test adwi" / "run tests" / "test suite" patterns
+    # FIX-TEST-002: "test adwi", "run tests", "test suite" patterns
     (re.compile(r"\btest\b.{0,10}\badwi\b", re.I), "test_adwi"),
     (re.compile(r"\b(run|execute).{0,15}(the\s+)?(unit\s*tests?|test\s*suite|adwi\s*tests?)\b", re.I), "test_adwi"),
     (re.compile(r"\b(adwi).{0,10}\btest\s*(run|suite|pass|fail)?\b", re.I), "test_adwi"),
     (re.compile(r"^(run|execute)\s+tests?\s*(please|pls)?\s*$", re.I), "test_adwi"),
+
+    # ── GitHub repo visibility — BEFORE git_status and github_connected ───────────
     (re.compile(r"(make|set|change|convert).{0,20}(git.?repo|repo|repository).{0,20}(public|private|open source)", re.I), "github_visibility"),
     (re.compile(r"(make|set).{0,15}(public|private).{0,15}(repo|repository|github)", re.I), "github_visibility"),
     (re.compile(r"(repo|repository).{0,20}(visibility|public|private)", re.I), "github_visibility"),
+
+    # ── GitHub connectivity — BEFORE git_status ───────────────────────────────────
     (re.compile(r"(is|are).{0,20}(github|git hub).{0,20}(connected|linked|set up|configured|working|authenticated|logged in)", re.I), "github_connected"),
     (re.compile(r"(is adwi|adwi).{0,20}(connected|linked).{0,20}(github|git)", re.I), "github_connected"),
     (re.compile(r"(github|git hub).{0,20}(account|auth|login|connection|access)", re.I), "github_connected"),
     (re.compile(r"(connected to|link(ed)? to|set up).{0,20}(github|git hub)", re.I), "github_connected"),
+
+    # ── Git status (Bug 7: broadened patterns) ────────────────────────────────────
     (re.compile(r"git\s+(status|diff|log|show|repos?)\b", re.I), "git_status"),
     (re.compile(r"(what (changed|committed)|show commits|latest commit|my repos?)\b", re.I), "git_status"),
     (re.compile(r"\b(show|what|are|is)\b.{0,20}\b(recent commits?|unstaged|staged files?|uncommitted|current branch|repo clean)\b", re.I), "git_status"),
@@ -327,65 +418,102 @@ REGEX_INTENTS = [
     (re.compile(r"\bwhat\s+(did\s+i|have\s+i).{0,10}(change|modify|edit|commit)\b", re.I), "git_status"),
     (re.compile(r"\bwhat.{0,5}(is|has|s)\s+(changed|modified|staged)\b", re.I), "git_status"),
     (re.compile(r"\bshow\s+(me\s+)?(what.{0,5}changed|the\s+diff|changes?\s+since)\b", re.I), "git_status"),
+
+    # FIX-SPRINT-003: "cmd_name function/handler in adwi" → inspect_code before generate_image
+    # catches "generate_image function in adwi" — the _ + "function" + "in adwi" signal code lookup
+    (re.compile(r"\b[a-z]+_[a-z_]+\b.{0,20}\b(?:function|handler|method|command)\b.{0,20}\bin\s+adwi\b", re.I), "inspect_code"),
+    (re.compile(r"\b(?:show|find|where\s+is)\b.{0,15}\bthe\b.{0,15}\b[a-z]+_[a-z_]+\b.{0,10}\b(?:function|handler|method)\b", re.I), "inspect_code"),
+    # ── Image generation ─────────────────────────────────────────────────────────
     (re.compile(r"(generate|create|draw|make|design).{0,20}(an? )?(image|picture|photo|illustration|artwork)", re.I), "generate_image"),
-    # FIX-S3-001: "how fast is llama3.1:8b", typo "bechmark", tokens/sec variants
-    (re.compile(r"\bhow\s+fast\s+(is|does|was|are)\b.{0,30}\b(llama|qwen|mistral|phi|gemma|ollama|adwi|model|llm)\b", re.I), "benchmark"),
-    (re.compile(r"\b(tokens?[/_]s|tok[/_]s|t[/_]s)\b", re.I), "benchmark"),
-    (re.compile(r"\b(inference|llm|model|ollama).{0,20}\b(throughput|latency\s+benchmark|speed\s+test)\b", re.I), "benchmark"),
-    (re.compile(r"\b(bechmark|benchamrk|benchmarck)\b", re.I), "benchmark"),
-    # FIX-PATCH-002: self-improve/code-improvement → patch_adwi BEFORE run_code
+
+    # ── Code execution ───────────────────────────────────────────────────────────
+    # FIX-PATCH-002: "run code improvement" / "self-improve adwi" → patch_adwi BEFORE run_code steals them
     (re.compile(r"\b(self.?improv|auto.?improv).{0,15}\badwi\b", re.I), "patch_adwi"),
     (re.compile(r"\b(run|execute)\b.{0,15}(self.?improv|autonomous\s*(code\s*)?improv)", re.I), "patch_adwi"),
     (re.compile(r"\b(run|execute)\b.{0,15}\bcode\s+improv", re.I), "patch_adwi"),
-    # FIX-RC-001: \b around "test" prevents "latest" substring false positive
+    # run_code: added \b around "test" to prevent "latest" ⊇ "test" false positive (FIX-RC-001)
     (re.compile(r"\b(run|execute|test)\b.{0,15}(this |the )?(python|code|script)\b", re.I), "run_code"),
+
+    # ── Benchmark ────────────────────────────────────────────────────────────────
+    # FIX-S3-001: "how fast is llama3.1:8b", typo "bechmark", tokens/sec variants
+    # FIX-SPRINT-001b: drop trailing \b to allow model versions like "llama3.1:8b"
+    (re.compile(r"\bhow\s+fast\s+(is|does|was|are)\b.{0,30}\b(llama|qwen|mistral|phi|gemma|ollama|adwi|model|llm)\d*", re.I), "benchmark"),
+    (re.compile(r"\b(tokens?[/_]s|tok[/_]s|t[/_]s)\b", re.I), "benchmark"),
+    (re.compile(r"\b(inference|llm|model|ollama).{0,20}\b(throughput|latency\s+benchmark|speed\s+test)\b", re.I), "benchmark"),
+    (re.compile(r"\b(bechmark|benchamrk|benchmarck)\b", re.I), "benchmark"),
     (re.compile(r"(benchmark|speed.?test|how fast|tokens? per second).{0,20}(adwi|model|local|ollama)\b", re.I), "benchmark"),
-    # gmail Phase 8: remove-attachment intent — MUST precede gmail_attach_file
+    # FIX-SPRINT-001c: "tokens per second", "inference speed", "how performant" without requiring model name
+    (re.compile(r"\b(?:how\s+many\s+)?tokens?\s+per\s+(?:sec(?:ond)?|s)\b", re.I), "benchmark"),
+    # require "my" to distinguish measurement ("my inference speed") from advisory ("what affects inference speed")
+    (re.compile(r"\bmy\s+inference\s+(?:speed|rate|throughput|perf)\b", re.I), "benchmark"),
+    (re.compile(r"\bhow\s+perf(?:ormant)?\b.{0,30}\b(llama|qwen|mistral|phi|gemma|ollama|model|llm)\d*", re.I), "benchmark"),
+
+    # ── Gmail Phase 8: remove-attachment intent — MUST precede gmail_attach_file ──────────────
+    # Pattern 1: any remove/detach/drop + "attachment" keyword (unambiguous Gmail context)
     (re.compile(r"\b(?:remove|detach|drop)\b.{0,30}\battachment\b", re.I), "gmail_remove_attachment"),
+    # Pattern 2: "detach" + file-type (detach is unambiguous — only used in attachment context)
     (re.compile(r"\bdetach\b.{0,30}\b(?:the\s+)?(?:pdf|file|document|spreadsheet|image|invoice|report|deck)\b", re.I), "gmail_remove_attachment"),
-    # FIX-STRESS-009a: "remove the attached document"
+    # FIX-STRESS-009a: "remove the attached document" (attached + doc type, no trailing from required)
     (re.compile(r"\b(?:remove|detach)\b.{0,30}\battached\b.{0,30}\b(?:pdf|file|document|spreadsheet|image|invoice|report|deck)\b", re.I), "gmail_remove_attachment"),
-    # FIX-STRESS-009b: allow "from this/that email"
+    # Pattern 3: remove/drop + file-type + REQUIRED "from draft/email/message" (allows this/that)
     (re.compile(r"\b(?:remove|drop|delete)\b.{0,30}\b(?:the\s+)?(?:pdf|file|document|spreadsheet|image|invoice|report|deck)\b.{0,20}\bfrom\s+(?:(?:the|this|that)\s+)?(?:draft|email|message)\b", re.I), "gmail_remove_attachment"),
+    # Pattern 4: "draft without attachment"
     (re.compile(r"\bdraft\b.{0,20}\b(?:without|no\s+attachment|remove\s+the)\b", re.I), "gmail_remove_attachment"),
-    # gmail Phase 7: attach-file intent — MUST precede gmail_rewrite_draft
+
+    # ── Gmail Phase 7: attach-file intent — MUST precede gmail_rewrite_draft ─────────────────
+    # ("add the PDF to this draft" would otherwise match gmail_rewrite_draft's add/include pattern)
     (re.compile(r"\battach\b.{0,50}\b(?:pdf|document|file|spreadsheet|invoice|report|deck|image|photo|attachment)\b", re.I), "gmail_attach_file"),
-    # FIX-STRESS-009c: added presentation|document|file
+    # FIX-STRESS-009c: added "presentation|document|file" to file-type alternation
     (re.compile(r"\b(?:add|include)\b.{0,20}\b(?:the\s+)?(?:pdf|spreadsheet|invoice|report|deck|image|attachment|presentation|document|file)\b.{0,30}\b(?:(?:to|in)\s+(?:(?:this|the)\s+)?(?:draft|email|message|reply))\b", re.I), "gmail_attach_file"),
     (re.compile(r"\battach\b.{0,30}\b(?:that|the|saved)\b.{0,20}\battachment\b", re.I), "gmail_attach_file"),
-    # gmail Phase 14: subject update — MUST precede Phase 4 rewrite
+
+    # ── Gmail Phase 14: subject update — MUST precede Phase 4 rewrite ───────────────────────
+    # gmail_update_subject — "rewrite the subject", "make the subject clearer", "better subject"
     (re.compile(r"\b(?:rewrite|update|change|improve|fix)\b.{0,20}\bsubject\b", re.I), "gmail_update_subject"),
+    # "make the subject clearer" — subject before style word
     (re.compile(r"\b(?:make|write)\b.{0,20}\bsubject\b.{0,25}\b(?:better|clearer|shorter|stronger|cleaner|good|clear|more\s+professional|more\s+concise)\b", re.I), "gmail_update_subject"),
+    # "write a better subject" / "write a clearer subject line" — style before subject
     (re.compile(r"\b(?:write|give\s+me)\b.{0,20}\b(?:a\s+)?(?:better|clearer|shorter|stronger|good|clear|more\s+professional)\b.{0,10}\bsubject\b", re.I), "gmail_update_subject"),
     (re.compile(r"\bsubject\b.{0,25}\b(?:is|feels?|seems?|sounds?)\b.{0,20}\b(?:weak|vague|unclear|bad|poor|generic|long|boring)\b", re.I), "gmail_update_subject"),
     (re.compile(r"\bgive\s+me\b.{0,20}\b(?:a\s+)?(?:better|clearer|different|new|good)\b.{0,10}\bsubject\b", re.I), "gmail_update_subject"),
-    # gmail Phase 4: rewrite intent — MUST precede Phase 3 patterns
-    # FIX-STRESS-005: "rewrite the draft" and "rewrite to be warmer"
+
+    # ── Gmail Phase 4: rewrite intent — MUST precede Phase 3 send/cancel patterns ──────────
+    # Requires "it/the draft/the reply/this" + a style word, or "mention/add X to the draft"
+    # FIX-STRESS-005: "rewrite the draft" (no style word required) and "rewrite to be warmer"
     (re.compile(r"\brewrite\b.{0,25}\b(?:it|the\s+draft|the\s+reply|this|the\s+email)\b", re.I), "gmail_rewrite_draft"),
     (re.compile(r"\brewrite\b.{0,30}\bto\s+(?:be|sound)\b", re.I), "gmail_rewrite_draft"),
     (re.compile(r"\b(?:make|rewrite|revise|edit)\b.{0,20}\b(?:it|the\s+draft|the\s+reply|this|the\s+email)\b.{0,40}\b(?:shorter|longer|brief(?:er)?|concis(?:e|er)|professional(?:ly)?|formal(?:ly)?|casual(?:ly)?|warm(?:er|ly)?|friendli(?:er)?|direct(?:ly)?|clear(?:er)?|natural(?:ly)?|informal(?:ly)?|polite(?:ly)?|robotic|engaging)\b", re.I), "gmail_rewrite_draft"),
     (re.compile(r"\bturn\s+(?:this|it)\b.{0,30}\binto\b.{0,30}\b(?:shorter|brief|concise|professional|update|summary|formal|casual|polite|warm|friendly|direct|natural)\b", re.I), "gmail_rewrite_draft"),
     (re.compile(r"\bwrite\b.{0,10}(?:a|an)\s+(?:shorter|briefer|more\s+(?:concise|direct|professional|formal|casual|friendly|polite|natural|warm))\b.{0,20}\b(?:version|draft|email|message|reply)?\b", re.I), "gmail_rewrite_draft"),
     (re.compile(r"\b(?:mention|add|include)\b.{0,50}\b(?:in|to)\s+(?:the\s+)?(?:draft|reply|email|message)\b", re.I), "gmail_rewrite_draft"),
-    # gmail Phase 5: add-cc / add-bcc — MUST precede Phase 3
+
+    # ── Gmail Phase 5: add-cc / add-bcc — MUST precede Phase 3 (avoid cc/bcc in compose hitting here) ──
+    # gmail_add_cc — "add cc Priya", "cc Priya to the draft", "cc Priya on this email"
     (re.compile(r"\badd\s+cc\b", re.I), "gmail_add_cc"),
     (re.compile(r"\bcc\b.{0,40}\b(?:to\s+(?:the\s+)?(?:draft|email|message)|on\s+(?:this|the\s+(?:draft|email|message)))\b", re.I), "gmail_add_cc"),
+    # gmail_add_bcc — "add bcc me", "bcc Rahul on this draft", "bcc me on the email"
     (re.compile(r"\badd\s+bcc\b", re.I), "gmail_add_bcc"),
     (re.compile(r"\bbcc\b.{0,40}\b(?:to\s+(?:the\s+)?(?:draft|email|message)|on\s+(?:this|the\s+(?:draft|email|message)))\b", re.I), "gmail_add_bcc"),
-    # gmail Phase 13: reschedule/open scheduled sends — MUST precede Phase 6 (open+invoice conflict)
+
+    # ── Gmail Phase 13: reschedule/open scheduled sends — MUST precede Phase 6 (attachments) ──
+    # gmail_open_scheduled_draft needs to beat gmail_save_attachment ("open...invoice")
     (re.compile(r"\breschedule\b", re.I), "gmail_reschedule_send"),
     (re.compile(r"\b(?:move|push|delay|postpone)\b.{0,30}\b(?:scheduled|the\s+(?:email|send|message|draft))\b.{0,30}\b(?:to|until)\b", re.I), "gmail_reschedule_send"),
     (re.compile(r"\bchange\b.{0,20}\bscheduled\b.{0,20}\b(?:time|date|send|email|message)\b", re.I), "gmail_reschedule_send"),
     (re.compile(r"\b(?:open|reopen|switch\s+to|load)\b.{0,20}\bscheduled\b.{0,20}\b(?:draft|email|send|message)\b", re.I), "gmail_open_scheduled_draft"),
-    # gmail Phase 6: attachment intents
+
+    # ── Gmail Phase 6: attachment intents — MUST precede gmail_summarize (lower down) ──────
+    # gmail_summarize_attachment — before Phase 3 AND before the generic gmail_summarize block
     (re.compile(r"\b(?:summarize|tldr|what.s\s+in|whats\s+in)\b.{0,30}\b(?:the\s+)?(?:attached\s+)?(?:attachment|pdf|document|invoice|receipt|spreadsheet)\b", re.I), "gmail_summarize_attachment"),
     (re.compile(r"\bwhat(?:'s|\s+is)\b.{0,30}\b(?:in\s+)?(?:the\s+)?(?:attached|attachment)\b", re.I), "gmail_summarize_attachment"),
     # FIX-STRESS-009d: "what does the attached document say"
     (re.compile(r"\bwhat\b.{0,30}\b(?:attached|attachment)\b.{0,30}\b(?:document|pdf|file|spreadsheet|invoice)?\b.{0,15}\bsay\b", re.I), "gmail_summarize_attachment"),
+    # gmail_save_attachment — "save/download/open the PDF/attachment/invoice"
     (re.compile(r"\b(?:save|download|open)\b.{0,30}\b(?:the\s+)?(?:attached\s+)?(?:attachment|pdf|document|invoice|receipt|image|spreadsheet)\b", re.I), "gmail_save_attachment"),
     (re.compile(r"\b(?:save|download)\b.{0,25}\b(?:that|this|first|second|third)\b.{0,20}\b(?:attachment|file|pdf|document)\b", re.I), "gmail_save_attachment"),
     # FIX-STAGE3-002: "which draft has the PDF attached" → list_drafts, not list_attachments
     (re.compile(r"\bwhich\s+draft\b", re.I), "gmail_list_drafts"),
+    # gmail_list_attachments — "show/list attachments", "any files attached?"
     (re.compile(r"\b(?:show|list|view|see)\b.{0,25}\battachment", re.I), "gmail_list_attachments"),
     (re.compile(r"\battachment.{0,25}\b(?:on|in|for|from)\b", re.I), "gmail_list_attachments"),
     (re.compile(r"\bany\s+attachments?\b", re.I), "gmail_list_attachments"),
@@ -393,26 +521,34 @@ REGEX_INTENTS = [
     (re.compile(r"\bany\b.{0,20}\bfiles?\b.{0,15}\battach", re.I), "gmail_list_attachments"),
     (re.compile(r"\bwhat\b.{0,30}\battachments?\b.{0,20}\bthere\b", re.I), "gmail_list_attachments"),
     (re.compile(r"\b(?:what|which)\b.{0,20}\b(?:file|attachment|pdf|document).{0,15}\battach", re.I), "gmail_list_attachments"),
-    # gmail Phase 12: multi-draft management — MUST precede Phase 3 patterns
+
+    # ── Gmail Phase 12: multi-draft management — MUST precede Phase 11/10 patterns ──────────
+    # gmail_list_drafts — plural "drafts" (beats gmail_list_scheduled for "show scheduled drafts")
     (re.compile(r"\b(?:list|show)\b.{0,5}\b(?:my\s+|all\s+)?drafts\b", re.I), "gmail_list_drafts"),
     (re.compile(r"\b(?:show|view|see)\b.{0,20}\ball\s+drafts\b", re.I), "gmail_list_drafts"),
     (re.compile(r"\b(?:show|list)\b.{0,20}\b(?:scheduled|unscheduled|unsent|pending)\s+drafts\b", re.I), "gmail_list_drafts"),
     (re.compile(r"\bwhat\s+drafts\b.{0,20}\b(?:do\s+I\s+have|are\s+there)\b", re.I), "gmail_list_drafts"),
+    # gmail_open_draft — ordinal/name selection; MUST precede gmail_send_draft and gmail_show_draft
     (re.compile(r"\b(?:open|switch\s+to|go\s+(?:back\s+)?to|load|select|use)\b.{0,30}\b(?:\d|first|second|third|fourth|fifth|last)\b.{0,10}\bdraft\b", re.I), "gmail_open_draft"),
     (re.compile(r"\b(?:open|switch\s+to|go\s+(?:back\s+)?to|load|select)\b.{0,5}draft\s+[1-9]\b", re.I), "gmail_open_draft"),
     (re.compile(r"\bsend\b.{0,5}(?:draft\s+[1-9]|the\s+(?:first|second|third|fourth|fifth|last)\s+draft)\b", re.I), "gmail_open_draft"),
     (re.compile(r"\bsend\b.{0,5}the\s+(?!draft\b)\w+\s+draft\b", re.I), "gmail_open_draft"),
     (re.compile(r"\b(?:open|switch\s+to|go\s+(?:back\s+)?to)\b.{0,5}the\s+(?!draft\b)\w+\s+draft\b", re.I), "gmail_open_draft"),
+    # gmail_delete_draft — targeted deletion (ordinal or named); MUST precede gmail_cancel_draft
     (re.compile(r"\b(?:delete|remove|trash)\b.{0,5}(?:draft\s+[1-9]|the\s+(?:first|second|third|fourth|fifth|last)\s+draft)\b", re.I), "gmail_delete_draft"),
     (re.compile(r"\b(?:delete|remove|trash)\b.{0,5}the\s+(?!draft\b)(?!that\b)(?!current\b)\w+\s+draft\b", re.I), "gmail_delete_draft"),
     (re.compile(r"\b(?:cancel|delete|remove)\b.{0,15}\bold\b.{0,10}\bdraft\b", re.I), "gmail_delete_draft"),
-    # gmail Phase 17: extract tasks / save / remind — MUST precede Phase 11
+
+    # ── Gmail Phase 17: extract tasks / save / remind — MUST precede Phase 11 ──────────────
+    # gmail_tasks_remind — "create/set reminders for those action items" — BEFORE followup_reminder
     (re.compile(r"\bcreate\b.{0,15}\breminders?\b.{0,40}\b(?:for\s+(?:those|these|the|them|each|all)\b|for\s+(?:the\s+)?(?:action\s+items?|deadlines?|tasks?))\b", re.I), "gmail_tasks_remind"),
     (re.compile(r"\bset\b.{0,15}\breminders?\b.{0,40}\b(?:for\s+(?:those|these|the|them|each|all)\b|for\s+(?:the\s+)?(?:action\s+items?|deadlines?|tasks?))\b", re.I), "gmail_tasks_remind"),
     (re.compile(r"\bremind\s+me\b.{0,40}\b(?:about\s+(?:those|these|each)\b|about\s+(?:the\s+)?(?:action\s+items?|deadlines?|tasks?))\b", re.I), "gmail_tasks_remind"),
+    # gmail_tasks_save — "save those tasks to Obsidian", "export checklist", "add tasks to my notes"
     (re.compile(r"\b(?:save|add|put|write|export)\b.{0,30}\b(?:tasks?|items?|checklist|action\s+items?|todos?)\b.{0,40}\b(?:to|in(?:to)?)\b.{0,20}\b(?:obsidian|daily\s+note|my\s+notes?|my\s+list)\b", re.I), "gmail_tasks_save"),
     (re.compile(r"\b(?:save|add|put|export)\b.{0,20}\b(?:those?|these?|them)\b.{0,20}\b(?:tasks?|items?|checklist|action\s+items?|todos?)\b", re.I), "gmail_tasks_save"),
     (re.compile(r"\b(?:save|export)\b.{0,20}\b(?:the\s+)?(?:extracted\s+)?(?:tasks?|checklist|action\s+items?)\b", re.I), "gmail_tasks_save"),
+    # gmail_extract_tasks — "turn this email into tasks", "extract deadlines", "what deadlines are here"
     # FIX-STRESS-011: "turn it into tasks" — pronoun alone without explicit email noun
     (re.compile(r"\b(?:turn|convert)\b.{0,20}\b(?:it|this|that)\b.{0,20}\b(?:into?|to)\b.{0,20}\b(?:tasks?|todos?|checklist|action\s+items?)\b", re.I), "gmail_extract_tasks"),
     (re.compile(r"\b(?:turn|convert)\b.{0,30}\b(?:this|the|it)\b.{0,20}\b(?:email|thread|message)\b.{0,20}\b(?:into?|to)\b.{0,20}\b(?:tasks?|todo|checklist|action\s+items?)\b", re.I), "gmail_extract_tasks"),
@@ -423,62 +559,63 @@ REGEX_INTENTS = [
     (re.compile(r"\b(?:make|create|build|write|generate)\b.{0,30}\b(?:a\s+)?checklist\b.{0,50}\b(?:from|for|of)\b.{0,20}\b(?:this|the)\b.{0,20}\b(?:email|thread|message)\b", re.I), "gmail_extract_tasks"),
     (re.compile(r"\bsummarize\b.{0,30}\b(?:this|the)\b.{0,20}\b(?:email|thread)\b.{0,30}\bas\b.{0,20}\b(?:tasks?|todos?|action\s+items?|a?\s*checklist)\b", re.I), "gmail_extract_tasks"),
     (re.compile(r"\bwhat\s+follow.?ups?\s+(?:should|do)\s+I\b", re.I), "gmail_extract_tasks"),
-    # gmail Phase 11: follow-up reminders — MUST precede Phase 10 patterns
+
+    # ── Gmail Phase 11: follow-up reminders — MUST precede Phase 10 patterns ─────────────
+    # gmail_cancel_followup FIRST (cancel+reminder must win over cancel+scheduled)
     (re.compile(r"\bcancel\b.{0,25}\b(?:follow.?up|reminder|that\s+reminder)\b", re.I), "gmail_cancel_followup"),
     (re.compile(r"\b(?:remove|delete|stop)\b.{0,20}\breminder\b", re.I), "gmail_cancel_followup"),
+    # gmail_list_followups
     (re.compile(r"\b(?:show|list|view|what.{0,10}are)\b.{0,20}\b(?:follow.?up|pending\s+reminder)s?\b", re.I), "gmail_list_followups"),
     (re.compile(r"\b(?:what\s+(?:threads?|emails?)\s+am\s+I|what\s+am\s+I)\b.{0,20}\b(?:waiting|follow(?:ing)?)\b", re.I), "gmail_list_followups"),
     (re.compile(r"\b(?:pending|open)\s+follow.?ups?\b", re.I), "gmail_list_followups"),
     (re.compile(r"\b(?:who|what).{0,20}\b(?:hasn.t|have\s+not|haven.t)\s+replied\b", re.I), "gmail_list_followups"),
+    # gmail_followup_reminder — remind me / set follow-up / if no reply
     (re.compile(r"\b(?:remind\s+me|set\s+(?:a\s+)?(?:follow.?up|reminder))\b", re.I), "gmail_followup_reminder"),
     (re.compile(r"\bfollow.?up\b.{0,30}\b(?:on\s+this|on\s+(?:the\s+)?(?:thread|email|message|it)|if\s+no\s+reply|reminder)\b", re.I), "gmail_followup_reminder"),
     (re.compile(r"\bif\s+no\s+reply\b", re.I), "gmail_followup_reminder"),
     (re.compile(r"\bif\s+they\s+(?:don.t|haven.t)\b.{0,20}\b(?:answer(?:ed)?|repl(?:y|ied)|respond(?:ed)?)\b", re.I), "gmail_followup_reminder"),
-    # gmail Phase 10: scheduled send — MUST precede gmail_send_draft
-    # cancel first — prevents "cancel scheduled X" bleeding into list patterns
+
+    # ── Gmail Phase 10: scheduled send — MUST precede gmail_send_draft ────────────────────
+    # gmail_cancel_scheduled_send FIRST — "cancel scheduled X" must not bleed into list patterns
     (re.compile(r"\bcancel\b.{0,30}\bscheduled\b.{0,20}\b(?:send|email|message|draft)?\b", re.I), "gmail_cancel_scheduled_send"),
     (re.compile(r"\bcancel\b.{0,20}\bthe\s+scheduled\b", re.I), "gmail_cancel_scheduled_send"),
     (re.compile(r"\b(?:don.t\s+send|stop\s+sending|unschedule)\b.{0,30}\b(?:that|it|the\s+(?:email|draft|message))\b", re.I), "gmail_cancel_scheduled_send"),
+    # gmail_list_scheduled
     (re.compile(r"\b(?:show|list|view|what|any)\b.{0,20}\b(?:my\s+)?scheduled\b.{0,20}\b(?:emails?|sends?|messages?|drafts?)\b", re.I), "gmail_list_scheduled"),
     (re.compile(r"\bscheduled\s+(?:emails?|sends?|messages?|drafts?)\b", re.I), "gmail_list_scheduled"),
-    (re.compile(r"\bwhat.{0,20}\b(?:is|are|\'s)\b.{0,15}\bscheduled\b", re.I), "gmail_list_scheduled"),
+    (re.compile(r"\bwhat.{0,20}\b(?:is|are|'s)\b.{0,15}\bscheduled\b", re.I), "gmail_list_scheduled"),
     (re.compile(r"\bwhat.s\s+scheduled\b", re.I), "gmail_list_scheduled"),
+    # gmail_schedule_send: requires temporal indicator: tomorrow/weekday/at-time/delay/later
+    # FIX-STRESS-001: removed bare \bschedule\b to stop FP on "on schedule" in non-email context
+    # FIX-SCHED-001: "schedule for [weekday]" — anchored to start so "on schedule for Monday" doesn't FP
+    (re.compile(r"^schedule\s+for\s+(?:monday|tuesday|wednesday|thursday|friday|saturday|sunday)\b", re.I), "gmail_schedule_send"),
     (re.compile(r"\b(?:schedule|delay\s+send|send\s+later)\b.{0,40}\b(?:draft|email|message|this|it)\b", re.I), "gmail_schedule_send"),
-    # FIX-STRESS-001: removed bare \bschedule\b to stop FP on "on schedule"
     (re.compile(r"\b(?:delay\s+send|send\s+later)\b", re.I), "gmail_schedule_send"),
     (re.compile(r"\bsend\b.{0,30}\b(?:tomorrow|tonight|morning|afternoon|evening|monday|tuesday|wednesday|thursday|friday|saturday|sunday|next\s+week|in\s+\d+\s+(?:hours?|minutes?))\b", re.I), "gmail_schedule_send"),
     (re.compile(r"\bsend\b.{0,20}\b(?:this|it|the\s+(?:draft|email|message))\b.{0,30}\b(?:tomorrow|tonight|morning|afternoon|evening|monday|tuesday|wednesday|thursday|friday|saturday|sunday)\b", re.I), "gmail_schedule_send"),
     (re.compile(r"\bsend\b.{0,30}at\s+\d{1,2}(?::\d{2})?\s*(?:am|pm)\b", re.I), "gmail_schedule_send"),
     (re.compile(r"\bschedule\b.{0,30}\b(?:this|it|the\s+(?:draft|email|message))\b", re.I), "gmail_schedule_send"),
-    # gmail Phase 3: draft/send intents — MUST precede Phase 2 mutation patterns
-    (re.compile(r"^send\s+(?:it|the\s+draft|that|this)\s*$", re.I), "gmail_send_draft"),
-    # FIX-STRESS-003: allow "go ahead and send" without suffix
-    (re.compile(r"^(?:go\s+ahead\s+and\s+)?send(?:\s+it|\s+the\s+draft|\s+now)?\s*$", re.I), "gmail_send_draft"),
-    (re.compile(r"\bsend\b.{0,20}\b(?:the\s+)?draft\b", re.I), "gmail_send_draft"),
-    (re.compile(r"\bsend\b.{0,15}\b(?:the\s+)?(?:reply|response)\b", re.I), "gmail_send_draft"),
-    # FIX-STAGE3-003: "send an email to X" is compose; only "send the email/message" is send_draft
-    (re.compile(r"\bsend\b.{0,20}\bthe\s+(?:email|mail|message)\b", re.I), "gmail_send_draft"),
-    (re.compile(r"\b(?:looks?\s+good|lgtm|approved?|good\s+to\s+go)\b.{0,25}\bsend\b", re.I), "gmail_send_draft"),
-    (re.compile(r"\b(?:cancel|discard|delete|clear|abort)\b.{0,20}\b(?:the\s+)?draft\b", re.I), "gmail_cancel_draft"),
-    (re.compile(r"\b(?:forget|throw\s+away)\b.{0,20}\b(?:the\s+)?draft\b", re.I), "gmail_cancel_draft"),
-    # FIX-STRESS-004: "don\'t want the draft"
-    (re.compile(r"\bdon.t\s+want\b.{0,20}\b(?:the\s+)?draft\b", re.I), "gmail_cancel_draft"),
-    (re.compile(r"\b(?:show|display|view|preview|read)\b.{0,20}\b(?:the\s+|my\s+)?draft\b", re.I), "gmail_show_draft"),
-    (re.compile(r"\bwhat(?:\s+does)?.{0,20}(?:the\s+)?draft\b", re.I), "gmail_show_draft"),
-    # gmail Phase 16: filter/rule builder — MUST precede Phase 3
+
+    # ── Gmail Phase 16: filter / rule builder — MUST precede Phase 3 ─────────
+    # gmail_filter_cancel — "cancel rule creation", "discard the filter"
     (re.compile(r"\b(?:cancel|discard|abort|stop)\b.{0,20}\b(?:rule|filter)\b", re.I), "gmail_filter_cancel"),
+    # gmail_filter_apply — "create that rule", "apply the filter", "save the rule" — before filter_build
     (re.compile(r"\bcreate\b.{0,15}\b(?:that|the)\b.{0,10}\b(?:rule|filter)\b", re.I), "gmail_filter_apply"),
     (re.compile(r"\b(?:apply|confirm|save)\b.{0,20}\b(?:the|that)\b.{0,15}\b(?:rule|filter)\b", re.I), "gmail_filter_apply"),
     (re.compile(r"\byes,?\s+create\b.{0,20}\b(?:rule|filter)\b", re.I), "gmail_filter_apply"),
+    # gmail_filter_list — "show my rules", "list my Gmail filters"
     (re.compile(r"\b(?:show|list|view)\b.{0,20}\b(?:my\s+)?(?:rules|filters)\b", re.I), "gmail_filter_list"),
     (re.compile(r"\b(?:show|list)\b.{0,15}\bsaved\b.{0,15}\b(?:rules|filters)\b", re.I), "gmail_filter_list"),
+    # gmail_filter_build — "always label X", "create a rule for X", "auto archive X", "make a filter"
     (re.compile(r"\b(?:always|auto|automatically)\b.{0,30}\b(?:label|archive|star)\b", re.I), "gmail_filter_build"),
     (re.compile(r"\b(?:always|auto|automatically)\b.{0,40}\bmark\b.{0,30}\bread\b", re.I), "gmail_filter_build"),
     (re.compile(r"\bcreate\b.{0,20}\b(?:a\s+)?(?:rule|filter)\b.{0,25}\b(?:for|to|that|when)\b", re.I), "gmail_filter_build"),
     (re.compile(r"\b(?:make|build|set\s+up)\b.{0,20}\b(?:a\s+)?(?:rule|filter)\b", re.I), "gmail_filter_build"),
     (re.compile(r"\b(?:create|make)\b.{0,10}\b(?:a\s+)?gmail\s+(?:rule|filter)\b", re.I), "gmail_filter_build"),
     (re.compile(r"\b(?:show\s+me|what\s+rule|what\s+filter)\b.{0,30}\b(?:for|would|you\s+make)\b", re.I), "gmail_filter_build"),
-    # gmail Phase 15: thread intel + forward — MUST precede gmail_draft_reply / gmail_compose
+
+    # ── Gmail Phase 15: thread intel + forward — MUST precede Phase 3 (gmail_draft_reply / gmail_compose) ──
+    # gmail_thread_intel — action items, decisions, questions, reply-needed, latest-delta
     (re.compile(r"\baction\s+items?\b", re.I), "gmail_thread_intel"),
     (re.compile(r"\bwhat\s+(?:action\s+items?|decisions?|questions?|changed|do\s+I\s+(?:owe|need\s+to\s+do))\b", re.I), "gmail_thread_intel"),
     (re.compile(r"\b(?:do\s+I\s+owe|should\s+I\s+reply|is\s+a\s+reply\s+needed|reply\s+needed|need\s+to\s+respond)\b", re.I), "gmail_thread_intel"),
@@ -486,44 +623,73 @@ REGEX_INTENTS = [
     (re.compile(r"\bdecisions?\b.{0,20}\b(?:in|from|this|the)\b.{0,20}\b(?:thread|conversation|email|chain)\b", re.I), "gmail_thread_intel"),
     (re.compile(r"\bquestions?\s+(?:waiting|outstanding|for\s+me|pending)\b", re.I), "gmail_thread_intel"),
     (re.compile(r"\bsummarize\b.{0,20}\blatest\b.{0,20}\b(?:reply|message|part|update)\b", re.I), "gmail_thread_intel"),
+    # gmail_forward — "forward to X", "fwd this to Y" — MUST precede gmail_compose
     (re.compile(r"\b(?:forward|fwd)\b.{0,25}\bto\b", re.I), "gmail_forward"),
     (re.compile(r"\b(?:forward|fwd)\b.{0,20}\b(?:this|it|the\s+(?:email|thread|message))\b", re.I), "gmail_forward"),
-    # FIX-STRESS-002: extended for "draft a response", "write a reply", "reply to the latest"
+
+    # ── Gmail Phase 3: draft / send intents — MUST precede Phase 2 mutation patterns ──────
+    # gmail_send_draft — anchored bare forms; also "send the draft" (requires "draft" word)
+    (re.compile(r"^send\s+(?:it|the\s+draft|that|this)\s*$", re.I), "gmail_send_draft"),
+    # FIX-STRESS-003: allow "go ahead and send" without requiring "it/now/draft" suffix
+    (re.compile(r"^(?:go\s+ahead\s+and\s+)?send(?:\s+it|\s+the\s+draft|\s+now)?\s*$", re.I), "gmail_send_draft"),
+    (re.compile(r"\bsend\b.{0,20}\b(?:the\s+)?draft\b", re.I), "gmail_send_draft"),
+    (re.compile(r"\bsend\b.{0,15}\b(?:the\s+)?(?:reply|response)\b", re.I), "gmail_send_draft"),
+    # FIX-STAGE3-003: "send an email to X" is compose; only "send the email/message" is send_draft
+    (re.compile(r"\bsend\b.{0,20}\bthe\s+(?:email|mail|message)\b", re.I), "gmail_send_draft"),
+    (re.compile(r"\b(?:looks?\s+good|lgtm|approved?|good\s+to\s+go)\b.{0,25}\bsend\b", re.I), "gmail_send_draft"),
+    # gmail_cancel_draft — requires "draft" qualifier (more specific than bare gmail_cancel)
+    (re.compile(r"\b(?:cancel|discard|delete|clear|abort)\b.{0,20}\b(?:the\s+)?draft\b", re.I), "gmail_cancel_draft"),
+    (re.compile(r"\b(?:forget|throw\s+away)\b.{0,20}\b(?:the\s+)?draft\b", re.I), "gmail_cancel_draft"),
+    # FIX-STRESS-004: "throw away the draft" / "don't want the draft"
+    (re.compile(r"\bdon.t\s+want\b.{0,20}\b(?:the\s+)?draft\b", re.I), "gmail_cancel_draft"),
+    # gmail_show_draft
+    (re.compile(r"\b(?:show|display|view|preview|read)\b.{0,20}\b(?:the\s+|my\s+)?draft\b", re.I), "gmail_show_draft"),
+    (re.compile(r"\bwhat(?:\s+does)?.{0,20}(?:the\s+)?draft\b", re.I), "gmail_show_draft"),
+    # gmail_draft_reply — "draft a reply", "reply saying X", "write back saying X"
+    # FIX-STRESS-002: extended to cover "draft a response", "write a reply", "reply to the latest"
     (re.compile(r"\bdraft\b.{0,20}\b(?:a\s+)?(?:reply|response)\b", re.I), "gmail_draft_reply"),
     (re.compile(r"\b(?:write|compose)\b.{0,15}\ba?\s*(?:reply|response)\b", re.I), "gmail_draft_reply"),
     (re.compile(r"\breply\b.{0,30}\b(?:saying|that|with|to\s+(?:it|this|that|the\s+email|the\s+thread|the\s+latest))\b", re.I), "gmail_draft_reply"),
-    (re.compile(r"\breply\b.{0,30}\bto\s+(?:the\s+)?(?:latest|last|current)\b", re.I), "gmail_draft_reply"),
     (re.compile(r"\b(?:respond|write\s+back)\b.{0,30}\b(?:saying|that|to\s+(?:it|this|that))\b", re.I), "gmail_draft_reply"),
+    (re.compile(r"\breply\b.{0,30}\bto\s+(?:the\s+)?(?:latest|last|current)\b", re.I), "gmail_draft_reply"),
+    # gmail_compose — "compose an email to X", "email X saying Y", "write an email to X", "send an email to X"
     (re.compile(r"\b(?:compose|write)\b.{0,20}\b(?:an?\s+)?(?:new\s+)?(?:email|mail|message)\b", re.I), "gmail_compose"),
     (re.compile(r"\bemail\b.{0,40}\b(?:saying|to\s+say|to\s+tell|that)\b", re.I), "gmail_compose"),
     # FIX-STAGE3-003b: "send an email to X" is compose (send_draft requires "the" after FIX-STAGE3-003)
     (re.compile(r"\bsend\b.{0,15}\ban?\s+(?:email|mail|message)\b", re.I), "gmail_compose"),
-    # gmail Phase 2: mutation intents — MUST precede gmail_open / gmail_list_category
+
+    # ── Gmail Phase 2: mutation intents — MUST precede gmail_open / gmail_list_category ──
+    # gmail_confirm — anchored bare inputs; dispatch checks _GMAIL_CTX["pending"] before acting
     (re.compile(r"^confirm\s*$", re.I), "gmail_confirm"),
     (re.compile(r"^yes,?\s+do\s+it\s*$", re.I), "gmail_confirm"),
-    # gmail undo — MUST precede gmail_cancel
+    # gmail_undo — MUST precede gmail_cancel (both short/anchored; undo is more specific)
     (re.compile(r"^undo\s*$", re.I), "gmail_undo"),
     (re.compile(r"^undo\s+that\s*$", re.I), "gmail_undo"),
     (re.compile(r"\bundo\b.{0,30}\b(?:archive|trash|that\s+archive|that\s+trash|mark|last\s+action|that\s+action)\b", re.I), "gmail_undo"),
     (re.compile(r"\b(?:bring\s+back|restore)\b.{0,25}\b(?:those|them|those\s+emails?|that\s+email)\b", re.I), "gmail_undo"),
+    # gmail_cancel — anchored
     (re.compile(r"^cancel(?:\s+that)?\s*$", re.I), "gmail_cancel"),
     (re.compile(r"^(?:never\s+mind|abort|stop\s+that)\s*$", re.I), "gmail_cancel"),
+    # gmail_mark_read — before mark_unread: "those unread emails as read" must route here
     (re.compile(r"\bmark\b.{0,35}\b(?:as\s+)?read\b", re.I), "gmail_mark_read"),
-    # FIX-STRESS-007: added "flag" as synonym for "mark" in unread
+    # gmail_mark_unread
+    # FIX-STRESS-007: added "flag" as synonym for "mark" in unread context
     (re.compile(r"\b(?:mark|flag)\b.{0,35}\b(?:as\s+)?unread\b", re.I), "gmail_mark_unread"),
+    # gmail_archive — MUST precede gmail_list_category (both share category/spam words)
     (re.compile(r"\b(?:archive|move\s+to\s+archive)\b.{0,40}\b(?:emails?|mail|messages?|them|those|these|that|it|all|promos?|promotional|promotions?|newsletters?|social|updates?|forums?|spam)\b", re.I), "gmail_archive"),
     (re.compile(r"\barchive\b.{0,20}\b(?:from|about|older\s+than)\b", re.I), "gmail_archive"),
-    # FIX-STRESS-006: "move [X] to archive"
+    # FIX-STRESS-006: "move [X] to archive/trash" with noun between move and destination
     (re.compile(r"\bmove\b.{0,30}\bto\s+archive\b", re.I), "gmail_archive"),
+    # gmail_trash — MUST precede gmail_list_category
     (re.compile(r"\b(?:trash|move\s+to\s+trash)\b.{0,40}\b(?:emails?|mail|messages?|them|those|these|that|it|all|promos?|promotional|promotions?|newsletters?|social|updates?|forums?|spam)\b", re.I), "gmail_trash"),
     (re.compile(r"\btrash\b.{0,20}\b(?:from|about|older\s+than)\b", re.I), "gmail_trash"),
     (re.compile(r"\bdelete\b.{0,30}\b(?:emails?|mail|messages?|them|those|these|that|promos?|spam)\b", re.I), "gmail_trash"),
-    # FIX-STRESS-006: "move [X] to trash"
     (re.compile(r"\bmove\b.{0,30}\bto\s+trash\b", re.I), "gmail_trash"),
-    # gmail_triage — MUST precede gmail_open
+
+    # ── Gmail Phase 9: triage — MUST precede gmail_open (triage beats bare "open") ──
     (re.compile(r"\b(?:what|which)\b.{0,20}\b(?:needs?|need\s+my)\b.{0,20}\breply\b", re.I), "gmail_triage"),
     (re.compile(r"\bwhat\s+(?:should|do)\s+I\s+(?:answer|respond|reply)\b", re.I), "gmail_triage"),
-    # FIX-STRESS-008: extended to include "need action"
+    # FIX-STRESS-008: extended to include "need action" not just "need attention"
     (re.compile(r"\b(?:which|what)\b.{0,15}\bemails?\b.{0,20}\b(?:urg(?:ent|ently)|important|need\s+(?:attention|action))\b", re.I), "gmail_triage"),
     (re.compile(r"\btriage\b.{0,20}\b(?:my\s+)?(?:inbox|email|mail)\b", re.I), "gmail_triage"),
     (re.compile(r"\b(?:inbox\s+triage|email\s+triage)\b", re.I), "gmail_triage"),
@@ -532,41 +698,61 @@ REGEX_INTENTS = [
     (re.compile(r"\b(?:which|what)\b.{0,20}\bthreads?\b.{0,20}\b(?:waiting|pending|unresponded|owe|reply)\b", re.I), "gmail_triage"),
     (re.compile(r"\bwhat\b.{0,20}\b(?:from\s+today|today\b).{0,20}\b(?:needs?|attention|important|matters?)\b", re.I), "gmail_triage"),
     (re.compile(r"\b(?:emails?|inbox).{0,20}\b(?:waiting\s+on\s+me|waiting\s+for\s+me)\b", re.I), "gmail_triage"),
-    # gmail_open: search + open — MUST precede gmail_read
+
+    # ── Gmail open (search + open first result) — MUST precede gmail_read ────────
+    # "open latest email from Amazon", "open the email about the budget"
     (re.compile(r"\b(open|read)\b.{0,20}\b(email|mail|message)\b.{0,30}\b(from|about|regarding|by)\b", re.I), "gmail_open"),
     (re.compile(r"\b(open|read)\b.{0,15}\b(latest|newest|recent|last)\b.{0,25}\b(email|mail|message)\b.{0,30}\b(from|about)\b", re.I), "gmail_open"),
     (re.compile(r"\b(find\s+and\s+open|search\s+and\s+open)\b.{0,30}\b(email|mail|message)\b", re.I), "gmail_open"),
-    # gmail_summarize-thread shortcut — MUST precede gmail_thread
+
+    # ── Gmail summarize-thread shortcut — MUST precede gmail_thread ──────────────
+    # "summarize the thread about X" / "tldr the conversation"
     (re.compile(r"\b(summarize|tldr)\b.{0,20}\b(thread|conversation)\b", re.I), "gmail_summarize"),
-    # gmail_thread
+
+    # ── Gmail thread — show full conversation ─────────────────────────────────
     (re.compile(r"\b(show|open|read|get|view)\b.{0,20}\b(thread|conversation|email\s+chain|message\s+chain)\b", re.I), "gmail_thread"),
     (re.compile(r"\bthread\b.{0,20}\b(about|from|with|on)\b", re.I), "gmail_thread"),
-    # gmail_summarize
+
+    # FIX-SPRINT-007: "search web for X and summarize it" → web_search, not gmail_summarize
+    # MUST precede the "summarize it" gmail_summarize pattern below
+    (re.compile(r"\b(?:search|look\s+up|find)\b.{0,20}\b(?:web|internet|online|for)\b.{0,60}\b(?:summarize|tldr|summary)\b", re.I), "web_search"),
+    # ── Gmail summarize — MUST precede gmail_read (avoids "summarize" → gmail_read) ──
+    # "summarize this email", "summarize the thread about X", "tldr"
     (re.compile(r"^(?:tldr|tl;dr|tl\.dr)\s*$", re.I), "gmail_summarize"),
     (re.compile(r"\b(summarize|tldr|tl;dr|tl\.dr|give\s+me\s+a\s+summary)\b.{0,30}\b(this|that|the|an?)?\b.{0,10}\b(email|mail|message|thread|conversation)\b", re.I), "gmail_summarize"),
     (re.compile(r"\b(summarize|tldr)\s+(that|this|it|the\s+thread)\b", re.I), "gmail_summarize"),
-    # gmail_list_category
+
+    # ── Gmail list category ────────────────────────────────────────────────────
     (re.compile(r"\b(show|list|check|open|display)\b.{0,20}\b(promotions?|promo|promotional|newsletters?)\b", re.I), "gmail_list_category"),
     (re.compile(r"\b(show|list|check|open|display)\b.{0,20}\bspam\b", re.I), "gmail_list_category"),
     (re.compile(r"\b(show|list|check|open|display)\b.{0,20}\b(social|updates?|forums?)\b.{0,15}\b(emails?|mail|messages?)?\b", re.I), "gmail_list_category"),
-    # gmail_read: read a specific email — MUST precede generic gmail
+
+    # ── Gmail read (specific email) — MUST precede generic gmail ─────────────────
+    # "open 5", "read 3", "open #2" → bare number follow-up to inbox listing
     (re.compile(r"^(open|read)\s+#?(\d{1,2})\s*$", re.I), "gmail_read"),
+    # "read/open the latest/newest/first email"
     (re.compile(r"\b(read|open|show)\b.{0,20}\b(latest|newest|first|top|most\s+recent)\b.{0,20}\b(email|mail|message)\b", re.I), "gmail_read"),
+    # "open email 5", "read message 3", "open email number 2"
     (re.compile(r"\b(read|open|show)\b.{0,15}\b(email|mail|message)\b.{0,15}\b#?(\d{1,2})\b", re.I), "gmail_read"),
+    # "open this email", "read this email [subject]"
     (re.compile(r"\b(read|open)\s+this\s+(email|mail|message)\b", re.I), "gmail_read"),
-    # FIX-GMAIL-002: typos, "messages" synonym, reversed word order
+
+    # ── Gmail ────────────────────────────────────────────────────────────────────
+    # FIX-GMAIL-002: typos (gmial, emil), "messages" synonym, "inbox check" word-order
+    # FIX-STRESS-009: extended inbox listing variants ("list messages", "how many unread", etc.)
     (re.compile(r"\b(do\s+i\s+have\s+any|any\s+(new|unread)?\s*)(emails?|messages?|mail)\b", re.I), "gmail"),
     (re.compile(r"\binbox\b.{0,15}\b(check|status|new|unread|count|messages?)\b", re.I), "gmail"),
-    (re.compile(r"\b(gm[i]?al|emial)\b", re.I), "gmail"),
-    # FIX-STRESS-009: extended inbox listing variants
     (re.compile(r"\bwhat.{0,10}in\s+(?:my\s+)?inbox\b", re.I), "gmail"),
+    (re.compile(r"\b(gm[i]?al|emial)\b", re.I), "gmail"),
     (re.compile(r"(check|show|read|open|get|fetch|look\s+at|list).{0,20}(my )?(email|gmail|inbox|mail|messages?|emial|emil)\b", re.I), "gmail"),
     (re.compile(r"\bhow\s+many\b.{0,20}\b(?:unread|emails?|messages?)\b", re.I), "gmail"),
     (re.compile(r"\bshow\b.{0,15}\bme\b.{0,10}\bunread\b", re.I), "gmail"),
     (re.compile(r"(any (new|unread) )?emails?\b", re.I), "gmail"),
     (re.compile(r"gmail\b", re.I), "gmail"),
+
+    # ── Memory ledger ────────────────────────────────────────────────────────────
     (re.compile(r"(scan|index|update|build).{0,20}(my )?(memory|memories|ledger|context)", re.I), "memory_scan"),
-    # FIX-MEMSCAN-002: refresh/rebuild/rescan patterns
+    # FIX-MEMSCAN-002: refresh/rebuild/rescan and "memory scan X" patterns
     (re.compile(r"\b(refresh|rebuild|rescan|reindex)\b.{0,20}\b(memory|knowledge|index|ledger)\b", re.I), "memory_scan"),
     (re.compile(r"\bindex\b.{0,20}\b(terminal\s+history|history|session|conversation)\b", re.I), "memory_scan"),
     (re.compile(r"\bmemory\s+(scan|update|rescan|refresh|rebuild)\b", re.I), "memory_scan"),
@@ -574,17 +760,25 @@ REGEX_INTENTS = [
     (re.compile(r"(what do you (remember|know|recall)|do you remember|tell me what you know).{0,40}(about|regarding)\b", re.I), "memory_recall"),
     (re.compile(r"(remember|recall|what do you know about|memory).{0,30}\?", re.I), "memory_recall"),
     (re.compile(r"memory (stats|status|ledger|database|db)\b", re.I), "memory_stats"),
+    # NHR-009: additional synonyms — "memory statistics/metrics/entries"
     (re.compile(r"memory\s+(statistics|metrics|size|count|entries|records)\b", re.I), "memory_stats"),
-    # FIX-MEMST-001: "how many X in memory"
+    # FIX-MEMST-001: "how many X in memory" / "entries in memory"
     (re.compile(r"\bhow\s+many\b.{0,20}\b(things?|entries?|items?|records?)\b.{0,20}\bin\s+(your\s+|adwi.s\s+)?memory\b", re.I), "memory_stats"),
     (re.compile(r"\b(entries?|items?|records?)\s+in\s+(your\s+|my\s+|adwi.s\s+)?memory\b", re.I), "memory_stats"),
     (re.compile(r"\bmemry\s+(stats?|status|count|size)\b", re.I), "memory_stats"),
-    # FIX-MEMCTX-001: memory_context regex (was missing entirely)
+    # FIX-MEMCTX-001: show/what context → memory_context (NO regex existed before)
     (re.compile(r"\b(show|display|what.{0,10}(is|do\s+you\s+have))\b.{0,20}\b(session\s+)?context\b(?!\s+(window|length|limit|size))", re.I), "memory_context"),
     (re.compile(r"\bcontext\b.{0,20}\b(summary|dump|snapshot|right\s+now|currently)\b", re.I), "memory_context"),
+
+    # ── Semantic router ──────────────────────────────────────────────────────────
     (re.compile(r"route (this|the|my)?\s*(query|question|request|command)\b", re.I), "route"),
     (re.compile(r"which tool (should|would|to) (handle|use for|run)\b", re.I), "route"),
 
+    # FIX-SPRINT-002: "generate/suggest ideas for adwi features" / "low-hanging fruit" → what_next
+    # MUST precede capabilities \badwi\b...features pattern
+    (re.compile(r"\b(?:generate|suggest|brainstorm|come\s+up\s+with)\b.{0,20}\bideas?\b.{0,30}\b(?:adwi|features?|improvements?|enhancements?)\b", re.I), "what_next"),
+    (re.compile(r"\bbrainstorm\b.{0,30}\b(?:adwi|improvements?|features?|enhancements?)\b", re.I), "what_next"),
+    (re.compile(r"\blow[\s-]?hanging\s+fruit\b", re.I), "what_next"),
     # ── Capabilities ─────────────────────────────────────────────────────────────
     # FIX-S3-004: "adwi feature list", typos, colloquial "wut can u do"
     (re.compile(r"\badwi\b.{0,20}\b(feature\s+list|features|commands|abilities|capabilities)\b", re.I), "capabilities"),
