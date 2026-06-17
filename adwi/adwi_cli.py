@@ -519,12 +519,22 @@ _REGEX_INTENTS = [
     (re.compile(r"\bfiles?\b.{0,20}exceed(ing)?\b.{0,10}\d+\s*(gb|mb|gigabyte|megabyte)\b", re.I), "large_files"),
 
     # ── Disk / space (narrowed to disk/space/storage objects only) ───────────────
+    # FIX-SPRINT-005: advisory "what generates/causes disk usage" → skip disk_usage (LLM handles as chat)
+    # these must precede the disk_usage patterns below
+    (re.compile(r"\b(?:what|how)\b.{0,15}\b(?:generates?|causes?|creates?|contributes?\s+to|fills?)\b.{0,25}\b(?:disk|storage)\b", re.I), "chat"),
+    (re.compile(r"\bhow\s+does\b.{0,20}\b(?:disk|storage)\b", re.I), "chat"),
     (re.compile(r"(biggest|largest|heaviest|most space|taking up|using up|eating up).{0,40}(disk|storage|space)\b", re.I), "disk_usage"),
     (re.compile(r"(disk|storage|space).{0,40}(usage|breakdown|overview|used|free|full|analysis)", re.I), "disk_usage"),
-    (re.compile(r"(what|what.s|how much).{0,30}(space|room|storage|disk)", re.I), "disk_usage"),
+    # FIX-SPRINT-005b: "what's using disk" is action; "what" alone without "'s" → too broad
+    (re.compile(r"\bwhat.s\b.{0,30}(space|room|storage|disk)", re.I), "disk_usage"),
+    (re.compile(r"\bhow\s+much\b.{0,30}(space|room|storage|disk)", re.I), "disk_usage"),
     (re.compile(r"\bcheck\b.{0,10}\b(my\s+)?(disk|storage|space)\b", re.I), "disk_usage"),
     (re.compile(r"(free up|clean up).{0,20}(space|disk|storage|room)", re.I), "cleanup"),
 
+    # FIX-SPRINT-004: "purge old X", "remove leftover X" → cleanup BEFORE old_files steals them
+    # "purge old downloads", "remove leftover installers" are delete-intent (cleanup), not list-intent (old_files)
+    (re.compile(r"\b(?:purge|delete|clear|clean)\b.{0,5}\bold\b.{0,25}\b(?:downloads?|cache|temp|installers?|packages?|junk|logs?|files?)\b", re.I), "cleanup"),
+    (re.compile(r"\bremove\b.{0,10}\b(?:leftover|old|stale|unused)\b.{0,20}\b(?:installers?|packages?|downloads?|cache|temp)\b", re.I), "cleanup"),
     # ── Old files ────────────────────────────────────────────────────────────────
     (re.compile(r"(old|haven.t (used|opened|touched)|stale|unused|not (used|opened|accessed)).{0,30}(file|folder|doc)", re.I), "old_files"),
     (re.compile(r"files?.{0,20}(not|never).{0,20}(used|opened).{0,20}(year|month|day)", re.I), "old_files"),
@@ -551,7 +561,9 @@ _REGEX_INTENTS = [
     (re.compile(r"\b(find|search)\s+(for\s+)?notes?\b.{0,20}\b(about|on|regarding)\b", re.I), "obsidian_search"),
     (re.compile(r"\bsearch\s+(for\s+)?notes?\s+for\b", re.I), "obsidian_search"),
     # ── Organize ─────────────────────────────────────────────────────────────────
-    (re.compile(r"(organiz|tidy|restructure|better structure|sort out|clean up).{0,30}(folder|file|download|desktop|document)", re.I), "organize"),
+    (re.compile(r"(organiz|tidy|restructure|better structure|sort out|clean up).{0,30}(folder|file|download|desktop|document|workspace|project)", re.I), "organize"),
+    # FIX-SPRINT-ORG: "help organize my workspace", "how to structure my project folders"
+    (re.compile(r"\b(?:help|how\s+to|how\s+do\s+I|best\s+way\s+to)\b.{0,10}\b(?:organize|structure|arrange|tidy)\b.{0,30}\b(?:files?|folders?|workspace|project|notes?)\b", re.I), "organize"),
     # FIX-ORG-002: sort/arrange/structure synonyms — BEFORE file_search
     (re.compile(r"\b(sort|arrange|bring\s+order\s+to)\b.{0,30}(my\s+)?(files?|folders?|downloads?)\b", re.I), "organize"),
     (re.compile(r"\b(suggest|recommend)\b.{0,20}(a\s+)?(folder|file|project)\s*(structure|hierarchy|layout|organization)\b", re.I), "organize"),
@@ -623,12 +635,17 @@ _REGEX_INTENTS = [
     (re.compile(r"\b(repair|fix)\b.{0,15}\b(broken\s+containers?|local\s+ai|local\s+stack|my\s+local\s+ai)\b", re.I), "self_heal"),
     (re.compile(r"\badwi\b.{0,5}(self\s+repair|self.?fix)\b", re.I), "self_heal"),
 
+    # FIX-SPRINT-001a: "how fast is X" must fire as benchmark BEFORE status grabs "is adwi responding"
+    (re.compile(r"\bhow\s+fast\b.{0,25}\b(adwi|ollama|llama\d*|qwen\d*|mistral|phi|gemma|llm|model|local\s+ai)\b", re.I), "benchmark"),
     # ── Status (Bug 1: word boundaries stop substring false positives) ────────────
     # FIX-STATUS-002: "anything down", "is X available" patterns
     (re.compile(r"\b(anything|something)\b.{0,15}\b(down|broken|offline|unavailable|not\s+responding)\b", re.I), "status"),
     (re.compile(r"\b(is|are)\b.{0,20}\b(ollama|docker|adwi|n8n|redis|api|server|service|stack)\b.{0,15}\b(available|up|running|reachable|responding)\b", re.I), "status"),
     (re.compile(r"(check|verify).{0,20}(setup|stack|services|system)", re.I), "status"),
 
+    # FIX-SPRINT-006: "implement the suggested improvement" → implement_idea BEFORE what_next's
+    # (suggest|recommend).{0,20}(improvement) pattern fires on "suggested improvement"
+    (re.compile(r"\b(?:implement|build|code\s+up|develop)\b.{0,20}\b(?:the\s+)?(?:suggested|recommended|proposed)\b", re.I), "implement_idea"),
     # ── What next ────────────────────────────────────────────────────────────────
     (re.compile(r"(what|what.s).{0,20}(next|build|improve|add|create).{0,20}(adwi|setup|ai|local)", re.I), "what_next"),
     (re.compile(r"(suggest|recommend).{0,20}(next|improvement|feature|capability)", re.I), "what_next"),
@@ -792,6 +809,10 @@ _REGEX_INTENTS = [
     (re.compile(r"\bwhat.{0,5}(is|has|s)\s+(changed|modified|staged)\b", re.I), "git_status"),
     (re.compile(r"\bshow\s+(me\s+)?(what.{0,5}changed|the\s+diff|changes?\s+since)\b", re.I), "git_status"),
 
+    # FIX-SPRINT-003: "cmd_name function/handler in adwi" → inspect_code before generate_image
+    # catches "generate_image function in adwi" — the _ + "function" + "in adwi" signal code lookup
+    (re.compile(r"\b[a-z]+_[a-z_]+\b.{0,20}\b(?:function|handler|method|command)\b.{0,20}\bin\s+adwi\b", re.I), "inspect_code"),
+    (re.compile(r"\b(?:show|find|where\s+is)\b.{0,15}\bthe\b.{0,15}\b[a-z]+_[a-z_]+\b.{0,10}\b(?:function|handler|method)\b", re.I), "inspect_code"),
     # ── Image generation ─────────────────────────────────────────────────────────
     (re.compile(r"(generate|create|draw|make|design).{0,20}(an? )?(image|picture|photo|illustration|artwork)", re.I), "generate_image"),
 
@@ -805,11 +826,16 @@ _REGEX_INTENTS = [
 
     # ── Benchmark ────────────────────────────────────────────────────────────────
     # FIX-S3-001: "how fast is llama3.1:8b", typo "bechmark", tokens/sec variants
-    (re.compile(r"\bhow\s+fast\s+(is|does|was|are)\b.{0,30}\b(llama|qwen|mistral|phi|gemma|ollama|adwi|model|llm)\b", re.I), "benchmark"),
+    # FIX-SPRINT-001b: drop trailing \b to allow model versions like "llama3.1:8b"
+    (re.compile(r"\bhow\s+fast\s+(is|does|was|are)\b.{0,30}\b(llama|qwen|mistral|phi|gemma|ollama|adwi|model|llm)\d*", re.I), "benchmark"),
     (re.compile(r"\b(tokens?[/_]s|tok[/_]s|t[/_]s)\b", re.I), "benchmark"),
     (re.compile(r"\b(inference|llm|model|ollama).{0,20}\b(throughput|latency\s+benchmark|speed\s+test)\b", re.I), "benchmark"),
     (re.compile(r"\b(bechmark|benchamrk|benchmarck)\b", re.I), "benchmark"),
     (re.compile(r"(benchmark|speed.?test|how fast|tokens? per second).{0,20}(adwi|model|local|ollama)\b", re.I), "benchmark"),
+    # FIX-SPRINT-001c: "tokens per second", "inference speed", "how performant" without requiring model name
+    (re.compile(r"\b(?:how\s+many\s+)?tokens?\s+per\s+(?:sec(?:ond)?|s)\b", re.I), "benchmark"),
+    (re.compile(r"\b(?:my\s+)?inference\s+(?:speed|rate|throughput|perf)\b", re.I), "benchmark"),
+    (re.compile(r"\bhow\s+perf(?:ormant)?\b.{0,30}\b(llama|qwen|mistral|phi|gemma|ollama|model|llm)\d*", re.I), "benchmark"),
 
     # ── Gmail Phase 8: remove-attachment intent — MUST precede gmail_attach_file ──────────────
     # Pattern 1: any remove/detach/drop + "attachment" keyword (unambiguous Gmail context)
@@ -1074,6 +1100,9 @@ _REGEX_INTENTS = [
     (re.compile(r"\b(show|open|read|get|view)\b.{0,20}\b(thread|conversation|email\s+chain|message\s+chain)\b", re.I), "gmail_thread"),
     (re.compile(r"\bthread\b.{0,20}\b(about|from|with|on)\b", re.I), "gmail_thread"),
 
+    # FIX-SPRINT-007: "search web for X and summarize it" → web_search, not gmail_summarize
+    # MUST precede the "summarize it" gmail_summarize pattern below
+    (re.compile(r"\b(?:search|look\s+up|find)\b.{0,20}\b(?:web|internet|online|for)\b.{0,60}\b(?:summarize|tldr|summary)\b", re.I), "web_search"),
     # ── Gmail summarize — MUST precede gmail_read (avoids "summarize" → gmail_read) ──
     # "summarize this email", "summarize the thread about X", "tldr"
     (re.compile(r"^(?:tldr|tl;dr|tl\.dr)\s*$", re.I), "gmail_summarize"),
@@ -1132,6 +1161,11 @@ _REGEX_INTENTS = [
     (re.compile(r"route (this|the|my)?\s*(query|question|request|command)\b", re.I), "route"),
     (re.compile(r"which tool (should|would|to) (handle|use for|run)\b", re.I), "route"),
 
+    # FIX-SPRINT-002: "generate/suggest ideas for adwi features" / "low-hanging fruit" → what_next
+    # MUST precede capabilities \badwi\b...features pattern
+    (re.compile(r"\b(?:generate|suggest|brainstorm|come\s+up\s+with)\b.{0,20}\bideas?\b.{0,30}\b(?:adwi|features?|improvements?|enhancements?)\b", re.I), "what_next"),
+    (re.compile(r"\bbrainstorm\b.{0,30}\b(?:adwi|improvements?|features?|enhancements?)\b", re.I), "what_next"),
+    (re.compile(r"\blow[\s-]?hanging\s+fruit\b", re.I), "what_next"),
     # ── Capabilities ─────────────────────────────────────────────────────────────
     # FIX-S3-004: "adwi feature list", typos, colloquial "wut can u do"
     (re.compile(r"\badwi\b.{0,20}\b(feature\s+list|features|commands|abilities|capabilities)\b", re.I), "capabilities"),
@@ -1517,6 +1551,16 @@ _INTENT_SYSTEM = (
     "                      'remind me about those tasks'.\n"
     "                      Key signal: requires 'those/these/the action items/deadlines' anchor.\n"
     "                      NEVER use for 'remind me about this thread in 3 days' (→ gmail_followup_reminder).\n"
+    "   'organize'       : user wants to organize, structure, or tidy their files/folders/workspace.\n"
+    "                      EVEN when phrased as a question: 'what's the best way to structure my files?',\n"
+    "                      'how should I organize my workspace?', 'how to structure project folders?'.\n"
+    "                      Key signals: organize/structure/tidy + files/folders/workspace/projects.\n"
+    "                      NOT cleanup (which is deletion-focused). NOT file_search (finding files).\n"
+    "   'cleanup'        : user wants to delete, remove, or purge unwanted files/data from their machine.\n"
+    "                      Examples: 'purge old downloads', 'what should I delete?', 'remove leftover installers',\n"
+    "                      'clean up junk', 'free up space by removing files', 'what's safe to delete?'.\n"
+    "                      Key signals: delete/remove/purge/trash + files/data/space.\n"
+    "                      NOT organize (sorting/restructuring). NOT old_files (listing old files).\n"
     "   'generate_image' : ONLY when creating a brand-new image/picture/artwork/visual output.\n"
     "                      NEVER for explanations, comparisons, or code/model concepts.\n"
     "                      'generation' as a software concept (code generation, token generation,\n"
@@ -1559,6 +1603,9 @@ _INTENT_SYSTEM = (
     "                      'memory_recall' when the prompt contains 'vault', 'obsidian',\n"
     "                      'my notes', or 'note search'. This is the USER's personal notes,\n"
     "                      NOT Adwi's internal memory about the user's setup.\n"
+    "                      NEVER for advisory questions about Obsidian as an app:\n"
+    "                      'what's the best obsidian theme', 'obsidian alternatives',\n"
+    "                      'how do I use obsidian callouts' → those are 'chat', not vault searches.\n"
     "   'obsidian_daily' : open or append to today's Obsidian daily note or journal entry.\n"
     "                      'daily note', 'today's note', 'open today's journal'.\n"
     "                      NOT obsidian_search (which searches across all notes).\n"
@@ -1567,6 +1614,8 @@ _INTENT_SYSTEM = (
     "                      RuntimeError, etc.) OR an HTTP status code (404, 500, 502).\n"
     "                      The raw error text MUST be present in the message.\n"
     "                      Vague 'why did this break' without error text → use 'self_heal' instead.\n"
+    "                      Advisory questions about errors → 'chat': 'when does ValueError occur?',\n"
+    "                      'help my code has a bug' (no traceback), 'what causes KeyError?' → 'chat'.\n"
     "   'self_heal'      : user says adwi/service is broken or wants general repair WITHOUT pasting\n"
     "                      an actual error message. 'fix my setup', 'adwi is broken', 'repair ollama'.\n"
     "                      Also: 'something is broken', 'nothing is working', 'self-heal'.\n"
@@ -1608,9 +1657,12 @@ _INTENT_SYSTEM = (
     "                      'show context', 'show my context', 'what context do you have',\n"
     "                      'current session context', 'context summary', 'show me the context'.\n"
     "   'benchmark'      : run an actual timed speed/performance test on local models.\n"
-    "                      ONLY when the user explicitly wants a measurement: 'benchmark adwi',\n"
-    "                      'run a speed test', 'how many tokens per second', 'time the model'.\n"
-    "                      NOT advisory performance questions → those are 'chat':\n"
+    "                      Use for CURRENT performance measurement questions: 'benchmark adwi',\n"
+    "                      'run a speed test', 'how many tokens per second am I getting',\n"
+    "                      'how fast is llama3.1:8b on this machine', 'what's my inference speed',\n"
+    "                      'how performant is llama3.1 on my mac', 'time the model response',\n"
+    "                      'tokens/s', 'how fast is ollama on this hardware'.\n"
+    "                      NOT advisory/explanatory questions → those are 'chat':\n"
     "                      'why is ollama slow', 'how can I speed up my LLM', 'is 16GB enough',\n"
     "                      'what affects inference speed', 'how to make AI faster' → 'chat'.\n"
     "   'chat'           : DEFAULT for everything else — use this for:\n"
