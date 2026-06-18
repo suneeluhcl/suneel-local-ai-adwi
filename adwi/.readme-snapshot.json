@@ -1,6 +1,6 @@
 {
   "commands": [
-    "/add-capability-plan <idea>",
+    "/add-capability-plan",
     "/add-root",
     "/backup-audit",
     "/backup-disable",
@@ -11,12 +11,11 @@
     "/benchmark",
     "/browse",
     "/capabilities",
-    "/capabilities  or  /capability-status",
     "/capability-audit",
     "/capability-status",
     "/cleanup",
     "/clear-context",
-    "/cloud <prompt>  or just type",
+    "/cloud",
     "/cmd",
     "/confirm",
     "/daily-improve",
@@ -91,7 +90,7 @@
     "/gmail-update-subject",
     "/ha",
     "/help",
-    "/image <path>  or  /screenshot-analyze <path>",
+    "/image",
     "/image-save",
     "/implement-idea",
     "/inbox",
@@ -102,7 +101,7 @@
     "/learn-from-last-error",
     "/list",
     "/listen",
-    "/local <prompt>  or /use-local then type",
+    "/local",
     "/mcp",
     "/mcp-setup",
     "/memory-context",
@@ -127,32 +126,29 @@
     "/patch-adwi",
     "/rag",
     "/rag-index",
-    "/read <path>",
-    "/reason <task>",
+    "/read",
+    "/reason",
     "/remote",
     "/remote-status",
     "/repair-adwi",
     "/repo-private",
     "/repo-public",
     "/reset-context",
-    "/review-plan <idea>",
+    "/review-plan",
     "/roadmap",
     "/route",
     "/run-bash",
     "/run-python",
     "/run-safe",
-    "/save-youtube <url>",
+    "/save-youtube",
     "/screenshot-analyze",
-    "/search <term>",
+    "/search",
     "/secrets-status",
     "/self-heal",
-    "/self-heal  or  fix my setup",
     "/session-history",
     "/set-cloud-model",
     "/status",
-    "/status  or  check my setup",
     "/sync-knowledge",
-    "/sync-knowledge  or  sync my knowledge",
     "/tailscale",
     "/tavily",
     "/test-adwi",
@@ -160,7 +156,7 @@
     "/trace-log",
     "/training-plan",
     "/trusted-roots",
-    "/url <url>",
+    "/url",
     "/use-cloud",
     "/use-local",
     "/voice",
@@ -170,48 +166,47 @@
     "/watcher-status",
     "/web-search",
     "/what-next",
-    "/what-next  or  what should I build next",
-    "/youtube <url>  or paste URL"
+    "/youtube"
   ],
   "services": [
     [
       "open-webui",
-      "1",
-      "Up 33 hours (healthy)"
+      "3000",
+      "Up 34 hours (healthy)"
     ],
     [
       "n8n",
-      "1",
+      "5678",
       "Up 34 hours"
     ],
     [
       "searxng",
-      "1",
+      "8888",
       "Up 34 hours"
     ],
     [
       "prometheus",
-      "1",
+      "9090",
       "Up 34 hours"
     ],
     [
       "loki",
-      "1",
+      "3100",
       "Up 34 hours"
     ],
     [
       "grafana",
-      "1",
-      "Up 33 hours"
+      "4000",
+      "Up 34 hours"
     ],
     [
       "node-exporter",
-      "1",
+      "9100",
       "Up 34 hours"
     ],
     [
       "cadvisor",
-      "1",
+      "9101",
       "Up 34 hours (healthy)"
     ]
   ],
@@ -256,6 +251,8 @@
     "MODEL_EMBED": "nomic-embed-text",
     "MODEL_NLU_FALLBACK": "qwen3:0.6b"
   },
+  "fixture_count": 96,
+  "intent_count": 109,
   "ts": "2026-06-17",
-  "_hash": "7770b08efbe97d3b"
+  "_hash": "f84e704e9e855c8a"
 }

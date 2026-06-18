@@ -1,0 +1,262 @@
+#!/usr/bin/env python3
+"""
+validate-docs — Consistency checker for Adwi documentation vs code.
+
+Checks that authoritative facts in README.md, CLAUDE.md, and other docs
+agree with ground truth from code and config files.
+
+Exits 0 if all checks pass; exits 1 if any FAIL.
+
+Usage:
+  python3 bin/validate-docs            # run all checks, print results
+  python3 bin/validate-docs --strict   # also exit 1 on WARNs
+"""
+
+from __future__ import annotations
+
+import json
+import re
+import sys
+import urllib.request
+from pathlib import Path
+
+WORKSPACE   = Path.home() / "SuneelWorkSpace"
+README      = WORKSPACE / "README.md"
+CLAUDE_MD   = WORKSPACE / "CLAUDE.md"
+CLI_PATH    = WORKSPACE / "adwi" / "adwi_cli.py"
+CAPS_PATH   = WORKSPACE / "adwi" / "capabilities.json"
+MANIFEST    = WORKSPACE / "adwi" / "system_manifest.json"
+
+STRICT = "--strict" in sys.argv
+
+results: list[tuple[str, str, str]] = []  # (status, check_id, message)
+
+
+def check(status: str, check_id: str, message: str) -> None:
+    results.append((status, check_id, message))
+    icon = {"PASS": "✓", "FAIL": "✗", "WARN": "⚠", "SKIP": "·"}[status]
+    print(f"  {icon} [{check_id}] {message}")
+
+
+def extract_commands() -> list[str]:
+    cmds: set[str] = set()
+    if CLI_PATH.exists():
+        src = CLI_PATH.read_text(errors="ignore")
+        cmds.update(re.findall(r'line\.startswith\("(/[a-z][a-z0-9-]+)"', src))
+        cmds.update(re.findall(r'line == "(/[a-z][a-z0-9-]+)"', src))
+        for group in re.findall(r'line in \(([^)]+)\)', src):
+            cmds.update(re.findall(r'"(/[a-z][a-z0-9-]+)"', group))
+    if CAPS_PATH.exists():
+        try:
+            caps = json.loads(CAPS_PATH.read_text())
+            entries = caps if isinstance(caps, list) else caps.get("capabilities", [])
+            for c in entries:
+                n = (c.get("command") or c.get("name", "")).strip()
+                token = n.split()[0] if n else ""
+                if token.startswith("/"):
+                    cmds.add(token)
+        except Exception:
+            pass
+    return sorted(cmds)
+
+
+def extract_intent_count() -> int:
+    if not CLI_PATH.exists():
+        return 0
+    src = CLI_PATH.read_text(errors="ignore")
+    m = re.search(r"_ALL_INTENTS\s*=\s*\[(.*?)\]", src, re.S)
+    if m:
+        cnt = len(re.findall(r'"[\w_]+"', m.group(1)))
+        if cnt:
+            return cnt
+    return 0
+
+
+def live_fixture_count() -> int | None:
+    try:
+        req = urllib.request.Request("http://localhost:6333/collections/nlu_fixtures")
+        with urllib.request.urlopen(req, timeout=3) as r:
+            d = json.loads(r.read())
+            n = (d.get("result") or {}).get("points_count")
+            return int(n) if n is not None else None
+    except Exception:
+        return None
+
+
+def readme_text() -> str:
+    return README.read_text() if README.exists() else ""
+
+
+def run_checks() -> None:
+    readme = readme_text()
+    true_commands = extract_commands()
+    true_cmd_count = len(true_commands)
+    true_intent_count = extract_intent_count()
+
+    # ── Command count checks ─────────────────────────────────────────────────
+
+    # AUTO:COMMANDS section
+    m = re.search(r"<!-- AUTO:COMMANDS -->.*?\*\*(\d+) registered commands", readme, re.S)
+    if m:
+        readme_count = int(m.group(1))
+        if readme_count == true_cmd_count:
+            check("PASS", "CMD-001", f"AUTO:COMMANDS count matches code: {true_cmd_count}")
+        else:
+            check("FAIL", "CMD-001", f"AUTO:COMMANDS says {readme_count} commands but code has {true_cmd_count} — run bin/auto-update-readme --force")
+    else:
+        check("WARN", "CMD-001", "AUTO:COMMANDS marker not found in README.md")
+
+    # Table of Contents
+    m2 = re.search(r"All (\d+)\+ commands", readme)
+    if m2:
+        toc_count = int(m2.group(1))
+        if abs(toc_count - true_cmd_count) <= 5:
+            check("PASS", "CMD-002", f"TOC command count ({toc_count}+) is within 5 of actual ({true_cmd_count})")
+        else:
+            check("FAIL", "CMD-002", f"TOC says {toc_count}+ commands but actual is {true_cmd_count}")
+    else:
+        check("SKIP", "CMD-002", "TOC command count pattern not found")
+
+    # Directory tree annotation
+    m3 = re.search(r"adwi_cli\.py.*?(\d+) commands", readme)
+    if m3:
+        tree_count = int(m3.group(1))
+        if abs(tree_count - true_cmd_count) <= 5:
+            check("PASS", "CMD-003", f"Directory tree command count ({tree_count}) is within 5 of actual ({true_cmd_count})")
+        else:
+            check("FAIL", "CMD-003", f"Directory tree says {tree_count} commands but actual is {true_cmd_count} — update §6")
+
+    # Phase 5 entry
+    m4 = re.search(r"\| 5 \|.*?(\d+)-command registry", readme)
+    if m4:
+        p5_count = int(m4.group(1))
+        if p5_count == true_cmd_count:
+            check("PASS", "CMD-004", f"Phase 5 command count is current: {p5_count}")
+        else:
+            check("FAIL", "CMD-004", f"Phase 5 says {p5_count}-command registry but actual is {true_cmd_count} — run bin/auto-update-readme --force")
+    else:
+        check("SKIP", "CMD-004", "Phase 5 pattern not found in README")
+
+    # ── NLU fixture count checks ─────────────────────────────────────────────
+
+    fixture_count = live_fixture_count()
+    if fixture_count is None:
+        check("SKIP", "NLU-001", "Qdrant not reachable — skipping live fixture count checks")
+    else:
+        # AUTO:NLU section
+        m = re.search(r"<!-- AUTO:NLU -->.*?(\d+) fixtures", readme, re.S)
+        if m:
+            readme_fixtures = int(m.group(1))
+            if readme_fixtures == fixture_count:
+                check("PASS", "NLU-001", f"AUTO:NLU fixture count matches Qdrant: {fixture_count}")
+            else:
+                check("FAIL", "NLU-001", f"AUTO:NLU says {readme_fixtures} fixtures but Qdrant has {fixture_count} — run bin/auto-update-readme --force")
+        else:
+            check("WARN", "NLU-001", "AUTO:NLU marker not found in README.md")
+
+        # Phase 7
+        m7 = re.search(r"\| 7 \|.*?(\d+)-fixture", readme)
+        if m7:
+            p7_fixtures = int(m7.group(1))
+            if p7_fixtures == fixture_count:
+                check("PASS", "NLU-002", f"Phase 7 fixture count is current: {p7_fixtures}")
+            else:
+                check("FAIL", "NLU-002", f"Phase 7 says {p7_fixtures}-fixture but Qdrant has {fixture_count}")
+        else:
+            check("SKIP", "NLU-002", "Phase 7 pattern not found in README")
+
+        # Directory tree annotation (memory.py)
+        m_tree = re.search(r"memory\.py.*?(\d+) NLU fixtures", readme)
+        if m_tree:
+            tree_fixtures = int(m_tree.group(1))
+            if tree_fixtures == fixture_count:
+                check("PASS", "NLU-003", f"Directory tree fixture count matches: {tree_fixtures}")
+            else:
+                check("FAIL", "NLU-003", f"Directory tree says {tree_fixtures} NLU fixtures but Qdrant has {fixture_count} — update §6")
+
+    # ── Intent count checks ──────────────────────────────────────────────────
+
+    if true_intent_count:
+        m = re.search(r"(\d+) intent classes", readme)
+        if m:
+            readme_intents = int(m.group(1))
+            if readme_intents == true_intent_count:
+                check("PASS", "NLU-004", f"Intent class count matches: {true_intent_count}")
+            else:
+                check("FAIL", "NLU-004", f"README says {readme_intents} intent classes but _ALL_INTENTS has {true_intent_count}")
+        else:
+            check("SKIP", "NLU-004", "Intent class count not found in README")
+
+    # ── Docker SERVICES section ──────────────────────────────────────────────
+
+    m = re.search(r"<!-- AUTO:SERVICES -->.*?<!-- /AUTO:SERVICES -->", readme, re.S)
+    if m:
+        services_block = m.group(0)
+        if "| :1 |" in services_block or ":1 |" in services_block:
+            check("FAIL", "SVC-001", "AUTO:SERVICES shows ':1' port — regex bug in extract_services(). Run bin/auto-update-readme --force")
+        else:
+            check("PASS", "SVC-001", "AUTO:SERVICES port values look valid")
+    else:
+        check("SKIP", "SVC-001", "AUTO:SERVICES marker not found")
+
+    # ── manifest freshness ───────────────────────────────────────────────────
+
+    if MANIFEST.exists():
+        try:
+            mf = json.loads(MANIFEST.read_text())
+            mf_count = mf.get("command_registry", {}).get("total_commands", 0)
+            if mf_count == true_cmd_count:
+                check("PASS", "MAN-001", f"system_manifest.json command count matches: {mf_count}")
+            else:
+                check("WARN", "MAN-001", f"system_manifest.json has {mf_count} commands but actual is {true_cmd_count} — run bin/generate-manifest")
+            mf_intents = mf.get("nlu_pipeline", {}).get("intent_count", 0)
+            if mf_intents == true_intent_count:
+                check("PASS", "MAN-002", f"system_manifest.json intent count matches: {mf_intents}")
+            else:
+                check("WARN", "MAN-002", f"system_manifest.json has {mf_intents} intents but actual is {true_intent_count} — run bin/generate-manifest")
+        except Exception as e:
+            check("WARN", "MAN-001", f"Could not parse system_manifest.json: {e}")
+    else:
+        check("WARN", "MAN-001", "adwi/system_manifest.json not found — run bin/generate-manifest")
+
+    # ── README header / priming claim ───────────────────────────────────────
+
+    if "All sections are authoritative and kept" in readme:
+        check("WARN", "PRIME-001",
+              "README.md header claims 'all sections authoritative' — this is misleading as §6 directory tree has static/stale annotations. Consider nuancing this claim.")
+    else:
+        check("PASS", "PRIME-001", "README header does not make overly broad 'all authoritative' claim")
+
+    # ── Syntax check on adwi_cli.py ─────────────────────────────────────────
+
+    import subprocess
+    r = subprocess.run(["python3", "-m", "py_compile", str(CLI_PATH)], capture_output=True)
+    if r.returncode == 0:
+        check("PASS", "SYNTAX-001", "adwi/adwi_cli.py compiles without errors")
+    else:
+        check("FAIL", "SYNTAX-001", f"adwi/adwi_cli.py has syntax errors: {r.stderr.decode()[:100]}")
+
+
+# ── Summary ──────────────────────────────────────────────────────────────────
+
+def main() -> int:
+    print("Adwi docs consistency check\n")
+    run_checks()
+    passes  = sum(1 for s, _, _ in results if s == "PASS")
+    warns   = sum(1 for s, _, _ in results if s == "WARN")
+    fails   = sum(1 for s, _, _ in results if s == "FAIL")
+    skips   = sum(1 for s, _, _ in results if s == "SKIP")
+    print(f"\n  {passes} PASS  {warns} WARN  {fails} FAIL  {skips} SKIP")
+    if fails:
+        print("  Fix FAILs by re-running bin/auto-update-readme --force and bin/generate-manifest")
+    if not fails and not warns:
+        print("  All checks passed — docs are consistent with code.")
+    if fails:
+        return 1
+    if STRICT and warns:
+        return 1
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

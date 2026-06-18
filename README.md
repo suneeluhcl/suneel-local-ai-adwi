@@ -1,9 +1,10 @@
 # Adwi — Local AI Operating System · LLM System Blueprint
 
-> **PRIMING CONTEXT FOR EXTERNAL MODELS:** This document is a machine-optimised architectural blueprint.
-> If you are Gemini, Copilot, GPT-4, or any other LLM reading this cold, you have full architectural
-> comprehension of the Adwi system after reading this file. All sections are authoritative and kept
-> current by an automated injection pipeline. Treat this as the single source of truth.
+> **PRIMING CONTEXT FOR EXTERNAL MODELS:** This document is the primary architectural blueprint.
+> Sections marked `<!-- AUTO:... -->` are machine-generated from authoritative code/config sources and
+> are kept current by `bin/auto-update-readme`. Static narrative sections (§6 directory tree, §7–§10)
+> are manually maintained and may lag slightly. For ground truth, prefer code over docs.
+> For the compact, unambiguous priming reference see `docs/LLM_SYSTEM_PRIMING.md`.
 >
 > **OPERATOR:** Suneel Bikkasani · **HARDWARE:** Apple M4 Max 64 GB unified RAM · **OS:** macOS 15
 > **REPO:** `~/SuneelWorkSpace/` · **ENTRY POINT:** `bin/adwi` → `python3 adwi/adwi_cli.py`
@@ -16,7 +17,7 @@
 |---|---|---|
 | [§1](#1-system-dna--model-matrix) | System DNA & Model Matrix | Hardware, models, NLU pipeline |
 | [§2](#2-infrastructure-topography) | Infrastructure Topography | Every port, container, agent, data flow |
-| [§3](#3-deterministic-capability-grid) | Deterministic Capability Grid | All 172+ commands, args, behaviors |
+| [§3](#3-deterministic-capability-grid) | Deterministic Capability Grid | All 167+ commands, args, behaviors |
 | [§3a](#3a-gmail-capability-surface) | Gmail Capability Surface | Full Gmail feature inventory — read/write/draft/send/schedule/rules |
 | [§4](#4-agentic-lifecycle-flows) | Agentic Lifecycle Flows | ASCII diagrams of every execution path |
 | [§5](#5-security--boundary-invariants) | Security & Boundary Invariants | Hard blocks, credential isolation, API auth status |
@@ -133,14 +134,14 @@ SYSTEM You are Adwi, a cautious local AI assistant. Never read secrets, never co
 <!-- AUTO:SERVICES -->
 | Service | Port | Status |
 |---|---|---|
-| open-webui | :1 | ✓ running |
-| n8n | :1 | ✓ running |
-| searxng | :1 | ✓ running |
-| prometheus | :1 | ✓ running |
-| loki | :1 | ✓ running |
-| grafana | :1 | ✓ running |
-| node-exporter | :1 | ✓ running |
-| cadvisor | :1 | ✓ running |
+| open-webui | :3000 | ✓ running |
+| n8n | :5678 | ✓ running |
+| searxng | :8888 | ✓ running |
+| prometheus | :9090 | ✓ running |
+| loki | :3100 | ✓ running |
+| grafana | :4000 | ✓ running |
+| node-exporter | :9100 | ✓ running |
+| cadvisor | :9101 | ✓ running |
 *Auto-updated: 2026-06-17*
 <!-- /AUTO:SERVICES -->
 
@@ -211,18 +212,17 @@ Dashboard: http://localhost:4000 (user: suneel)
 ## §3 Deterministic Capability Grid
 
 <!-- AUTO:COMMANDS -->
-**172 registered commands.** Key groups:
+**167 registered commands.** Key groups:
 
-**add**: `/add-capability-plan <idea>`  `/add-root`
+**add**: `/add-capability-plan`  `/add-root`
 **backup**: `/backup-audit`  `/backup-disable`  `/backup-enable`  `/backup-log`  `/backup-now`  `/backup-status`
 **benchmark**: `/benchmark`
 **browse**: `/browse`
 **capabilities**: `/capabilities`
-**capabilities  or  /capability**: `/capabilities  or  /capability-status`
 **capability**: `/capability-audit`  `/capability-status`
 **cleanup**: `/cleanup`
 **clear**: `/clear-context`
-**cloud <prompt>  or just type**: `/cloud <prompt>  or just type`
+**cloud**: `/cloud`
 **cmd**: `/cmd`
 **confirm**: `/confirm`
 **daily**: `/daily-improve`
@@ -243,8 +243,7 @@ Dashboard: http://localhost:4000 (user: suneel)
 **gmail**: `/gmail`  `/gmail-add-bcc`  `/gmail-add-cc`  `/gmail-archive`  `/gmail-attach`  `/gmail-attachments`  `/gmail-auth`  `/gmail-cancel`  `/gmail-cancel-draft`  `/gmail-cancel-followup`  `/gmail-cancel-scheduled`  `/gmail-compose`  `/gmail-confirm`  `/gmail-delete-draft`  `/gmail-draft-reply`  `/gmail-drafts`  `/gmail-extract-tasks`  `/gmail-followup`  `/gmail-followups`  `/gmail-forward`  `/gmail-mark-read`  `/gmail-mark-unread`  `/gmail-open-draft`  `/gmail-open-scheduled`  `/gmail-promos`  `/gmail-read`  `/gmail-remove-attachment`  `/gmail-reschedule`  `/gmail-rewrite`  `/gmail-rule`  `/gmail-rule-apply`  `/gmail-rule-cancel`  `/gmail-rules`  `/gmail-save-attachment`  `/gmail-scheduled`  `/gmail-send-draft`  `/gmail-show-draft`  `/gmail-social`  `/gmail-spam`  `/gmail-summarize`  `/gmail-summarize-attachment`  `/gmail-summary`  `/gmail-tasks-remind`  `/gmail-tasks-save`  `/gmail-thread`  `/gmail-thread-intel`  `/gmail-trash`  `/gmail-triage`  `/gmail-undo`  `/gmail-update-subject`
 **ha**: `/ha`
 **help**: `/help`
-**image**: `/image-save`
-**image <path>  or  /screenshot**: `/image <path>  or  /screenshot-analyze <path>`
+**image**: `/image`  `/image-save`
 **implement**: `/implement-idea`
 **inbox**: `/inbox`
 **inspect**: `/inspect-code`  `/inspect-system`
@@ -253,7 +252,7 @@ Dashboard: http://localhost:4000 (user: suneel)
 **learn**: `/learn-from-last-error`
 **list**: `/list`
 **listen**: `/listen`
-**local <prompt>  or /use**: `/local <prompt>  or /use-local then type`
+**local**: `/local`
 **mcp**: `/mcp`  `/mcp-setup`
 **memory**: `/memory-context`  `/memory-recall`  `/memory-scan`  `/memory-stats`
 **mistakes**: `/mistakes`
@@ -268,26 +267,25 @@ Dashboard: http://localhost:4000 (user: suneel)
 **owui**: `/owui`
 **patch**: `/patch-adwi`
 **rag**: `/rag`  `/rag-index`
-**read <path>**: `/read <path>`
-**reason <task>**: `/reason <task>`
+**read**: `/read`
+**reason**: `/reason`
 **remote**: `/remote`  `/remote-status`
 **repair**: `/repair-adwi`
 **repo**: `/repo-private`  `/repo-public`
 **reset**: `/reset-context`
-**review**: `/review-plan <idea>`
+**review**: `/review-plan`
 **roadmap**: `/roadmap`
 **route**: `/route`
 **run**: `/run-bash`  `/run-python`  `/run-safe`
-**save**: `/save-youtube <url>`
+**save**: `/save-youtube`
 **screenshot**: `/screenshot-analyze`
-**search <term>**: `/search <term>`
+**search**: `/search`
 **secrets**: `/secrets-status`
-**self**: `/self-heal`  `/self-heal  or  fix my setup`
+**self**: `/self-heal`
 **session**: `/session-history`
 **set**: `/set-cloud-model`
 **status**: `/status`
-**status  or  check my setup**: `/status  or  check my setup`
-**sync**: `/sync-knowledge`  `/sync-knowledge  or  sync my knowledge`
+**sync**: `/sync-knowledge`
 **tailscale**: `/tailscale`
 **tavily**: `/tavily`
 **test**: `/test-adwi`
@@ -295,13 +293,13 @@ Dashboard: http://localhost:4000 (user: suneel)
 **trace**: `/trace-log`
 **training**: `/training-plan`
 **trusted**: `/trusted-roots`
-**url <url>**: `/url <url>`
+**url**: `/url`
 **use**: `/use-cloud`  `/use-local`
 **voice**: `/voice`  `/voice-brief`  `/voice-in`  `/voice-out`
 **watcher**: `/watcher-status`
 **web**: `/web-search`
-**what**: `/what-next`  `/what-next  or  what should I build next`
-**youtube <url>  or paste URL**: `/youtube <url>  or paste URL`
+**what**: `/what-next`
+**youtube**: `/youtube`
 *Auto-updated: 2026-06-17*
 <!-- /AUTO:COMMANDS -->
 
@@ -852,9 +850,9 @@ Enforced by `_classify_cli_risk()` (adwi_cli.py) and `classify_risk()` (reason_e
 SuneelWorkSpace/
 │
 ├── adwi/                              # Core AI brain
-│   ├── adwi_cli.py                    # 5,100+ lines · 121 commands · REPL entry point
+│   ├── adwi_cli.py                    # 5,100+ lines · 167 commands · REPL entry point
 │   ├── reason_engine.py               # LangGraph: Planner→Executor→Critic (822 lines)
-│   ├── memory.py                      # AdwiMemory: SQLite + nomic-embed cosine search (89 NLU fixtures)
+│   ├── memory.py                      # AdwiMemory: SQLite + nomic-embed cosine search (96 NLU fixtures)
 │   ├── path_validator.py              # Deny-first path containment; hard-blocks credential dirs
 │   ├── telemetry.py                   # OTel tracing → Arize Phoenix; credential-safe redaction
 │   ├── nlu_fast_path.py               # Qdrant ≥0.88 bypass: skips llama3.1:8b (~5 ms vs 43 ms)
@@ -883,7 +881,7 @@ SuneelWorkSpace/
 │   ├── memory.db                      # [gitignored] Semantic memory (380+ items)
 │   └── knowledge.db                   # [gitignored] Q&A pairs (1,565+) + chunks
 │
-├── bin/                               # 35 helper scripts
+├── bin/                               # 41 scripts (auto-update-readme counts authoritative)
 │   ├── adwi                           # Launcher (uses .venv python if available)
 │   ├── auto-update-readme             # README auto-injection pipeline
 │   ├── start-obsidian-bridge          # Start bridge (:5056)
@@ -892,10 +890,10 @@ SuneelWorkSpace/
 │   ├── start-homeassistant            # Start Home Assistant (:8123)
 │   ├── status-ai                      # All service statuses
 │   ├── adwi-git-backup                # 30-min auto-backup script
-│   └── ...                            # 27 more scripts
+│   └── ...                            # 33 more scripts
 │
 ├── local-ai-stack/
-│   ├── docker-compose.yml             # 12 containers (§2)
+│   ├── docker-compose.yml             # 11 compose services + Qdrant (LaunchAgent) = 12 containers (§2)
 │   └── monitoring/                    # Prometheus, Loki, Promtail, Grafana configs
 │
 ├── mcp-servers/
@@ -1012,9 +1010,9 @@ python3 -m py_compile adwi/adwi_cli.py && echo "still compiles"
 | 2 | LangGraph Orchestration & Interactive Permission Surface | Planner→Executor→Critic state machine; Phase 2 boxed gate with WHY explanation | `adwi/reason_engine.py` |
 | 3 | Memory Lifecycle, Scoring & Safety Gate | importance_score, recency_decay, provenance columns; BLOCKED/REVIEW/SAFE classifier | `adwi/memory.py` |
 | 4 | Real-Time Self-Healing & Hermes Skill Compiling | aider non-interactive patch → pytest verify → skills/ SKILL.md; skill pre-flight match | `adwi/reason_engine.py · skills/` |
-| 5 | prompt_toolkit Slash-Command Autocomplete | 104-command registry; substring fuzzy scoring; Tab/arrow REPL overlay | `adwi/adwi_cli.py (SlashCommandCompleter)` |
+| 5 | prompt_toolkit Slash-Command Autocomplete | 167-command registry; substring fuzzy scoring; Tab/arrow REPL overlay | `adwi/adwi_cli.py (SlashCommandCompleter)` |
 | 6 | Chain-of-Intent Schema & Semantic Slot-Filling | analysis+confidence+intent+arguments JSON schema; 29 structured arg reads in dispatch | `adwi/adwi_cli.py (_INTENT_JSON_SCHEMA)` |
-| 7 | Qdrant-Driven Dynamic Few-Shot Routing | 49-fixture nlu_fixtures collection; top-3 injected into llama3.1:8b system prompt | `adwi/memory.py · Qdrant :6333` |
+| 7 | Qdrant-Driven Dynamic Few-Shot Routing | 96-fixture nlu_fixtures collection; top-3 injected into llama3.1:8b system prompt | `adwi/memory.py · Qdrant :6333` |
 | 8 | LLM-Priming Documentation Update Invariants | auto-update-readme always runs before backup; PHASES+NLU sections auto-injected | `bin/auto-update-readme · adwi/backup.py` |
 | 9 | Security Core: PathValidator, OTel Telemetry, Fast NLU Bypass | deny-first path containment; OTLP→Phoenix traces with credential redaction; Qdrant ≥0.88 score skip of 8B LLM (43 ms → <5 ms fast path) | `adwi/path_validator.py · adwi/telemetry.py · adwi/nlu_fast_path.py` |
 | 10 | SimLab: Bounded Continuous Eval & Self-Improvement Harness | hardware/thermal gates; ephemeral sandbox; SHA-256 failure fingerprinting; Tier A/B/C improvement proposals; immutable golden baseline (100% required); auto git-rollback on regression; 41 unit tests, 0 warnings | `adwi/simlab/ (11 modules)` |

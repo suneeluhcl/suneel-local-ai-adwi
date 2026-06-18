@@ -1,0 +1,571 @@
+{
+  "schema_version": "1.0.0",
+  "generated_at": "2026-06-18T03:35:39.388626+00:00",
+  "generated_by": "bin/generate-manifest",
+  "system_identity": {
+    "name": "Adwi",
+    "operator": "Suneel Bikkasani",
+    "repo_root": "~/SuneelWorkSpace",
+    "entry_point": "bin/adwi \u2192 python3 adwi/adwi_cli.py",
+    "description": "Local AI operating system running on Apple Silicon Mac. Terminal REPL + daemon services."
+  },
+  "hardware_runtime": {
+    "cpu": "Apple M4 Max (16-core)",
+    "ram_gb": 64,
+    "os": "macOS 15 (Darwin 25.x)",
+    "python_version": "3.14.5",
+    "venv_path": "adwi/.venv",
+    "package_manager": "uv + pip"
+  },
+  "models": {
+    "MODEL_MAIN": {
+      "model_id": "adwi:latest",
+      "role": "Primary reasoning \u2014 all chat, synthesis, planning",
+      "context_tokens": 131072,
+      "size_gb": 18.6
+    },
+    "MODEL_FAST": {
+      "model_id": "llama3.1:8b",
+      "role": "NLU intent classification \u2014 every natural-language dispatch",
+      "context_tokens": 8192,
+      "size_gb": 4.9
+    },
+    "MODEL_VISION": {
+      "model_id": "minicpm-v:latest",
+      "role": "Vision / image analysis \u2014 /image, /screenshot-analyze",
+      "context_tokens": 4096,
+      "size_gb": 5.0
+    },
+    "MODEL_EMBED": {
+      "model_id": "nomic-embed-text",
+      "role": "Embeddings (768-dim) \u2014 memory search, RAG, knowledge DB",
+      "context_tokens": 512,
+      "size_gb": 0.27
+    },
+    "MODEL_NLU_FALLBACK": {
+      "model_id": "qwen3:0.6b",
+      "role": "NLU fallback when llama3.1 is unavailable",
+      "context_tokens": 4096,
+      "size_gb": 0.4
+    }
+  },
+  "services": [
+    {
+      "name": "open-webui",
+      "port": 3000,
+      "layer": "docker-compose",
+      "purpose": "Browser chat UI"
+    },
+    {
+      "name": "n8n",
+      "port": 5678,
+      "layer": "docker-compose",
+      "purpose": "Workflow automation / webhooks"
+    },
+    {
+      "name": "searxng",
+      "port": 8888,
+      "layer": "docker-compose",
+      "purpose": "Private local web search"
+    },
+    {
+      "name": "homeassistant",
+      "port": 8123,
+      "layer": "docker-compose",
+      "purpose": "iPhone control plane"
+    },
+    {
+      "name": "prometheus",
+      "port": 9090,
+      "layer": "docker-compose",
+      "purpose": "Metrics scraper"
+    },
+    {
+      "name": "loki",
+      "port": 3100,
+      "layer": "docker-compose",
+      "purpose": "Log aggregation"
+    },
+    {
+      "name": "grafana",
+      "port": 4000,
+      "layer": "docker-compose",
+      "purpose": "Monitoring dashboards"
+    },
+    {
+      "name": "node-exporter",
+      "port": 9100,
+      "layer": "docker-compose",
+      "purpose": "Host system metrics"
+    },
+    {
+      "name": "cadvisor",
+      "port": 9101,
+      "layer": "docker-compose",
+      "purpose": "Container metrics"
+    },
+    {
+      "name": "qdrant",
+      "port": 6333,
+      "layer": "docker-launchagent",
+      "purpose": "Vector database (suneel-qdrant container started by LaunchAgent)"
+    },
+    {
+      "name": "ollama",
+      "port": 11434,
+      "layer": "host-native",
+      "purpose": "Local LLM inference API (brew)"
+    },
+    {
+      "name": "phoenix",
+      "port": 6006,
+      "layer": "host-launchagent",
+      "purpose": "Agent observability UI (OTel / Arize Phoenix)"
+    },
+    {
+      "name": "obsidian-bridge",
+      "port": 5056,
+      "layer": "host-launchagent",
+      "purpose": "Obsidian vault HTTP CRUD API"
+    },
+    {
+      "name": "command-api",
+      "port": 5055,
+      "layer": "host-native",
+      "purpose": "Safe Command API \u2014 8 allowlisted routes for n8n/iPhone"
+    },
+    {
+      "name": "phoenix-grpc",
+      "port": 4317,
+      "layer": "host-launchagent",
+      "purpose": "OTLP gRPC ingestion"
+    },
+    {
+      "name": "phoenix-http",
+      "port": 4318,
+      "layer": "host-launchagent",
+      "purpose": "OTLP HTTP ingestion"
+    }
+  ],
+  "launch_agents": [
+    {
+      "label": "adwi-git-backup",
+      "plist": "/Users/MAC/Library/LaunchAgents/com.suneel.adwi-git-backup.plist",
+      "schedule": "every 30min",
+      "purpose": "30-min auto-backup to git"
+    },
+    {
+      "label": "adwi-nightly",
+      "plist": "/Users/MAC/Library/LaunchAgents/com.suneel.adwi-nightly.plist",
+      "schedule": "2:00",
+      "purpose": "10-step 2 AM maintenance (cleanup, indexing, eval)"
+    },
+    {
+      "label": "adwi-scheduled-send",
+      "plist": "/Users/MAC/Library/LaunchAgents/com.suneel.adwi-scheduled-send.plist",
+      "schedule": "every 2min",
+      "purpose": "Delayed Gmail send runner (checks every 2 min)"
+    },
+    {
+      "label": "caffeinate",
+      "plist": "/Users/MAC/Library/LaunchAgents/com.suneel.caffeinate.plist",
+      "schedule": "KeepAlive",
+      "purpose": "Prevent Mac sleep while services run"
+    },
+    {
+      "label": "obsidian-bridge",
+      "plist": "/Users/MAC/Library/LaunchAgents/com.suneel.obsidian-bridge.plist",
+      "schedule": "KeepAlive",
+      "purpose": "Obsidian vault HTTP CRUD API (:5056)"
+    },
+    {
+      "label": "openwebui-knowledge-watcher",
+      "plist": "/Users/MAC/Library/LaunchAgents/com.suneel.openwebui-knowledge-watcher.plist",
+      "schedule": "KeepAlive",
+      "purpose": "Sync Obsidian changes to Open WebUI knowledge base"
+    },
+    {
+      "label": "phoenix",
+      "plist": "/Users/MAC/Library/LaunchAgents/com.suneel.phoenix.plist",
+      "schedule": "KeepAlive",
+      "purpose": "Arize Phoenix OTel observability UI (:6006)"
+    },
+    {
+      "label": "qdrant",
+      "plist": "/Users/MAC/Library/LaunchAgents/com.suneel.qdrant.plist",
+      "schedule": "RunAtLoad",
+      "purpose": "Start suneel-qdrant Docker container on login"
+    }
+  ],
+  "nlu_pipeline": {
+    "intent_count": 109,
+    "fixture_count": 96,
+    "regex_intent_count": 1,
+    "fast_path_threshold": 0.88,
+    "nlu_model": "llama3.1:8b",
+    "fallback_model": "qwen3:0.6b",
+    "qdrant_collection": "nlu_fixtures"
+  },
+  "security": {
+    "blocked_roots": [
+      "/etc",
+      "/private",
+      "/System",
+      "/usr/lib",
+      "~/.ssh",
+      "~/.gnupg",
+      "~/.aws",
+      "~/.kube",
+      "~/.config",
+      "~/.npmrc",
+      "~/.netrc",
+      "~/Library",
+      "~/Library",
+      "~/SuneelWorkSpace/secrets"
+    ],
+    "gitignore_sensitive_patterns": [
+      "secrets/",
+      "**/.env",
+      "**/secrets.local.env",
+      "**/*token*",
+      "**/*secret*",
+      "**/*credentials*",
+      "**/*.key",
+      "**/gmail-token.json",
+      "**/google-token.json",
+      "Thumbs.db",
+      "notes/secrets-logs/",
+      "mcp-servers/workspace.db",
+      "adwi/memory.db",
+      "adwi/knowledge.db",
+      ".env.local",
+      "config/.env"
+    ],
+    "invariants": [
+      "_REGEX_INTENTS ordering is load-bearing \u2014 first match wins",
+      "BLOCKED_PATHS and PathValidator must never be weakened",
+      "SimLab never auto-applies Tier C (safety/security) changes",
+      "secrets/ is gitignored entirely \u2014 never commit",
+      "config/.env is gitignored \u2014 config/.env.example is the safe template",
+      "adwi/memory.db and adwi/knowledge.db are gitignored \u2014 regenerated per machine",
+      "aider never touches secret files"
+    ]
+  },
+  "command_registry": {
+    "total_commands": 167,
+    "source_files": [
+      "adwi/adwi_cli.py",
+      "adwi/capabilities.json"
+    ],
+    "last_counted": "2026-06-17",
+    "commands": [
+      "/add-capability-plan",
+      "/add-root",
+      "/backup-audit",
+      "/backup-disable",
+      "/backup-enable",
+      "/backup-log",
+      "/backup-now",
+      "/backup-status",
+      "/benchmark",
+      "/browse",
+      "/capabilities",
+      "/capability-audit",
+      "/capability-status",
+      "/cleanup",
+      "/clear-context",
+      "/cloud",
+      "/cmd",
+      "/confirm",
+      "/daily-improve",
+      "/disk",
+      "/doctor",
+      "/duplicates",
+      "/eval-adwi",
+      "/eval-routing",
+      "/exa",
+      "/exa-search",
+      "/export-training-example",
+      "/extract-ideas",
+      "/firecrawl",
+      "/fix-error",
+      "/gemini",
+      "/generate-image",
+      "/gh-status",
+      "/git",
+      "/github",
+      "/github-private",
+      "/github-public",
+      "/github-status",
+      "/gmail",
+      "/gmail-add-bcc",
+      "/gmail-add-cc",
+      "/gmail-archive",
+      "/gmail-attach",
+      "/gmail-attachments",
+      "/gmail-auth",
+      "/gmail-cancel",
+      "/gmail-cancel-draft",
+      "/gmail-cancel-followup",
+      "/gmail-cancel-scheduled",
+      "/gmail-compose",
+      "/gmail-confirm",
+      "/gmail-delete-draft",
+      "/gmail-draft-reply",
+      "/gmail-drafts",
+      "/gmail-extract-tasks",
+      "/gmail-followup",
+      "/gmail-followups",
+      "/gmail-forward",
+      "/gmail-mark-read",
+      "/gmail-mark-unread",
+      "/gmail-open-draft",
+      "/gmail-open-scheduled",
+      "/gmail-promos",
+      "/gmail-read",
+      "/gmail-remove-attachment",
+      "/gmail-reschedule",
+      "/gmail-rewrite",
+      "/gmail-rule",
+      "/gmail-rule-apply",
+      "/gmail-rule-cancel",
+      "/gmail-rules",
+      "/gmail-save-attachment",
+      "/gmail-scheduled",
+      "/gmail-send-draft",
+      "/gmail-show-draft",
+      "/gmail-social",
+      "/gmail-spam",
+      "/gmail-summarize",
+      "/gmail-summarize-attachment",
+      "/gmail-summary",
+      "/gmail-tasks-remind",
+      "/gmail-tasks-save",
+      "/gmail-thread",
+      "/gmail-thread-intel",
+      "/gmail-trash",
+      "/gmail-triage",
+      "/gmail-undo",
+      "/gmail-update-subject",
+      "/ha",
+      "/help",
+      "/image",
+      "/image-save",
+      "/implement-idea",
+      "/inbox",
+      "/inspect-code",
+      "/inspect-system",
+      "/journal",
+      "/large-files",
+      "/learn-from-last-error",
+      "/list",
+      "/listen",
+      "/local",
+      "/mcp",
+      "/mcp-setup",
+      "/memory-context",
+      "/memory-recall",
+      "/memory-scan",
+      "/memory-stats",
+      "/mistakes",
+      "/model-status",
+      "/models",
+      "/new-session",
+      "/nightly-log",
+      "/nightly-run",
+      "/nightly-status",
+      "/notify",
+      "/obsidian-daily",
+      "/obsidian-read",
+      "/obsidian-search",
+      "/obsidian-write",
+      "/old-files",
+      "/organize",
+      "/owui",
+      "/patch-adwi",
+      "/rag",
+      "/rag-index",
+      "/read",
+      "/reason",
+      "/remote",
+      "/remote-status",
+      "/repair-adwi",
+      "/repo-private",
+      "/repo-public",
+      "/reset-context",
+      "/review-plan",
+      "/roadmap",
+      "/route",
+      "/run-bash",
+      "/run-python",
+      "/run-safe",
+      "/save-youtube",
+      "/screenshot-analyze",
+      "/search",
+      "/secrets-status",
+      "/self-heal",
+      "/session-history",
+      "/set-cloud-model",
+      "/status",
+      "/sync-knowledge",
+      "/tailscale",
+      "/tavily",
+      "/test-adwi",
+      "/tool-roadmap",
+      "/trace-log",
+      "/training-plan",
+      "/trusted-roots",
+      "/url",
+      "/use-cloud",
+      "/use-local",
+      "/voice",
+      "/voice-brief",
+      "/voice-in",
+      "/voice-out",
+      "/watcher-status",
+      "/web-search",
+      "/what-next",
+      "/youtube"
+    ]
+  },
+  "eval_status": {
+    "p1_pass_rate": 0.967,
+    "p2_pass_rate": 0.982,
+    "combined_pass_rate": 0.97,
+    "stop_condition_met": true,
+    "stop_condition_threshold": 0.95,
+    "p1_scenarios": 1808,
+    "p2_scenarios": 561,
+    "measured_at": "2026-06-17",
+    "report_path": "logs/simeval/MASTER_REPORT_v2.md",
+    "note": "MASTER_REPORT_v2.md shows 89.0% from 2026-06-16 and is stale. Current baseline 97.0% is from post-CYCLE-6 session on 2026-06-17 (see CLAUDE.md)."
+  },
+  "phase_status": [
+    {
+      "phase": 1,
+      "title": "Heavyweight Infrastructure Observability",
+      "status": "complete",
+      "key_files": [
+        "local-ai-stack/docker-compose.yml"
+      ]
+    },
+    {
+      "phase": 2,
+      "title": "LangGraph Orchestration & Interactive Permission Surface",
+      "status": "complete",
+      "key_files": [
+        "adwi/reason_engine.py"
+      ]
+    },
+    {
+      "phase": 3,
+      "title": "Memory Lifecycle, Scoring & Safety Gate",
+      "status": "complete",
+      "key_files": [
+        "adwi/memory.py"
+      ]
+    },
+    {
+      "phase": 4,
+      "title": "Real-Time Self-Healing & Hermes Skill Compiling",
+      "status": "complete",
+      "key_files": [
+        "adwi/reason_engine.py",
+        "skills/"
+      ]
+    },
+    {
+      "phase": 5,
+      "title": "prompt_toolkit Slash-Command Autocomplete",
+      "status": "complete",
+      "key_files": [
+        "adwi/adwi_cli.py"
+      ]
+    },
+    {
+      "phase": 6,
+      "title": "Chain-of-Intent Schema & Semantic Slot-Filling",
+      "status": "complete",
+      "key_files": [
+        "adwi/adwi_cli.py"
+      ]
+    },
+    {
+      "phase": 7,
+      "title": "Qdrant-Driven Dynamic Few-Shot Routing",
+      "status": "complete",
+      "key_files": [
+        "adwi/memory.py"
+      ]
+    },
+    {
+      "phase": 8,
+      "title": "LLM-Priming Documentation Update Invariants",
+      "status": "complete",
+      "key_files": [
+        "bin/auto-update-readme",
+        "adwi/backup.py"
+      ]
+    },
+    {
+      "phase": 9,
+      "title": "Security Core: PathValidator, OTel Telemetry, Fast NLU Bypass",
+      "status": "complete",
+      "key_files": [
+        "adwi/path_validator.py",
+        "adwi/telemetry.py",
+        "adwi/nlu_fast_path.py"
+      ]
+    },
+    {
+      "phase": 10,
+      "title": "SimLab: Bounded Continuous Eval & Self-Improvement Harness",
+      "status": "complete",
+      "key_files": [
+        "adwi/simlab/"
+      ]
+    }
+  ],
+  "documentation": {
+    "readme": {
+      "path": "README.md",
+      "auto_sections": [
+        "MODELS",
+        "NLU",
+        "INFRA_PORTS",
+        "SERVICES",
+        "AGENTS",
+        "COMMANDS",
+        "PHASES",
+        "MONITORING"
+      ],
+      "static_sections": [
+        "System DNA header",
+        "Model Role Matrix",
+        "Agentic Lifecycle Flows",
+        "Security invariants",
+        "Directory Structure",
+        "SimLab guide",
+        "NLU Eval history"
+      ],
+      "generator": "bin/auto-update-readme"
+    },
+    "canonical_files": [
+      "adwi/adwi_cli.py",
+      "adwi/capabilities.json",
+      "adwi/path_validator.py",
+      "local-ai-stack/docker-compose.yml",
+      "~/Library/LaunchAgents/com.suneel.*.plist",
+      "adwi/system_manifest.json"
+    ],
+    "generated_files": [
+      "README.md (AUTO: sections)",
+      "adwi/system_manifest.json"
+    ],
+    "historical_files": [
+      "logs/simeval/MASTER_REPORT_v2.md",
+      "docs/NLU_REPAIR_BACKLOG.md",
+      "notes/adwi-mistakes-and-fixes.md"
+    ]
+  }
+}

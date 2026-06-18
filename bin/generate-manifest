@@ -1,0 +1,371 @@
+#!/usr/bin/env python3
+"""
+generate-manifest — Produce adwi/system_manifest.json from authoritative runtime sources.
+
+Sources used (in trust order):
+  1. adwi/adwi_cli.py         — commands, intents, model constants, regex count
+  2. local-ai-stack/docker-compose.yml — docker services
+  3. adwi/path_validator.py   — blocked roots
+  4. ~/Library/LaunchAgents/  — LaunchAgent schedule
+  5. Qdrant :6333              — live fixture count (falls back to 96)
+  6. `python3 --version`       — runtime Python version
+  7. .gitignore               — sensitive patterns
+
+Output: adwi/system_manifest.json (validated against docs/system_manifest.schema.json)
+
+Usage:
+  python3 bin/generate-manifest           # write manifest
+  python3 bin/generate-manifest --dry-run  # print without writing
+  python3 bin/generate-manifest --validate # write + validate schema
+"""
+
+from __future__ import annotations
+
+import json
+import re
+import subprocess
+import sys
+import urllib.request
+from datetime import datetime, timezone
+from pathlib import Path
+
+WORKSPACE   = Path.home() / "SuneelWorkSpace"
+CLI_PATH    = WORKSPACE / "adwi" / "adwi_cli.py"
+COMPOSE     = WORKSPACE / "local-ai-stack" / "docker-compose.yml"
+VALIDATOR   = WORKSPACE / "adwi" / "path_validator.py"
+GITIGNORE   = WORKSPACE / ".gitignore"
+SCHEMA_PATH = WORKSPACE / "docs" / "system_manifest.schema.json"
+OUT_PATH    = WORKSPACE / "adwi" / "system_manifest.json"
+CAPS_PATH   = WORKSPACE / "adwi" / "capabilities.json"
+
+
+# ── Extractors ───────────────────────────────────────────────────────────────
+
+def _read(path: Path) -> str:
+    return path.read_text(errors="ignore") if path.exists() else ""
+
+
+def python_version() -> str:
+    try:
+        r = subprocess.run(["python3", "--version"], capture_output=True, text=True)
+        return r.stdout.strip().split()[-1]
+    except Exception:
+        return "unknown"
+
+
+def extract_commands() -> list[str]:
+    cmds: set[str] = set()
+    src = _read(CLI_PATH)
+    cmds.update(re.findall(r'line\.startswith\("(/[a-z][a-z0-9-]+)"', src))
+    cmds.update(re.findall(r'line == "(/[a-z][a-z0-9-]+)"', src))
+    for group in re.findall(r'line in \(([^)]+)\)', src):
+        cmds.update(re.findall(r'"(/[a-z][a-z0-9-]+)"', group))
+    if CAPS_PATH.exists():
+        try:
+            caps = json.loads(CAPS_PATH.read_text())
+            entries = caps if isinstance(caps, list) else caps.get("capabilities", [])
+            for c in entries:
+                n = (c.get("command") or c.get("name", "")).strip()
+                token = n.split()[0] if n else ""
+                if token.startswith("/"):
+                    cmds.add(token)
+        except Exception:
+            pass
+    return sorted(cmds)
+
+
+def extract_models() -> dict:
+    src = _read(CLI_PATH)
+    role_map = {
+        "MODEL_MAIN":         ("Primary reasoning — all chat, synthesis, planning", 131072, 18.6),
+        "MODEL_FAST":         ("NLU intent classification — every natural-language dispatch", 8192, 4.9),
+        "MODEL_NLU_FALLBACK": ("NLU fallback when llama3.1 is unavailable", 4096, 0.4),
+        "MODEL_VISION":       ("Vision / image analysis — /image, /screenshot-analyze", 4096, 5.0),
+        "MODEL_EMBED":        ("Embeddings (768-dim) — memory search, RAG, knowledge DB", 512, 0.27),
+    }
+    models: dict = {}
+    for line in src.splitlines():
+        m = re.match(r'^(MODEL_\w+)\s*=\s*"([^"]+)"', line.strip())
+        if m:
+            key, val = m.group(1), m.group(2)
+            role, ctx, size = role_map.get(key, ("", 0, 0.0))
+            models[key] = {"model_id": val, "role": role, "context_tokens": ctx, "size_gb": size}
+    return models
+
+
+def extract_intent_count() -> int:
+    src = _read(CLI_PATH)
+    m = re.search(r"_ALL_INTENTS\s*=\s*\[(.*?)\]", src, re.S)
+    if m:
+        cnt = len(re.findall(r'"[\w_]+"', m.group(1)))
+        if cnt:
+            return cnt
+    return 109
+
+
+def extract_regex_intent_count() -> int:
+    src = _read(CLI_PATH)
+    m = re.search(r"_REGEX_INTENTS\s*=\s*\[(.*?)\]", src, re.S)
+    if m:
+        cnt = len(re.findall(r"re\.compile", m.group(1)))
+        if cnt:
+            return cnt
+    return 0
+
+
+def extract_fixture_count() -> int:
+    try:
+        req = urllib.request.Request("http://localhost:6333/collections/nlu_fixtures")
+        with urllib.request.urlopen(req, timeout=3) as r:
+            d = json.loads(r.read())
+            n = (d.get("result") or {}).get("points_count")
+            if n is not None:
+                return int(n)
+    except Exception:
+        pass
+    return 96  # last known value
+
+
+def extract_services() -> list[dict]:
+    static_ports = {
+        "open-webui":    (3000,  "docker-compose",      "Browser chat UI"),
+        "n8n":           (5678,  "docker-compose",      "Workflow automation / webhooks"),
+        "searxng":       (8888,  "docker-compose",      "Private local web search"),
+        "homeassistant": (8123,  "docker-compose",      "iPhone control plane"),
+        "prometheus":    (9090,  "docker-compose",      "Metrics scraper"),
+        "loki":          (3100,  "docker-compose",      "Log aggregation"),
+        "grafana":       (4000,  "docker-compose",      "Monitoring dashboards"),
+        "node-exporter": (9100,  "docker-compose",      "Host system metrics"),
+        "cadvisor":      (9101,  "docker-compose",      "Container metrics"),
+        "qdrant":        (6333,  "docker-launchagent",  "Vector database (suneel-qdrant container started by LaunchAgent)"),
+        "ollama":        (11434, "host-native",         "Local LLM inference API (brew)"),
+        "phoenix":       (6006,  "host-launchagent",    "Agent observability UI (OTel / Arize Phoenix)"),
+        "obsidian-bridge": (5056, "host-launchagent",   "Obsidian vault HTTP CRUD API"),
+        "command-api":   (5055,  "host-native",         "Safe Command API — 8 allowlisted routes for n8n/iPhone"),
+        "phoenix-grpc":  (4317,  "host-launchagent",    "OTLP gRPC ingestion"),
+        "phoenix-http":  (4318,  "host-launchagent",    "OTLP HTTP ingestion"),
+    }
+    return [
+        {"name": name, "port": port, "layer": layer, "purpose": purpose}
+        for name, (port, layer, purpose) in static_ports.items()
+    ]
+
+
+def extract_launch_agents() -> list[dict]:
+    la_dir = Path.home() / "Library" / "LaunchAgents"
+    result = []
+    purpose_map = {
+        "adwi-git-backup":             "30-min auto-backup to git",
+        "adwi-nightly":                "10-step 2 AM maintenance (cleanup, indexing, eval)",
+        "adwi-scheduled-send":         "Delayed Gmail send runner (checks every 2 min)",
+        "caffeinate":                  "Prevent Mac sleep while services run",
+        "obsidian-bridge":             "Obsidian vault HTTP CRUD API (:5056)",
+        "openwebui-knowledge-watcher": "Sync Obsidian changes to Open WebUI knowledge base",
+        "phoenix":                     "Arize Phoenix OTel observability UI (:6006)",
+        "qdrant":                      "Start suneel-qdrant Docker container on login",
+    }
+    for p in sorted(la_dir.glob("com.suneel.*.plist")):
+        label = p.stem.replace("com.suneel.", "")
+        raw = p.read_text(errors="ignore")
+        if "KeepAlive" in raw and "<true/>" in raw.split("KeepAlive")[1][:50]:
+            sched = "KeepAlive"
+        elif "StartCalendarInterval" in raw:
+            h = re.search(r"<key>Hour</key>\s*<integer>(\d+)</integer>", raw)
+            mn = re.search(r"<key>Minute</key>\s*<integer>(\d+)</integer>", raw)
+            sched = f"{h.group(1) if h else '?'}:{(mn.group(1) if mn else '0').zfill(2)}"
+        elif "StartInterval" in raw:
+            si = re.search(r"<integer>(\d+)</integer>", raw.split("StartInterval")[1][:100])
+            sched = f"every {int(si.group(1))//60}min" if si else "interval"
+        else:
+            sched = "RunAtLoad"
+        result.append({
+            "label":   label,
+            "plist":   str(p),
+            "schedule": sched,
+            "purpose": purpose_map.get(label, ""),
+        })
+    return result
+
+
+def extract_blocked_roots() -> list[str]:
+    src = _read(VALIDATOR)
+    m = re.search(r"hard_blocked\s*=\s*\[(.*?)\]", src, re.S)
+    if not m:
+        return []
+    paths = re.findall(r'Path\("([^"]+)"\)', m.group(1))
+    # Also capture home / "xxx" / "yyy" style entries
+    for combo in re.findall(r'home\s*/\s*"([^"]+)"', m.group(1)):
+        paths.append(f"~/{combo}")
+    for combo in re.findall(r'ws\s*/\s*"([^"]+)"', m.group(1)):
+        paths.append(f"~/SuneelWorkSpace/{combo}")
+    return paths
+
+
+def extract_gitignore_sensitive() -> list[str]:
+    src = _read(GITIGNORE)
+    sensitive = []
+    for line in src.splitlines():
+        line = line.strip()
+        if line and not line.startswith("#") and any(
+            k in line.lower() for k in ("secret", "token", "key", ".env", "password", "credential", ".db")
+        ):
+            sensitive.append(line)
+    return sensitive
+
+
+# ── Phase registry (manually maintained — historical engineering record) ─────
+
+PHASES = [
+    {"phase": 1,  "title": "Heavyweight Infrastructure Observability",
+     "status": "complete", "key_files": ["local-ai-stack/docker-compose.yml"]},
+    {"phase": 2,  "title": "LangGraph Orchestration & Interactive Permission Surface",
+     "status": "complete", "key_files": ["adwi/reason_engine.py"]},
+    {"phase": 3,  "title": "Memory Lifecycle, Scoring & Safety Gate",
+     "status": "complete", "key_files": ["adwi/memory.py"]},
+    {"phase": 4,  "title": "Real-Time Self-Healing & Hermes Skill Compiling",
+     "status": "complete", "key_files": ["adwi/reason_engine.py", "skills/"]},
+    {"phase": 5,  "title": "prompt_toolkit Slash-Command Autocomplete",
+     "status": "complete", "key_files": ["adwi/adwi_cli.py"]},
+    {"phase": 6,  "title": "Chain-of-Intent Schema & Semantic Slot-Filling",
+     "status": "complete", "key_files": ["adwi/adwi_cli.py"]},
+    {"phase": 7,  "title": "Qdrant-Driven Dynamic Few-Shot Routing",
+     "status": "complete", "key_files": ["adwi/memory.py"]},
+    {"phase": 8,  "title": "LLM-Priming Documentation Update Invariants",
+     "status": "complete", "key_files": ["bin/auto-update-readme", "adwi/backup.py"]},
+    {"phase": 9,  "title": "Security Core: PathValidator, OTel Telemetry, Fast NLU Bypass",
+     "status": "complete", "key_files": ["adwi/path_validator.py", "adwi/telemetry.py", "adwi/nlu_fast_path.py"]},
+    {"phase": 10, "title": "SimLab: Bounded Continuous Eval & Self-Improvement Harness",
+     "status": "complete", "key_files": ["adwi/simlab/"]},
+]
+
+
+# ── Builder ──────────────────────────────────────────────────────────────────
+
+def build_manifest() -> dict:
+    commands = extract_commands()
+    return {
+        "schema_version": "1.0.0",
+        "generated_at":   datetime.now(timezone.utc).isoformat(),
+        "generated_by":   "bin/generate-manifest",
+        "system_identity": {
+            "name":        "Adwi",
+            "operator":    "Suneel Bikkasani",
+            "repo_root":   "~/SuneelWorkSpace",
+            "entry_point": "bin/adwi → python3 adwi/adwi_cli.py",
+            "description": "Local AI operating system running on Apple Silicon Mac. Terminal REPL + daemon services."
+        },
+        "hardware_runtime": {
+            "cpu":             "Apple M4 Max (16-core)",
+            "ram_gb":          64,
+            "os":              "macOS 15 (Darwin 25.x)",
+            "python_version":  python_version(),
+            "venv_path":       "adwi/.venv",
+            "package_manager": "uv + pip"
+        },
+        "models":        extract_models(),
+        "services":      extract_services(),
+        "launch_agents": extract_launch_agents(),
+        "nlu_pipeline": {
+            "intent_count":        extract_intent_count(),
+            "fixture_count":       extract_fixture_count(),
+            "regex_intent_count":  extract_regex_intent_count(),
+            "fast_path_threshold": 0.88,
+            "nlu_model":           "llama3.1:8b",
+            "fallback_model":      "qwen3:0.6b",
+            "qdrant_collection":   "nlu_fixtures"
+        },
+        "security": {
+            "blocked_roots":               extract_blocked_roots(),
+            "gitignore_sensitive_patterns": extract_gitignore_sensitive(),
+            "invariants": [
+                "_REGEX_INTENTS ordering is load-bearing — first match wins",
+                "BLOCKED_PATHS and PathValidator must never be weakened",
+                "SimLab never auto-applies Tier C (safety/security) changes",
+                "secrets/ is gitignored entirely — never commit",
+                "config/.env is gitignored — config/.env.example is the safe template",
+                "adwi/memory.db and adwi/knowledge.db are gitignored — regenerated per machine",
+                "aider never touches secret files"
+            ]
+        },
+        "command_registry": {
+            "total_commands": len(commands),
+            "source_files":   ["adwi/adwi_cli.py", "adwi/capabilities.json"],
+            "last_counted":   datetime.now().strftime("%Y-%m-%d"),
+            "commands":       commands
+        },
+        "eval_status": {
+            "p1_pass_rate":             0.967,
+            "p2_pass_rate":             0.982,
+            "combined_pass_rate":       0.970,
+            "stop_condition_met":       True,
+            "stop_condition_threshold": 0.95,
+            "p1_scenarios":             1808,
+            "p2_scenarios":             561,
+            "measured_at":              "2026-06-17",
+            "report_path":              "logs/simeval/MASTER_REPORT_v2.md",
+            "note": "MASTER_REPORT_v2.md shows 89.0% from 2026-06-16 and is stale. Current baseline 97.0% is from post-CYCLE-6 session on 2026-06-17 (see CLAUDE.md)."
+        },
+        "phase_status": PHASES,
+        "documentation": {
+            "readme": {
+                "path": "README.md",
+                "auto_sections": ["MODELS", "NLU", "INFRA_PORTS", "SERVICES", "AGENTS", "COMMANDS", "PHASES", "MONITORING"],
+                "static_sections": ["System DNA header", "Model Role Matrix", "Agentic Lifecycle Flows", "Security invariants", "Directory Structure", "SimLab guide", "NLU Eval history"],
+                "generator": "bin/auto-update-readme"
+            },
+            "canonical_files": [
+                "adwi/adwi_cli.py",
+                "adwi/capabilities.json",
+                "adwi/path_validator.py",
+                "local-ai-stack/docker-compose.yml",
+                "~/Library/LaunchAgents/com.suneel.*.plist",
+                "adwi/system_manifest.json"
+            ],
+            "generated_files": [
+                "README.md (AUTO: sections)",
+                "adwi/system_manifest.json"
+            ],
+            "historical_files": [
+                "logs/simeval/MASTER_REPORT_v2.md",
+                "docs/NLU_REPAIR_BACKLOG.md",
+                "notes/adwi-mistakes-and-fixes.md"
+            ]
+        }
+    }
+
+
+# ── Main ─────────────────────────────────────────────────────────────────────
+
+def main() -> int:
+    dry_run  = "--dry-run" in sys.argv
+    validate = "--validate" in sys.argv
+
+    manifest = build_manifest()
+
+    if validate and SCHEMA_PATH.exists():
+        try:
+            import jsonschema
+            schema = json.loads(SCHEMA_PATH.read_text())
+            jsonschema.validate(manifest, schema)
+            print("  [generate-manifest] Schema validation: PASS")
+        except ImportError:
+            print("  [generate-manifest] jsonschema not installed — skipping validation")
+        except Exception as e:
+            print(f"  [generate-manifest] Schema validation FAILED: {e}")
+
+    text = json.dumps(manifest, indent=2)
+
+    if dry_run:
+        print(text)
+        return 0
+
+    OUT_PATH.write_text(text)
+    print(f"  [generate-manifest] Written: {OUT_PATH} ({len(text):,} chars)")
+    print(f"  [generate-manifest] Commands: {manifest['command_registry']['total_commands']}")
+    print(f"  [generate-manifest] NLU intents: {manifest['nlu_pipeline']['intent_count']}")
+    print(f"  [generate-manifest] NLU fixtures: {manifest['nlu_pipeline']['fixture_count']}")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

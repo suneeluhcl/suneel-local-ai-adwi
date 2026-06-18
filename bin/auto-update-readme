@@ -40,14 +40,17 @@ def extract_commands() -> list[str]:
         # Also catch: line in ("/cmd1", "/cmd2") style entries
         for group in re.findall(r'line in \(([^)]+)\)', src):
             cmds.update(re.findall(r'"(/[a-z][a-z0-9-]+)"', group))
-    # From capabilities.json
+    # From capabilities.json — strip argument text; keep only the slash-command token
     if CAPS_PATH.exists():
         try:
             caps = json.loads(CAPS_PATH.read_text())
             entries = caps if isinstance(caps, list) else caps.get("capabilities", [])
             for c in entries:
                 n = c.get("command") or c.get("name", "")
-                if n: cmds.add(n)
+                if n:
+                    token = n.strip().split()[0]
+                    if token.startswith("/"):
+                        cmds.add(token)
         except Exception:
             pass
     return sorted(cmds)
@@ -65,7 +68,10 @@ def extract_services() -> list[tuple[str, str, str]]:
         if m:
             current = m.group(1)
         if current and current not in seen:
-            pm = re.search(r'"?(\d+):\d+"?', line)
+            # Match host port from ip:host_port:container_port or host_port:container_port
+            # The old regex `"?(\d+):\d+"?` incorrectly captured the last IP octet (e.g. `1`
+            # from `127.0.0.1:3000:8080`). Use `:(\d{2,5}):\d{2,5}` to grab the host port.
+            pm = re.search(r':(\d{2,5}):\d{2,5}', line)
             if pm:
                 services.append((current, pm.group(1), ""))
                 seen.add(current)
@@ -119,13 +125,42 @@ def extract_models() -> dict[str, str]:
     return models
 
 
+def extract_fixture_count() -> int:
+    """Live Qdrant fixture count; falls back to 96 (last known value) if Qdrant is down."""
+    try:
+        req = urllib.request.Request("http://localhost:6333/collections/nlu_fixtures")
+        with urllib.request.urlopen(req, timeout=3) as r:
+            d = json.loads(r.read())
+            n = (d.get("result") or {}).get("points_count")
+            if n is not None:
+                return int(n)
+    except Exception:
+        pass
+    return 96  # last known value — update if Qdrant collection changes
+
+
+def extract_intent_count() -> int:
+    """Intent class count from _ALL_INTENTS in adwi_cli.py."""
+    if not CLI_PATH.exists():
+        return 109
+    src = CLI_PATH.read_text(errors="ignore")
+    m = re.search(r"_ALL_INTENTS\s*=\s*\[(.*?)\]", src, re.S)
+    if m:
+        cnt = len(re.findall(r'"[\w_]+"', m.group(1)))
+        if cnt:
+            return cnt
+    return 109  # last known value
+
+
 def build_snapshot() -> dict:
     return {
-        "commands":     extract_commands(),
-        "services":     extract_services(),
-        "launchagents": extract_launchagents(),
-        "models":       extract_models(),
-        "ts":           datetime.now().strftime("%Y-%m-%d"),
+        "commands":      extract_commands(),
+        "services":      extract_services(),
+        "launchagents":  extract_launchagents(),
+        "models":        extract_models(),
+        "fixture_count": extract_fixture_count(),
+        "intent_count":  extract_intent_count(),
+        "ts":            datetime.now().strftime("%Y-%m-%d"),
     }
 
 
@@ -283,13 +318,13 @@ def build_phases_section(snap: dict) -> str:
          "aider non-interactive patch → pytest verify → skills/ SKILL.md; skill pre-flight match",
          "adwi/reason_engine.py · skills/"),
         (5, "prompt_toolkit Slash-Command Autocomplete",
-         "104-command registry; substring fuzzy scoring; Tab/arrow REPL overlay",
+         f"{len(snap['commands'])}-command registry; substring fuzzy scoring; Tab/arrow REPL overlay",
          "adwi/adwi_cli.py (SlashCommandCompleter)"),
         (6, "Chain-of-Intent Schema & Semantic Slot-Filling",
          "analysis+confidence+intent+arguments JSON schema; 29 structured arg reads in dispatch",
          "adwi/adwi_cli.py (_INTENT_JSON_SCHEMA)"),
         (7, "Qdrant-Driven Dynamic Few-Shot Routing",
-         "49-fixture nlu_fixtures collection; top-3 injected into llama3.1:8b system prompt",
+         f"{snap['fixture_count']}-fixture nlu_fixtures collection; top-3 injected into llama3.1:8b system prompt",
          "adwi/memory.py · Qdrant :6333"),
         (8, "LLM-Priming Documentation Update Invariants",
          "auto-update-readme always runs before backup; PHASES+NLU sections auto-injected",
@@ -314,28 +349,9 @@ def build_phases_section(snap: dict) -> str:
 
 
 def build_nlu_section(snap: dict) -> str:
-    """Live NLU pipeline documentation — fixture count pulled from Qdrant when available."""
-    # Try to get live fixture count from Qdrant
-    fixture_count = "89"
-    intent_count  = "62"
-    try:
-        req = urllib.request.Request("http://localhost:6333/collections/nlu_fixtures")
-        with urllib.request.urlopen(req, timeout=3) as r:
-            d = json.loads(r.read())
-            n = (d.get("result") or {}).get("points_count")
-            if n is not None:
-                fixture_count = str(n)
-    except Exception:
-        pass
-
-    # Count intents from adwi_cli.py
-    if CLI_PATH.exists():
-        src = CLI_PATH.read_text(errors="ignore")
-        m = re.search(r'_ALL_INTENTS\s*=\s*\[(.*?)\]', src, re.S)
-        if m:
-            cnt = len(re.findall(r'"[\w_]+"', m.group(1)))
-            if cnt:
-                intent_count = str(cnt)
+    """Live NLU pipeline documentation — counts sourced from snapshot extractors."""
+    fixture_count = str(snap.get("fixture_count", 96))
+    intent_count  = str(snap.get("intent_count", 109))
 
     lines = [
         "**NLU Classification Pipeline** — every natural-language input passes through:",
