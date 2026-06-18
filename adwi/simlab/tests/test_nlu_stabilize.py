@@ -183,10 +183,9 @@ class TestWhatNextVsCapabilities(unittest.TestCase):
     def test_adwi_capabilities_still_capabilities(self):
         self.assertEqual(_classify("what are adwi's capabilities"), "capabilities")
 
-    def test_adwi_feature_list_what_next(self):
-        # "adwi feature list" fires what_next via NHR-007 broad pattern (pre-existing ordering)
-        # confirmed pre-existing: not a regression from this sprint
-        self.assertEqual(_classify("adwi feature list"), "what_next")
+    def test_adwi_feature_list_capabilities(self):
+        # CYCLE-6 fix: "adwi feature list" → capabilities (guard added before what_next)
+        self.assertEqual(_classify("adwi feature list"), "capabilities")
 
 
 class TestInspectCodeVsGenerateImage(unittest.TestCase):

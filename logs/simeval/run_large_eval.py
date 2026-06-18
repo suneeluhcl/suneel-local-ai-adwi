@@ -136,6 +136,10 @@ INTENT_SYSTEM = (
 
 # ── Regex pre-filter (synced from adwi_cli.py) ───────────────────────────────
 REGEX_INTENTS = [
+    # ══ CYCLE-6: PRE-SECURITY ERROR CONTEXT GUARDS ════════════════════════════════
+    (re.compile(r"\bPermissionError\b.{0,15}\[Errno\s+\d+\]", re.I), "fix_error"),
+    (re.compile(r"\b(?:run|use|apply)\b.{0,10}\baider\b", re.I), "patch_adwi"),
+
     # ══ CYCLE-1: SECURITY — NLU-level defense-in-depth for sensitive paths ═══════
     (re.compile(r"~/\.(?:aws|ssh|gnupg|kube)\b", re.I), "__none__"),
     (re.compile(r"/etc/(?:passwd|shadow|sudoers|hosts|master\.passwd)\b", re.I), "__none__"),
@@ -150,6 +154,9 @@ REGEX_INTENTS = [
     (re.compile(r"\bsudo\b.{0,20}\b(?:cat|read|show|open|display)\b", re.I), "__none__"),
     (re.compile(r"\brun\s+as\s+root\b", re.I), "__none__"),
     (re.compile(r"\bexport\b.{0,20}\btraining\s+data\b", re.I), "__none__"),
+
+    # ══ CYCLE-6: PRE-CHAT ORGANIZE GUARD ═════════════════════════════════════════
+    (re.compile(r"\bwhat.s\s+the\s+best\s+way\s+to\b.{0,30}\b(?:structure|organize|arrange|tidy|sort)\b.{0,30}\b(?:files?|folders?|notes?|workspace|project|downloads?)\b", re.I), "organize"),
 
     # ══ CYCLE-2a: CHAT ADVISORY GUARDS — intercept before domain patterns fire ════
     (re.compile(r"^(?:what\s+time\s+is\s+it|what.s\s+the\s+time)\s*[?]?\s*$", re.I), "chat"),
@@ -207,6 +214,8 @@ REGEX_INTENTS = [
     (re.compile(r"\b(top \d+|find).{0,20}(big(gest)?|large(st)?|heavy).{0,20}files?\b", re.I), "large_files"),
     # NHR-001: additional synonyms — beat file_search on "fat/oversized files"
     (re.compile(r"\b(fat|oversize|oversized|bulky|enormous|massive|hefty)\b.{0,30}\bfiles?\b", re.I), "large_files"),
+    # CYCLE-6: "find my heaviest files"
+    (re.compile(r"\bfind\b.{0,15}\b(?:my\s+)?(?:heaviest|fattest|bulkiest|chunkiest)\b.{0,20}\bfiles?\b", re.I), "large_files"),
     # FIX-LF-001: space consumer / room / size-threshold patterns
     (re.compile(r"\b(top|bulk|biggest|heaviest)\b.{0,20}\bspace\s+(consumer|user|hog)s?\b", re.I), "large_files"),
     (re.compile(r"\bfiles?\b.{0,30}(take\s+up|taking\s+up|using)\b.{0,20}(the\s+)?most\s+(room|space|storage)\b", re.I), "large_files"),
@@ -357,6 +366,9 @@ REGEX_INTENTS = [
     # FIX-SPRINT-006: "implement the suggested improvement" → implement_idea BEFORE what_next's
     # (suggest|recommend).{0,20}(improvement) pattern fires on "suggested improvement"
     (re.compile(r"\b(?:implement|build|code\s+up|develop)\b.{0,20}\b(?:the\s+)?(?:suggested|recommended|proposed)\b", re.I), "implement_idea"),
+    # CYCLE-6: "adwi feature list" → capabilities (must beat what_next's "feature" match below)
+    (re.compile(r"\badwi\b.{0,20}\bfeature\s+list\b", re.I), "capabilities"),
+
     # ── What next ────────────────────────────────────────────────────────────────
     (re.compile(r"(what|what.s).{0,20}(next|build|improve|add|create).{0,20}(adwi|setup|ai|local)", re.I), "what_next"),
     (re.compile(r"(suggest|recommend).{0,20}(next|improvement|feature|capability)", re.I), "what_next"),
@@ -457,6 +469,8 @@ REGEX_INTENTS = [
     (re.compile(r"\bmodel\b.{0,20}\bperform(?:ing|ance|s)\b", re.I), "model_status"),
     (re.compile(r"\bhow\s+(?:is|well)\b.{0,10}\b(?:the\s+)?(?:model|llm|adwi)\b.{0,15}\bperform(?:ing)?\b", re.I), "model_status"),
     (re.compile(r"\b(switch|use|change)\b.{0,15}(to\s+)?(local model|local llm|local ai)\b", re.I), "use_local"),
+    # CYCLE-6: "switch to a local one" / "switch from cloud to local"
+    (re.compile(r"\b(switch|change|move)\b.{0,20}\bto\b.{0,15}\b(?:a\s+)?local\b.{0,20}\b(?:one|model|llm|ai)\b", re.I), "use_local"),
     (re.compile(r"\buse\b.{0,10}\b(qwen|llama|mistral|phi|gemma)\b", re.I), "use_local"),
     (re.compile(r"\b(switch|change|use)\b.{0,15}(to\s+)?(cloud model|cloud api|cloud llm|gemini|openai)\b", re.I), "use_cloud"),
     (re.compile(r"\bswitch to cloud\b", re.I), "use_cloud"),
@@ -526,6 +540,8 @@ REGEX_INTENTS = [
     (re.compile(r"\b(run|execute).{0,15}(the\s+)?(unit\s*tests?|test\s*suite|adwi\s*tests?)\b", re.I), "test_adwi"),
     (re.compile(r"\b(adwi).{0,10}\btest\s*(run|suite|pass|fail)?\b", re.I), "test_adwi"),
     (re.compile(r"^(run|execute)\s+tests?\s*(please|pls)?\s*$", re.I), "test_adwi"),
+    # CYCLE-6: "adwi run my tests"
+    (re.compile(r"\badwi\b.{0,10}\brun\b.{0,15}\b(?:my\s+)?tests?\b", re.I), "test_adwi"),
 
     # ── GitHub repo visibility — BEFORE git_status and github_connected ───────────
     (re.compile(r"(make|set|change|convert).{0,20}(git.?repo|repo|repository).{0,20}(public|private|open source)", re.I), "github_visibility"),
@@ -539,6 +555,12 @@ REGEX_INTENTS = [
     (re.compile(r"(connected to|link(ed)? to|set up).{0,20}(github|git hub)", re.I), "github_connected"),
     # CYCLE-5: "adwi check github"
     (re.compile(r"\badwi\b.{0,15}\bcheck\b.{0,20}\bgithub\b", re.I), "github_connected"),
+
+    # CYCLE-6: trusted_roots and tool_roadmap — regex-anchored
+    (re.compile(r"\badwi\s+trusted\s+roots?\b", re.I), "trusted_roots"),
+    (re.compile(r"\btrusted\s+roots?\b.{0,20}\b(?:list|show|what|paths?|directories?)\b", re.I), "trusted_roots"),
+    (re.compile(r"\b(?:show|list|view|display)\b.{0,20}\b(?:the\s+)?tool\s+(?:plan|roadmap|list|map|overview)\b", re.I), "tool_roadmap"),
+    (re.compile(r"\btool\s+(?:plan|roadmap|map|overview)\b", re.I), "tool_roadmap"),
 
     # ── Git status (Bug 7: broadened patterns) ────────────────────────────────────
     (re.compile(r"git\s+(status|diff|log|show|repos?)\b", re.I), "git_status"),
@@ -656,6 +678,8 @@ REGEX_INTENTS = [
     # FIX-STAGE3-002: "which draft has the PDF attached" → list_drafts, not list_attachments
     (re.compile(r"\bwhich\s+draft\b", re.I), "gmail_list_drafts"),
     # gmail_list_attachments — "show/list attachments", "any files attached?"
+    # CYCLE-6: "show me the files in this email"
+    (re.compile(r"\bfiles?\b.{0,20}\b(?:in|on|attached\s+to)\s+this\s+(?:email|message|mail)\b", re.I), "gmail_list_attachments"),
     (re.compile(r"\b(?:show|list|view|see)\b.{0,25}\battachment", re.I), "gmail_list_attachments"),
     (re.compile(r"\battachment.{0,25}\b(?:on|in|for|from)\b", re.I), "gmail_list_attachments"),
     (re.compile(r"\bany\s+attachments?\b", re.I), "gmail_list_attachments"),
