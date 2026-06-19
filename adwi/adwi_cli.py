@@ -48,22 +48,34 @@ try:
 except Exception:
     INSTRUCTOR_OK = False
 
-# Optional: OpenTelemetry tracing → Arize Phoenix (:4318)
-try:
-    from opentelemetry import trace as _otel_trace
-    from opentelemetry.sdk.trace import TracerProvider as _TracerProvider
-    from opentelemetry.sdk.trace.export import BatchSpanProcessor as _BatchSpanProcessor
-    from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter as _OTLPExporter
-    _tp = _TracerProvider()
-    _tp.add_span_processor(_BatchSpanProcessor(
-        _OTLPExporter(endpoint="http://127.0.0.1:4317", insecure=True)
-    ))
-    _otel_trace.set_tracer_provider(_tp)
-    _tracer = _otel_trace.get_tracer("adwi")
-    OTEL_OK = True
-except Exception:
-    _tracer = None
-    OTEL_OK = False
+# Optional: OpenTelemetry tracing → Arize Phoenix (:4317)
+# Gate the heavy gRPC/protobuf import on a port check — avoids a multi-second
+# hang on Python 3.14 when Phoenix is not running.
+def _phoenix_reachable() -> bool:
+    import socket
+    try:
+        with socket.create_connection(("127.0.0.1", 4317), timeout=0.1):
+            return True
+    except OSError:
+        return False
+
+_tracer = None
+OTEL_OK = False
+if _phoenix_reachable():
+    try:
+        from opentelemetry import trace as _otel_trace
+        from opentelemetry.sdk.trace import TracerProvider as _TracerProvider
+        from opentelemetry.sdk.trace.export import BatchSpanProcessor as _BatchSpanProcessor
+        from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter as _OTLPExporter
+        _tp = _TracerProvider()
+        _tp.add_span_processor(_BatchSpanProcessor(
+            _OTLPExporter(endpoint="http://127.0.0.1:4317", insecure=True)
+        ))
+        _otel_trace.set_tracer_provider(_tp)
+        _tracer = _otel_trace.get_tracer("adwi")
+        OTEL_OK = True
+    except Exception:
+        pass
 
 
 def _otel_span(name: str, attrs: dict | None = None):
@@ -519,12 +531,15 @@ _REGEX_INTENTS = [
     (re.compile(r"/etc/(?:passwd|shadow|sudoers|hosts|master\.passwd)\b", re.I), "__none__"),
     (re.compile(r"/private/(?:etc|var/db)\b", re.I), "__none__"),
     (re.compile(r"~/Library/Keychains?\b", re.I), "__none__"),
+    (re.compile(r"~/Library/Passwords?\b", re.I), "__none__"),            # FIX-TRUST-SEC-01
+    (re.compile(r"/root/\.", re.I), "__none__"),                          # FIX-TRUST-SEC-02: /root/.bashrc etc.
     (re.compile(r"\bsecring\.gpg\b|\bauthorized_keys\b|\bid_(?:rsa|ed25519|ecdsa|dsa)\b", re.I), "__none__"),
     (re.compile(r"System/Library/CoreServices\b", re.I), "__none__"),
     (re.compile(r"\bsecrets?[/\\]", re.I), "__none__"),
     (re.compile(r"\.\.[/\\]", re.I), "__none__"),                         # path traversal
     (re.compile(r"\bpretend\b.{0,40}\b(?:safety|rules?\s+don.t|don.t\s+apply)\b", re.I), "__none__"),
     (re.compile(r"\b(?:as\s+a?\s+)?(?:developer|admin)\s+override\b", re.I), "__none__"),
+    (re.compile(r"\bdeveloper\s+mode\b.{0,40}\b(?:all\s+files?|no\s+restrictions?|allowed|bypass|override|enabled|off)\b", re.I), "__none__"),  # FIX-TRUST-SEC-03
     (re.compile(r"\bsudo\b.{0,20}\b(?:cat|read|show|open|display)\b", re.I), "__none__"),
     (re.compile(r"\brun\s+as\s+root\b", re.I), "__none__"),
     (re.compile(r"\bexport\b.{0,20}\btraining\s+data\b", re.I), "__none__"),
@@ -1308,6 +1323,10 @@ _REGEX_INTENTS = [
     (re.compile(r"\b(show|open|read|get|view)\b.{0,20}\b(thread|conversation|email\s+chain|message\s+chain)\b", re.I), "gmail_thread"),
     (re.compile(r"\bthread\b.{0,20}\b(about|from|with|on)\b", re.I), "gmail_thread"),
 
+    # FIX-TRUST-004: "fetch this page and summarize it" → browse, not gmail_summarize
+    # "this page/article/site" has no email context — must precede "summarize it" gmail guard
+    (re.compile(r"\b(?:fetch|get|retrieve|load)\b.{0,30}\b(?:page|article|site|url|webpage)\b.{0,40}\b(?:summarize|summary|tldr)\b", re.I), "browse"),
+    (re.compile(r"\bsummarize\b.{0,15}\b(?:this|the)\b.{0,10}\b(?:page|article|site|url|webpage|link)\b(?!\s*(?:from\s+)?(?:email|mail|message|thread))", re.I), "browse"),
     # FIX-SPRINT-007: "search web for X and summarize it" → web_search, not gmail_summarize
     # MUST precede the "summarize it" gmail_summarize pattern below
     (re.compile(r"\b(?:search|look\s+up|find)\b.{0,20}\b(?:web|internet|online|for)\b.{0,60}\b(?:summarize|tldr|summary)\b", re.I), "web_search"),
@@ -2965,6 +2984,36 @@ def cmd_rag_index(quiet=False) -> None:
 
 # ── Web Search (SearXNG) ──────────────────────────────────────────────────────
 
+try:
+    from adwi.search_orchestrator import (
+        FetchOptions,
+        SearchOptions,
+        SearchOrchestrator,
+        build_citation_context,
+        compact_search_context,
+        configured_value,
+        metrics_summary,
+    )
+except ModuleNotFoundError:
+    from search_orchestrator import (  # type: ignore
+        FetchOptions,
+        SearchOptions,
+        SearchOrchestrator,
+        build_citation_context,
+        compact_search_context,
+        configured_value,
+        metrics_summary,
+    )
+
+_SEARCH_ORCHESTRATOR = None
+
+
+def _search_orch() -> SearchOrchestrator:
+    global _SEARCH_ORCHESTRATOR
+    if _SEARCH_ORCHESTRATOR is None:
+        _SEARCH_ORCHESTRATOR = SearchOrchestrator()
+    return _SEARCH_ORCHESTRATOR
+
 def _searxng_search(query: str, max_results: int = 8) -> list:
     """Query local SearXNG. Returns [{title, url, content, source}]."""
     import urllib.parse
@@ -3095,34 +3144,18 @@ def _firecrawl_scrape(url: str) -> dict:
 
 def search_web(query: str, max_results: int = 8) -> tuple[list, str]:
     """
-    Multi-source web search with priority cascade.
-    Priority: SearXNG (local, always) → Tavily (AI-quality) → Exa (neural).
+    Multi-source web search through the shared orchestrator.
     Returns (results_list, source_label).
     """
-    # Always run SearXNG (local, no quota)
-    results = _searxng_search(query, max_results)
-    ok      = [r for r in results if r.get("url")]
-
-    # Tavily: add if key present — deduplicate by URL
-    if TAVILY_API_KEY:
-        seen_urls = {r["url"] for r in ok}
-        for r in _tavily_search(query, max_results):
-            if r.get("url") and r["url"] not in seen_urls:
-                ok.append(r); seen_urls.add(r["url"])
-
-    # Exa: add for research/neural enrichment if key present
-    if EXA_API_KEY:
-        seen_urls = {r["url"] for r in ok}
-        for r in _exa_search(query, 4):
-            if r.get("url") and r["url"] not in seen_urls:
-                ok.append(r); seen_urls.add(r["url"])
-
-    sources = sorted({r["source"] for r in ok})
-    return ok[:max_results + 4], " + ".join(sources)
+    response = _search_orch().search(
+        query,
+        SearchOptions(max_results=max_results, mode="web"),
+    )
+    return [r.to_legacy_dict() for r in response.results], " + ".join(response.sources)
 
 
 def cmd_web_search(query: str = "") -> None:
-    """Search the web via SearXNG + Tavily + Exa and synthesize results."""
+    """Search the web via the shared search orchestrator and synthesize results."""
     if not query:
         query = input(f"  {CYAN}Web search:{RESET} ").strip()
     if not query:
@@ -3130,24 +3163,26 @@ def cmd_web_search(query: str = "") -> None:
     adwi_head(f"Web search: {query[:60]}")
     activity_start(query, "Web Search")
 
-    results, sources = search_web(query)
-    real = [r for r in results if r.get("url")]
+    response = _search_orch().search(query, SearchOptions(max_results=10, mode="web"))
+    real = response.results
     if not real:
         cprint("  No results from any source", YELLOW)
         activity_done("no results"); return
 
+    sources = " + ".join(response.sources) or "none"
     cprint(f"  {GRAY}Sources: {sources}{RESET}", "")
+    cprint(f"  {GRAY}Metrics: {metrics_summary(response.metrics)}{RESET}", "")
+    for warning in response.warnings[:3]:
+        cprint(f"  {YELLOW}warn: {warning}{RESET}", "")
     for i, r in enumerate(real, 1):
-        badge = {"tavily": GREEN, "exa": YELLOW, "searxng": CYAN}.get(r["source"], GRAY)
-        cprint(f"  {badge}[{r['source'][:3].upper()}]{RESET} {r['title']}", "")
-        cprint(f"        {GRAY}{r['url']}{RESET}", "")
-        if r["content"]:
-            cprint(f"        {r['content'][:110]}", GRAY)
+        badge = {"tavily": GREEN, "exa": YELLOW, "searxng": CYAN, "brave": PURPLE}.get(r.source, GRAY)
+        providers = ",".join(r.metadata.get("providers", [r.source]))
+        cprint(f"  {badge}[{providers[:12].upper()}]{RESET} {r.title}", "")
+        cprint(f"        {GRAY}{r.url}{RESET}", "")
+        if r.snippet:
+            cprint(f"        {r.snippet[:110]}", GRAY)
 
-    ctx = "\n\n".join(
-        f"[{i}] {r['title']}\nURL: {r['url']}\n{r['content']}"
-        for i, r in enumerate(real, 1)
-    )
+    ctx = compact_search_context(real)
     print()
     stream_local(
         f"Query: {query}\n\nSearch results (from {sources}):\n{ctx}\n\n"
@@ -3159,7 +3194,7 @@ def cmd_web_search(query: str = "") -> None:
 
 
 def cmd_research(question: str = "", save: bool = False) -> None:
-    """Deep multi-source research with citations. Saves brief to notes/research/."""
+    """Deep multi-source research with fetched-source citations."""
     if not question:
         question = input(f"  {CYAN}Research question:{RESET} ").strip()
     if not question:
@@ -3167,60 +3202,58 @@ def cmd_research(question: str = "", save: bool = False) -> None:
     adwi_head(f"Research: {question[:70]}")
     activity_start(question, "Research Operator")
 
-    # ── Gather sources ─────────────────────────────────────────────────────────
-    results, sources = search_web(question, max_results=10)
-    real = [r for r in results if r.get("url")]
-    cprint(f"  {GRAY}Sources: {sources} · {len(real)} results{RESET}", "")
-
-    # ── Deep-fetch top 3 URLs for fuller content ───────────────────────────────
-    deep_content: list[str] = []
-    for r in real[:3]:
-        url = r.get("url", "")
-        if not url:
-            continue
-        try:
-            if FIRECRAWL_API_KEY:
-                fc = _firecrawl_scrape(url)
-                if fc.get("markdown"):
-                    deep_content.append(f"[{url}]\n{fc['markdown'][:2000]}")
-                    continue
-            from playwright.sync_api import sync_playwright  # type: ignore
-            with sync_playwright() as p:
-                br = p.chromium.launch(headless=True)
-                pg = br.new_page(user_agent="Mozilla/5.0")
-                pg.goto(url, wait_until="domcontentloaded", timeout=20000)
-                txt = pg.evaluate(
-                    "() => Array.from(document.querySelectorAll('article,main,p,h1,h2,h3'))"
-                    ".map(e=>e.innerText).join('\\n').slice(0,2000)"
-                )
-                br.close()
-                if txt.strip():
-                    deep_content.append(f"[{url}]\n{txt}")
-        except Exception:
-            pass
-
-    # ── Build research context ─────────────────────────────────────────────────
-    snippet_ctx = "\n\n".join(
-        f"[{i}] {r['title']}\nURL: {r['url']}\n{r['content']}"
-        for i, r in enumerate(real, 1)
+    bundle = _search_orch().research(question, max_results=14, fetch_limit=6)
+    real = bundle.results
+    sources = " + ".join(bundle.response.sources) or "none"
+    cprint(
+        f"  {GRAY}Mode: {bundle.mode} · sources: {sources} · "
+        f"{len(real)} ranked · {bundle.fetched_count} fetched{RESET}",
+        "",
     )
-    deep_ctx = "\n\n".join(deep_content)
-    full_ctx = snippet_ctx + ("\n\n## Deep Content\n" + deep_ctx if deep_ctx else "")
+    for q in bundle.queries:
+        cprint(f"  {GRAY}query: {q}{RESET}", "")
+    cprint(f"  {GRAY}Metrics: {metrics_summary(bundle.response.metrics)}{RESET}", "")
+    for warning in bundle.response.warnings[:3]:
+        cprint(f"  {YELLOW}warn: {warning}{RESET}", "")
+
+    citation_ctx, cited_results = build_citation_context(real, max_chars=9000)
+    snippet_ctx = compact_search_context(real)
+    citation_rule = (
+        "Use only the numbered fetched evidence as citable sources. "
+        "Do not cite or quote a URL unless it appears in the fetched evidence section. "
+        "Search snippets may guide context but are not citation evidence."
+    )
+    if not citation_ctx:
+        citation_rule = (
+            "No pages were successfully fetched. Do not present URL citations as grounded evidence. "
+            "Give a low-confidence search-summary based only on snippets."
+        )
+
+    mode_guidance = {
+        "dig_deeper": "Emphasize technical detail, implementation steps, caveats, and tradeoffs.",
+        "verify": "Explicitly compare claims across sources and flag conflicts, stale claims, and uncertainty.",
+        "compare": "Compare source positions side-by-side before the final answer.",
+    }.get(bundle.mode, "Answer directly and separate facts from uncertainty.")
 
     # ── Synthesize cited brief ────────────────────────────────────────────────
     ts = datetime.now().strftime("%Y-%m-%d %H:%M")
     prompt = (
-        f"Research question: {question}\n"
+        f"Research question: {bundle.question}\n"
+        f"Research mode: {bundle.mode}\n"
         f"Date: {ts}\n"
-        f"Sources queried: {sources}\n\n"
-        f"Search results:\n{full_ctx[:6000]}\n\n"
+        f"Queries run:\n" + "\n".join(f"- {q}" for q in bundle.queries) + "\n\n"
+        f"Ranked search context:\n{snippet_ctx[:3500]}\n\n"
+        f"Fetched citation evidence:\n{citation_ctx or '(none)'}\n\n"
+        f"Citation rule: {citation_rule}\n"
+        f"Mode guidance: {mode_guidance}\n\n"
         "Write a structured research brief with:\n"
         "## Answer\nDirect answer in 2-3 sentences.\n"
-        "## Key Findings\nBullet list of key claims with source URLs in brackets.\n"
-        "## Sources\nNumbered list: title + URL.\n"
+        "## Key Findings\nBullet list of key claims with source numbers like [1], only when grounded.\n"
+        "## Source Check\nWhat was fetched, what agreed, what conflicted, and what was snippet-only.\n"
+        "## Sources\nNumbered list using only fetched evidence sources.\n"
         "## Confidence\nHigh/Medium/Low — why.\n"
         "## Open Questions\nWhat this research does NOT answer.\n"
-        "Never invent facts. Only use what is in the search results."
+        "Never invent facts. Only use what is in the provided context."
     )
     print()
     brief = (
@@ -3230,19 +3263,21 @@ def cmd_research(question: str = "", save: bool = False) -> None:
     adwi_say(brief)
 
     # ── Save to notes ─────────────────────────────────────────────────────────
-    slug = re.sub(r"[^a-z0-9]+", "-", question.lower())[:40].strip("-")
+    slug = re.sub(r"[^a-z0-9]+", "-", bundle.question.lower())[:40].strip("-")
     research_dir = NOTES / "research"
     research_dir.mkdir(parents=True, exist_ok=True)
     fname = f"{datetime.now().strftime('%Y-%m-%d')}-{slug}.md"
     (research_dir / fname).write_text(
-        f"# Research: {question}\n_Generated: {ts}_\n\n{brief}\n\n---\n\n## Raw Sources\n{snippet_ctx[:2000]}\n",
+        f"# Research: {bundle.question}\n_Generated: {ts}_\n_Mode: {bundle.mode}_\n\n"
+        f"{brief}\n\n---\n\n## Queries\n" + "\n".join(f"- {q}" for q in bundle.queries) +
+        f"\n\n## Fetched Evidence\n{citation_ctx[:4000]}\n\n## Ranked Search Context\n{snippet_ctx[:3000]}\n",
         encoding="utf-8",
     )
     cprint(f"  {GREEN}✓ Saved → notes/research/{fname}{RESET}", "")
     if save:
-        _obsidian_api("POST", "/daily-note", {"content": f"\n## Research: {question}\n{brief[:600]}\n"})
-    activity_done(f"{len(real)} sources · saved to notes/research/{fname}")
-    log_action("research", f"Q: {question} | sources: {sources}")
+        _obsidian_api("POST", "/daily-note", {"content": f"\n## Research: {bundle.question}\n{brief[:600]}\n"})
+    activity_done(f"{len(real)} ranked · {len(cited_results)} cited · saved to notes/research/{fname}")
+    log_action("research", f"Q: {bundle.question} | mode: {bundle.mode} | sources: {sources}")
 
 
 def cmd_tech_radar() -> None:
@@ -3304,16 +3339,19 @@ def cmd_exa_search(query: str = "") -> None:
         return
     adwi_head(f"Exa neural search: {query[:60]}")
     activity_start(query, "Exa Search")
-    results = _exa_search(query, max_results=8)
-    real = [r for r in results if r.get("url")]
+    response = _search_orch().search(
+        query,
+        SearchOptions(max_results=8, mode="semantic", providers=("exa",)),
+    )
+    real = response.results
     if not real:
         cprint("  No Exa results", YELLOW); activity_done("no results"); return
     for i, r in enumerate(real, 1):
-        cprint(f"  {YELLOW}[{i}]{RESET} {r['title']}", "")
-        cprint(f"       {GRAY}{r['url']}{RESET}", "")
-        if r["content"]:
-            cprint(f"       {r['content'][:120]}", GRAY)
-    ctx = "\n\n".join(f"[{i}] {r['title']}\nURL: {r['url']}\n{r['content']}" for i, r in enumerate(real, 1))
+        cprint(f"  {YELLOW}[{i}]{RESET} {r.title}", "")
+        cprint(f"       {GRAY}{r.url}{RESET}", "")
+        if r.snippet:
+            cprint(f"       {r.snippet[:120]}", GRAY)
+    ctx = compact_search_context(real)
     print()
     stream_local(
         f"Neural search query: {query}\n\nResults:\n{ctx}\n\nSynthesize insights.",
@@ -3332,16 +3370,19 @@ def cmd_tavily_search(query: str = "") -> None:
         return
     adwi_head(f"Tavily search: {query[:60]}")
     activity_start(query, "Tavily Search")
-    results = _tavily_search(query, max_results=8)
-    real = [r for r in results if r.get("url")]
+    response = _search_orch().search(
+        query,
+        SearchOptions(max_results=8, mode="curated", providers=("tavily",)),
+    )
+    real = response.results
     if not real:
         cprint("  No Tavily results", YELLOW); activity_done("no results"); return
     for i, r in enumerate(real, 1):
-        cprint(f"  {GREEN}[{i}]{RESET} {r['title']}", "")
-        cprint(f"       {GRAY}{r['url']}{RESET}", "")
-        if r["content"]:
-            cprint(f"       {r['content'][:120]}", GRAY)
-    ctx = "\n\n".join(f"[{i}] {r['title']}\nURL: {r['url']}\n{r['content']}" for i, r in enumerate(real, 1))
+        cprint(f"  {GREEN}[{i}]{RESET} {r.title}", "")
+        cprint(f"       {GRAY}{r.url}{RESET}", "")
+        if r.snippet:
+            cprint(f"       {r.snippet[:120]}", GRAY)
+    ctx = compact_search_context(real)
     print()
     stream_local(
         f"Tavily search: {query}\n\nResults:\n{ctx}\n\nSynthesize the findings.",
@@ -3551,7 +3592,8 @@ def cmd_rag_search(query: str, top_k: int = 5) -> None:
 def cmd_browse(url_and_q: str) -> None:
     """
     Fetch a URL and summarize or answer a question.
-    Priority: Firecrawl (clean markdown) → Playwright (JS) → urllib (raw HTML).
+    Priority is handled by the shared orchestrator:
+    Firecrawl -> optional Jina Reader -> Playwright -> urllib.
     """
     parts    = url_and_q.split(None, 1)
     url      = parts[0] if parts else ""
@@ -3562,57 +3604,17 @@ def cmd_browse(url_and_q: str) -> None:
         url = "https://" + url
 
     adwi_head(f"Fetching: {url[:80]}")
-    text = title = method = ""
+    fetched = _search_orch().fetch(url, FetchOptions(max_chars=8000))
+    if not fetched.success or not fetched.text.strip():
+        cprint(f"  Could not fetch: {fetched.error or 'empty page'}", RED); return
 
-    # ── Priority 1: Firecrawl — cleanest markdown output ─────────────────────
-    if FIRECRAWL_API_KEY:
-        cprint(f"  {GRAY}Fetching via Firecrawl…{RESET}", "")
-        fc = _firecrawl_scrape(url)
-        if fc["success"] and fc.get("markdown"):
-            text   = fc["markdown"][:8000]
-            title  = fc.get("title", "")
-            method = "Firecrawl"
-
-    # ── Priority 2: Playwright — JS-capable local browser ────────────────────
-    if not text:
-        try:
-            from playwright.sync_api import sync_playwright  # type: ignore
-            cprint(f"  {GRAY}Fetching via Playwright…{RESET}", "")
-            with sync_playwright() as p:
-                browser = p.chromium.launch(headless=True)
-                page    = browser.new_page(user_agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)")
-                page.goto(url, wait_until="domcontentloaded", timeout=25000)
-                title   = page.title()
-                text    = page.evaluate(
-                    "() => { const els = document.querySelectorAll('article,main,p,h1,h2,h3,li');"
-                    " return Array.from(els).map(e=>e.innerText).join('\\n').slice(0,8000); }"
-                )
-                browser.close()
-            method = "Playwright"
-        except ImportError:
-            pass
-        except Exception as e:
-            cprint(f"  {YELLOW}Playwright: {e}{RESET}", "")
-
-    # ── Priority 3: urllib — raw HTML strip ───────────────────────────────────
-    if not text:
-        try:
-            cprint(f"  {GRAY}Fetching via urllib…{RESET}", "")
-            req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
-            with urllib.request.urlopen(req, timeout=15) as r:
-                html = r.read().decode("utf-8", errors="replace")
-            text = re.sub(r"<style[^>]*>.*?</style>", "", html, flags=re.S|re.I)
-            text = re.sub(r"<script[^>]*>.*?</script>", "", text, flags=re.S|re.I)
-            text = re.sub(r"<[^>]+>", " ", text)
-            text = re.sub(r"\s+", " ", text)[:8000]
-            method = "urllib"
-        except Exception as e:
-            cprint(f"  Could not fetch: {e}", RED); return
-
-    if not text.strip():
-        cprint("  Page appears empty or JS-blocked.", YELLOW); return
-
-    cprint(f"  {GREEN}✓{RESET} {title or url[:60]}  {GRAY}[via {method}]{RESET}", "")
+    text = fetched.text
+    title = fetched.title
+    cprint(
+        f"  {GREEN}✓{RESET} {title or url[:60]}  "
+        f"{GRAY}[via {fetched.source}{' cache' if fetched.cached else ''}]{RESET}",
+        "",
+    )
     if question:
         stream_local(
             f"URL: {url}\nTitle: {title}\nContent:\n{text}\n\nQuestion: {question}",
@@ -9566,7 +9568,9 @@ def cmd_assistant_upgrade_status() -> None:
     OPTIONAL = [
         ("EXA_API_KEY",       "Exa neural search (better research results)"),
         ("TAVILY_API_KEY",    "Tavily web search (research + daily brief)"),
+        ("BRAVE_SEARCH_API_KEY", "Brave web search (fresh independent index)"),
         ("FIRECRAWL_API_KEY", "Firecrawl clean markdown (research deep-fetch)"),
+        ("JINA_API_KEY",      "Jina Reader fallback extraction (optional)"),
         ("OPENWEBUI_API_KEY", "Cloud LLM synthesis (better summaries)"),
     ]
     cprint("\n  Commands:", BOLD)
@@ -9575,7 +9579,7 @@ def cmd_assistant_upgrade_status() -> None:
     cprint("\n  Optional integrations:", BOLD)
     for key, desc in OPTIONAL:
         val = os.environ.get(key, "")
-        set_flag = bool(val and not val.startswith("PASTE_"))
+        set_flag = configured_value(val)
         icon = f"{GREEN}✓ set{RESET}" if set_flag else f"{YELLOW}not set{RESET}"
         cprint(f"  {icon}  {key:<25} {GRAY}{desc}{RESET}", "")
     cprint("\n  Output paths:", BOLD)
@@ -9758,18 +9762,41 @@ def cmd_e2e_auto_loop(args: str = "") -> None:
 
 
 def cmd_e2e_auto_loop_status() -> None:
-    """Show current/last E2E auto-loop job status."""
+    """Show current/last E2E auto-loop job status plus authoritative master NLU score."""
     loop_dir = ADWI_DIR / "notes" / "e2e-auto-loop"
     status_f = loop_dir / "status.json"
     adwi_head("E2E Auto Loop Status")
+
+    # ── Authoritative master report score (always shown first) ────────────────
+    master_f = ADWI_DIR / "logs" / "simeval" / "MASTER_REPORT_v2.md"
+    if master_f.exists():
+        cprint(f"  {BOLD}── Master NLU Report (authoritative) ──{RESET}", "")
+        try:
+            lines = master_f.read_text(encoding="utf-8").splitlines()
+            gen_line = next((l for l in lines[:4] if "Generated" in l), "")
+            pass_line = next((l for l in lines if "| Pass " in l and "%" in l), "")
+            if gen_line:
+                cprint(f"  Generated: {gen_line.strip('*').strip()}", GRAY)
+            if pass_line:
+                import re as _re
+                m = _re.search(r"\((\d+\.\d+)%\)", pass_line)
+                score = float(m.group(1)) if m else 0.0
+                clr = GREEN if score >= 98.0 else YELLOW
+                cprint(f"  Combined:  {clr}{score}%{RESET}", "")
+        except Exception as exc:
+            cprint(f"  (could not parse master report: {exc})", GRAY)
+        cprint("", "")
+
+    # ── Last loop job status ───────────────────────────────────────────────────
     if not status_f.exists():
-        cprint("  No E2E loop has ever run on this machine.", GRAY)
+        cprint("  No E2E loop job has ever run on this machine.", GRAY)
         return
     try:
         d = json.loads(status_f.read_text(encoding="utf-8"))
     except Exception as exc:
         cprint(f"  Cannot read status.json: {exc}", RED)
         return
+    cprint(f"  {BOLD}── Last Loop Job ──{RESET}", "")
     status = d.get("status", "unknown")
     clr    = GREEN if status == "success" else (YELLOW if status in ("running", "dry_run_complete") else RED)
     cprint(f"  Status:   {clr}{status}{RESET}", "")
@@ -9780,7 +9807,7 @@ def cmd_e2e_auto_loop_status() -> None:
     if d.get("final_combined_pct") is not None:
         pct = d["final_combined_pct"]
         clr = GREEN if pct >= d.get("target", 98.0) else YELLOW
-        cprint(f"  Final combined: {clr}{pct}%{RESET}", "")
+        cprint(f"  Loop combined: {clr}{pct}%{RESET}  (loop job — see master report above for current)", "")
     if d.get("needs_llm_review"):
         cprint(f"\n  {YELLOW}⚠ Needs LLM review — run /e2e-auto-loop-report{RESET}", "")
     if d.get("stop_reason"):
@@ -10502,6 +10529,14 @@ _SHELL_CMD_RE = re.compile(
 # `source` only looks like a shell command when followed by a path (/, ~, .) — not "source code"
 _SOURCE_CMD_RE = re.compile(r"^source\s+[/~.]", re.I)
 
+# ── CommandRegistry: plugin-based dispatch (Phase 1 pilot) ───────────────────
+# Ensure workspace root is on sys.path so `adwi.*` resolves whether adwi_cli.py
+# is run as a script (sys.path has adwi/) or imported as a package (has BASE/).
+if str(BASE) not in sys.path:
+    sys.path.insert(0, str(BASE))
+from adwi.command_registry import registry as _cmd_registry  # noqa: E402
+_cmd_registry.discover("adwi.commands")
+
 def handle(line: str) -> bool:
     global _SESSION_MAX_TURNS
     line = line.strip()
@@ -10565,6 +10600,12 @@ def handle(line: str) -> bool:
                 cprint("  Out of range — use 1–100.", YELLOW)
         except ValueError:
             cprint("  Usage: /context-size <number>  (e.g. /context-size 20)", YELLOW)
+        return True
+
+    # ── Registry-first dispatch ───────────────────────────────────────────────
+    # Registered commands are handled here; unregistered fall through to the
+    # existing elif chain below, which remains the authoritative fallback.
+    if _cmd_registry.dispatch(line, {}):
         return True
 
     # Explicit slash commands (shortcuts for power users)

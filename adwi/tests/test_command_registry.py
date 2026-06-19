@@ -262,5 +262,62 @@ class TestHelpText(unittest.TestCase):
         self.assertIn("/c", txt)
 
 
+# ── Phase 1 wiring verification ───────────────────────────────────────────────
+
+
+class TestPhase1WiringCommands(unittest.TestCase):
+    """
+    Verify the 3 Phase 1 pilot commands are registered via discover() and that
+    dispatch() returns the right boolean for each case.
+
+    These are the first commands wired through registry-first dispatch in handle().
+    The elif chain remains as fallback for unregistered commands.
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        cls.reg = CommandRegistry()
+        cls.reg.discover("adwi.commands")
+
+    def test_help_registered(self):
+        self.assertIsNotNone(self.reg.get("/help"), "/help must be in the registry")
+
+    def test_status_registered(self):
+        self.assertIsNotNone(self.reg.get("/status"), "/status must be in the registry")
+
+    def test_memory_stats_registered(self):
+        self.assertIsNotNone(self.reg.get("/memory-stats"), "/memory-stats must be in the registry")
+
+    def test_dispatch_true_for_phase1_commands(self):
+        """dispatch() returns True when spec found (handler may log/fail — that is OK)."""
+        for cmd in ["/help", "/status", "/memory-stats"]:
+            with self.subTest(cmd=cmd):
+                result = self.reg.dispatch(cmd, {})
+                self.assertTrue(result, f"dispatch('{cmd}') must return True")
+
+    def test_dispatch_false_for_unregistered_is_fallback_signal(self):
+        """Unregistered commands must return False so the elif chain fires."""
+        result = self.reg.dispatch("/not-a-real-command-xyz", {})
+        self.assertFalse(result)
+
+    def test_dispatch_false_for_natural_language(self):
+        """Non-slash input must return False (NLU path handles it, not registry)."""
+        result = self.reg.dispatch("check my setup", {})
+        self.assertFalse(result)
+
+    def test_phase1_commands_have_descriptions(self):
+        for cmd in ["/help", "/status", "/memory-stats"]:
+            with self.subTest(cmd=cmd):
+                spec = self.reg.get(cmd)
+                self.assertIsNotNone(spec)
+                self.assertGreater(len(spec.description), 0)
+
+    def test_discover_count_covers_all_plugin_modules(self):
+        """discover() must load at least the 3 known modules."""
+        fresh = CommandRegistry()
+        count = fresh.discover("adwi.commands")
+        self.assertGreaterEqual(count, 3, "system + knowledge + disk must all load")
+
+
 if __name__ == "__main__":
     unittest.main()

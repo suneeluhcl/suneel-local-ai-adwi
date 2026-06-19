@@ -72,10 +72,20 @@ def _patch_adwi(args: str, ctx: dict) -> None:
     _cli().cmd_patch_adwi(args)
 
 
+def _help(args: str, ctx: dict) -> None:
+    print(_cli().HELP)
+
+
 # ── Registration ──────────────────────────────────────────────────────────────
 
 
 def register(registry: "CommandRegistry") -> None:
+    registry.register(
+        "/help",
+        description="Show all commands and usage",
+        category="meta",
+    )(_help)
+
     registry.register(
         "/status",
         description="Check all services are running",
