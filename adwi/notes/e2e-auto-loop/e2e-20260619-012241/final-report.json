@@ -1,12 +1,9 @@
 {
   "job_id": "e2e-20260619-012241",
   "status": "max_cycles_reached",
-  "updated_at": "2026-06-19T02:13:30",
+  "stop_reason": "Max cycles (3) reached. Final combined: 97.6%",
   "target": 98.0,
   "max_cycles": 3,
-  "cycle": 3,
-  "report_path": "/Users/MAC/SuneelWorkSpace/adwi/notes/e2e-auto-loop/e2e-20260619-012241",
-  "stop_reason": "Max cycles (3) reached. Final combined: 97.6%",
   "final_combined_pct": 97.6,
   "needs_llm_review": true,
   "unfixed_clusters": [
@@ -1606,5 +1603,6 @@
       ],
       "duration_s": 1072.5
     }
-  ]
+  ],
+  "finished_at": "2026-06-19T02:13:30"
 }

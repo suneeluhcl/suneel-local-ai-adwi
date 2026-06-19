@@ -1,17 +1,31 @@
 [
   {
-    "id": "FIX-001",
-    "title": "file_search regex too broad \u2014 swallows cleanup/duplicates/large_files",
+    "id": "FIX-003",
+    "title": "obsidian_search/daily \u2192 memory_recall LLM confusion",
     "count": 1,
     "evidence": [
-      "find dupkicates"
+      "notes"
     ],
-    "root_cause": "`\\b(find|search for|locate|look for)\\b.{0,20}\\bfiles?\\b` matches 'find things to delete', 'find duplicate files', 'find large files'. The word 'files' appears in disk management prompts but should not trigger file_search.",
-    "proposed_fix": "Add negative lookahead to file_search pattern: require file path context (extension, directory, 'in workspace', 'in /path') OR remove 'find' as standalone trigger. Alternative: add pre-guards for duplicate/cleanup intents BEFORE file_search in REGEX_INTENTS.",
-    "affected_file": "adwi/adwi_cli.py \u2014 _REGEX_INTENTS file_search section",
+    "root_cause": "LLM sees 'search my notes', 'open my note', 'my daily note' and routes to memory_recall because _INTENT_SYSTEM description for memory_recall says 'what YOU remember about their setup'. Notes queries are semantically similar to memory queries.",
+    "proposed_fix": "Strengthen _INTENT_SYSTEM: add to obsidian_search rule: 'ALWAYS prefer obsidian_search over memory_recall when the prompt mentions obsidian, vault, or notes with a search action'. Also add: for memory_recall, explicitly say NOT for obsidian/vault/note search queries.",
+    "affected_file": "adwi/adwi_cli.py \u2014 _INTENT_SYSTEM",
     "effort": "low",
-    "confidence": "high",
+    "confidence": "medium",
     "impact": "~1 scenarios would flip to pass"
+  },
+  {
+    "id": "FIX-004",
+    "title": "large_files \u2192 disk_usage regression for some prompts",
+    "count": 1,
+    "evidence": [
+      "size hogs on my disk"
+    ],
+    "root_cause": "Some large_files prompts contain 'disk' or 'space' keywords which trigger disk_usage regex. Example: 'what's the heaviest stuff on disk' \u2014 correctly routes to disk_usage, but 'heaviest files on disk' should route to large_files.",
+    "proposed_fix": "Add additional large_files pattern: `\\bfiles?\\b.{0,30}(heaviest|biggest|largest|most space).{0,20}(disk|drive|ssd)` \u2192 large_files BEFORE disk_usage patterns.",
+    "affected_file": "adwi/adwi_cli.py \u2014 _REGEX_INTENTS",
+    "effort": "low",
+    "confidence": "medium",
+    "impact": "~1 scenarios"
   },
   {
     "id": "FIX-006",

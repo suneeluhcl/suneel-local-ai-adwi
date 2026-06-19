@@ -1,80 +1,55 @@
 {
   "sessions": [
-    "large-20260618-100658",
-    "large-p2-20260618-100319"
+    "large-20260619-033633",
+    "large-p2-20260619-034751"
   ],
-  "generated": "2026-06-18 10:24",
+  "generated": "2026-06-19 03:52",
   "total": 2283,
-  "passed": 2187,
-  "warned": 28,
-  "failed": 68,
-  "pass_rate_pct": 95.8,
-  "regex_hits": 1498,
-  "regex_hit_pct": 65.6,
-  "llm_calls": 785,
-  "avg_latency_ms": 2124.0,
-  "p95_latency_ms": 7053.3,
+  "passed": 2244,
+  "warned": 11,
+  "failed": 28,
+  "pass_rate_pct": 98.3,
+  "regex_hits": 1523,
+  "regex_hit_pct": 66.7,
+  "llm_calls": 760,
+  "avg_latency_ms": 1993.9,
+  "p95_latency_ms": 7153.3,
   "safety_probes": 66,
-  "safety_breaches": 0,
+  "safety_breaches": 3,
   "top_misroutes": [
     {
       "from": "chat",
-      "to": "memory_recall",
-      "count": 6
+      "to": "rag_search",
+      "count": 3
     },
     {
-      "from": "backup_status",
-      "to": "status",
-      "count": 2
-    },
-    {
-      "from": "inspect_code",
+      "from": "chat",
       "to": "memory_recall",
       "count": 2
     },
     {
-      "from": "chat",
-      "to": "sync",
+      "from": "__none__",
+      "to": "run_code",
       "count": 2
     },
     {
-      "from": "chat",
-      "to": "patch_adwi",
-      "count": 2
+      "from": "large_files",
+      "to": "disk_usage",
+      "count": 1
     },
     {
-      "from": "chat",
-      "to": "what_next",
-      "count": 2
+      "from": "old_files",
+      "to": "memory_scan",
+      "count": 1
     },
     {
-      "from": "chat",
-      "to": "git_status",
-      "count": 2
-    },
-    {
-      "from": "disk_usage",
-      "to": "capabilities",
+      "from": "old_files",
+      "to": "large_files",
       "count": 1
     },
     {
       "from": "status",
-      "to": "web_search",
-      "count": 1
-    },
-    {
-      "from": "what_next",
-      "to": "memory_recall",
-      "count": 1
-    },
-    {
-      "from": "what_next",
-      "to": "capabilities",
-      "count": 1
-    },
-    {
-      "from": "file_read",
-      "to": "inspect_code",
+      "to": "chat",
       "count": 1
     },
     {
@@ -89,12 +64,7 @@
     },
     {
       "from": "file_search",
-      "to": "chat",
-      "count": 1
-    },
-    {
-      "from": "gmail_list_category",
-      "to": "obsidian_search",
+      "to": "backup_now",
       "count": 1
     },
     {
@@ -108,119 +78,112 @@
       "count": 1
     },
     {
-      "from": "gmail_add_cc",
+      "from": "chat",
+      "to": "sync",
+      "count": 1
+    },
+    {
+      "from": "chat",
+      "to": "what_next",
+      "count": 1
+    },
+    {
+      "from": "disk_usage",
       "to": "chat",
       "count": 1
     },
     {
-      "from": "gmail_add_bcc",
-      "to": "gmail",
+      "from": "nightly_run",
+      "to": "nightly_status",
       "count": 1
     },
     {
-      "from": "gmail_save_attachment",
-      "to": "file_save",
+      "from": "gmail",
+      "to": "gmail_thread_intel",
+      "count": 1
+    },
+    {
+      "from": "use_local",
+      "to": "use_cloud",
+      "count": 1
+    },
+    {
+      "from": "benchmark",
+      "to": "chat",
+      "count": 1
+    },
+    {
+      "from": "__none__",
+      "to": "__none__",
+      "count": 1
+    },
+    {
+      "from": "__none__",
+      "to": "doctor",
       "count": 1
     },
     {
       "from": "web_search",
-      "to": "tech_radar",
+      "to": "rag_search",
       "count": 1
     },
     {
-      "from": "browse",
-      "to": "obsidian_search",
-      "count": 1
-    },
-    {
-      "from": "memory_stats",
+      "from": "obsidian_search",
       "to": "memory_recall",
       "count": 1
     },
     {
-      "from": "git_status",
-      "to": "chat",
-      "count": 1
-    },
-    {
-      "from": "git_status",
-      "to": "file_list",
-      "count": 1
-    },
-    {
-      "from": "git_status",
-      "to": "memory_recall",
-      "count": 1
-    },
-    {
-      "from": "backup_now",
-      "to": "git_status",
-      "count": 1
-    },
-    {
-      "from": "voice_out",
-      "to": "daily_brief",
-      "count": 1
-    },
-    {
-      "from": "trusted_roots",
-      "to": "capabilities",
+      "from": "__none__",
+      "to": "file_read",
       "count": 1
     }
   ],
   "fail_by_intent": {
-    "chat": 21,
-    "status": 3,
-    "git_status": 3,
-    "what_next": 2,
+    "chat": 7,
+    "__none__": 5,
+    "old_files": 2,
     "file_search": 2,
-    "backup_status": 2,
-    "inspect_code": 2,
-    "run_code": 2,
-    "nightly_status": 2,
-    "__none__": 2,
-    "disk_usage": 1,
-    "file_read": 1,
+    "large_files": 1,
+    "status": 1,
     "file_list": 1,
-    "gmail_list_category": 1,
     "gmail_tasks_save": 1,
     "gmail_confirm": 1,
-    "gmail_add_cc": 1,
-    "gmail_add_bcc": 1,
-    "gmail_save_attachment": 1,
-    "web_search": 1,
-    "browse": 1,
-    "memory_stats": 1,
-    "backup_now": 1,
-    "voice_out": 1,
-    "trusted_roots": 1,
-    "fix_error": 1,
-    "test_adwi": 1,
-    "github_connected": 1,
-    "duplicates": 1,
+    "disk_usage": 1,
     "nightly_run": 1,
     "gmail": 1,
     "use_local": 1,
     "benchmark": 1,
-    "research": 1,
-    "patch_adwi": 1,
-    "tool_roadmap": 1,
-    "cleanup": 1
+    "web_search": 1,
+    "obsidian_search": 1
   },
   "fix_candidates": [
     {
-      "id": "FIX-001",
-      "title": "file_search regex too broad \u2014 swallows cleanup/duplicates/large_files",
+      "id": "FIX-003",
+      "title": "obsidian_search/daily \u2192 memory_recall LLM confusion",
       "count": 1,
       "evidence": [
-        "find dupkicates"
+        "notes"
       ],
-      "root_cause": "`\\b(find|search for|locate|look for)\\b.{0,20}\\bfiles?\\b` matches 'find things to delete', 'find duplicate files', 'find large files'. The word 'files' appears in disk management prompts but should not trigger file_search.",
-      "proposed_fix": "Add negative lookahead to file_search pattern: require file path context (extension, directory, 'in workspace', 'in /path') OR remove 'find' as standalone trigger. Alternative: add pre-guards for duplicate/cleanup intents BEFORE file_search in REGEX_INTENTS.",
-      "affected_file": "adwi/adwi_cli.py \u2014 _REGEX_INTENTS file_search section",
+      "root_cause": "LLM sees 'search my notes', 'open my note', 'my daily note' and routes to memory_recall because _INTENT_SYSTEM description for memory_recall says 'what YOU remember about their setup'. Notes queries are semantically similar to memory queries.",
+      "proposed_fix": "Strengthen _INTENT_SYSTEM: add to obsidian_search rule: 'ALWAYS prefer obsidian_search over memory_recall when the prompt mentions obsidian, vault, or notes with a search action'. Also add: for memory_recall, explicitly say NOT for obsidian/vault/note search queries.",
+      "affected_file": "adwi/adwi_cli.py \u2014 _INTENT_SYSTEM",
       "effort": "low",
-      "confidence": "high",
+      "confidence": "medium",
       "impact": "~1 scenarios would flip to pass"
+    },
+    {
+      "id": "FIX-004",
+      "title": "large_files \u2192 disk_usage regression for some prompts",
+      "count": 1,
+      "evidence": [
+        "size hogs on my disk"
+      ],
+      "root_cause": "Some large_files prompts contain 'disk' or 'space' keywords which trigger disk_usage regex. Example: 'what's the heaviest stuff on disk' \u2014 correctly routes to disk_usage, but 'heaviest files on disk' should route to large_files.",
+      "proposed_fix": "Add additional large_files pattern: `\\bfiles?\\b.{0,30}(heaviest|biggest|largest|most space).{0,20}(disk|drive|ssd)` \u2192 large_files BEFORE disk_usage patterns.",
+      "affected_file": "adwi/adwi_cli.py \u2014 _REGEX_INTENTS",
+      "effort": "low",
+      "confidence": "medium",
+      "impact": "~1 scenarios"
     },
     {
       "id": "FIX-006",
@@ -246,49 +209,7 @@
       "consistency_pct": 80.0
     },
     {
-      "family": "research",
-      "total": 5,
-      "pass": 4,
-      "fail": 1,
-      "consistency_pct": 80.0
-    },
-    {
-      "family": "gmail_add_cc",
-      "total": 6,
-      "pass": 5,
-      "fail": 1,
-      "consistency_pct": 83.3
-    },
-    {
-      "family": "gmail_add_bcc",
-      "total": 6,
-      "pass": 5,
-      "fail": 1,
-      "consistency_pct": 83.3
-    },
-    {
-      "family": "gmail_save_attachment",
-      "total": 6,
-      "pass": 5,
-      "fail": 1,
-      "consistency_pct": 83.3
-    },
-    {
-      "family": "chat",
-      "total": 109,
-      "pass": 93,
-      "fail": 13,
-      "consistency_pct": 85.3
-    },
-    {
       "family": "gmail_tasks_save",
-      "total": 8,
-      "pass": 7,
-      "fail": 1,
-      "consistency_pct": 87.5
-    },
-    {
-      "family": "test_adwi",
       "total": 8,
       "pass": 7,
       "fail": 1,
