@@ -476,5 +476,100 @@ class TestPhase3DiagnosticsCommands(unittest.TestCase):
         self.assertNotIn("cmd_capability_audit", source)
 
 
+# ── Phase 4 wiring verification ───────────────────────────────────────────────
+
+
+class TestPhase4AssistantCommands(unittest.TestCase):
+    """
+    Verify Phase 4 assistant/reporting commands are registered via discover()
+    and dispatch correctly.
+
+    /daily-brief --n8n arg-passing and /research-save inclusion are explicitly
+    tested here since they required special handler logic.
+    """
+
+    PHASE4 = [
+        "/research",
+        "/research-save",
+        "/daily-brief",
+        "/tech-radar",
+        "/assistant-upgrade-status",
+        "/e2e-auto-loop-status",
+        "/e2e-auto-loop-report",
+    ]
+
+    @classmethod
+    def setUpClass(cls):
+        cls.reg = CommandRegistry()
+        cls.reg.discover("adwi.commands")
+
+    def test_all_phase4_commands_registered(self):
+        for cmd in self.PHASE4:
+            with self.subTest(cmd=cmd):
+                self.assertIsNotNone(self.reg.get(cmd), f"{cmd} must be registered")
+
+    def test_all_phase4_commands_dispatch_true(self):
+        for cmd in self.PHASE4:
+            with self.subTest(cmd=cmd):
+                self.assertTrue(
+                    self.reg.dispatch(cmd, {}),
+                    f"dispatch('{cmd}') must return True",
+                )
+
+    def test_all_phase4_commands_have_descriptions(self):
+        for cmd in self.PHASE4:
+            with self.subTest(cmd=cmd):
+                spec = self.reg.get(cmd)
+                self.assertIsNotNone(spec)
+                self.assertGreater(len(spec.description), 0)
+
+    def test_research_intent_wired(self):
+        self.assertIn("research", self.reg.intent_map())
+        self.assertEqual(self.reg.intent_map()["research"], "/research")
+
+    def test_daily_brief_intent_wired(self):
+        self.assertIn("daily_brief", self.reg.intent_map())
+        self.assertEqual(self.reg.intent_map()["daily_brief"], "/daily-brief")
+
+    def test_tech_radar_intent_wired(self):
+        self.assertIn("tech_radar", self.reg.intent_map())
+        self.assertEqual(self.reg.intent_map()["tech_radar"], "/tech-radar")
+
+    def test_assistant_upgrade_status_intent_wired(self):
+        self.assertIn("assistant_upgrade_status", self.reg.intent_map())
+
+    def test_daily_brief_n8n_dispatches_to_same_handler(self):
+        """'/daily-brief --n8n' must be caught by /daily-brief registry entry (args='--n8n')."""
+        result = self.reg.dispatch("/daily-brief --n8n", {})
+        self.assertTrue(result, "registry must intercept /daily-brief --n8n before the elif chain")
+
+    def test_research_with_question_dispatches(self):
+        """'/research some question' must dispatch to /research (args='some question')."""
+        result = self.reg.dispatch("/research what is MCP", {})
+        self.assertTrue(result)
+
+    def test_research_save_registered_separately(self):
+        """'/research-save' is a distinct command from '/research'."""
+        spec_r = self.reg.get("/research")
+        spec_rs = self.reg.get("/research-save")
+        self.assertIsNotNone(spec_rs)
+        self.assertIsNot(spec_r, spec_rs)
+
+    def test_e2e_status_and_report_in_eval_category(self):
+        for cmd in ["/e2e-auto-loop-status", "/e2e-auto-loop-report"]:
+            with self.subTest(cmd=cmd):
+                spec = self.reg.get(cmd)
+                self.assertEqual(spec.category, "eval")
+
+    def test_assistant_module_loaded_via_discover(self):
+        fresh = CommandRegistry()
+        count = fresh.discover("adwi.commands")
+        self.assertGreaterEqual(count, 6, "6 modules including assistant")
+        self.assertIsNotNone(fresh.get("/research"), "assistant module must register /research")
+
+    def test_total_unique_commands_at_phase4(self):
+        self.assertGreaterEqual(len(set(self.reg.all_names())), 68)
+
+
 if __name__ == "__main__":
     unittest.main()
