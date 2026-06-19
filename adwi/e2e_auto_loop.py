@@ -935,6 +935,261 @@ KNOWN_REGEX_FIXES: list[dict] = [
         ),
         "minimum_examples": 1,
     },
+    # ── FIX-E2E-026a: add implement_idea description to P1 INTENT_SYSTEM ─────────
+    {
+        "id":             "FIX-E2E-026a",
+        "description":    "Insert implement_idea intent description into run_large_eval.py INTENT_SYSTEM",
+        "target_intents": ["implement_idea", "chat"],
+        "target_file":    "adwi/logs/simeval/run_large_eval.py",
+        "check_pattern":  r"full health check'\)\..*\n.*'backup_now'",
+        "old_str": (
+            '    "                      \'doctor\' is ONLY for EXPLICIT deep health-check requests (\'run doctor\', \'full health check\').\\n"\n'
+            '    "   \'backup_now\'     : backup workspace to GitHub, push backup. Includes \'push to github\',\\n"\n'
+        ),
+        "new_str": (
+            '    "                      \'doctor\' is ONLY for EXPLICIT deep health-check requests (\'run doctor\', \'full health check\').\\n"\n'
+            '    "   \'implement_idea\' : user wants to add/build/implement a specific feature or improvement.\\n"\n'
+            '    "                      \'add this feature to adwi\', \'implement: better error handling\',\\n"\n'
+            '    "                      \'build X for adwi\', \'make adwi do X\'. NOT run_code. NOT vague (→ chat).\\n"\n'
+            '    "   \'backup_now\'     : backup workspace to GitHub, push backup. Includes \'push to github\',\\n"\n'
+        ),
+        "minimum_examples": 2,
+    },
+    # ── FIX-E2E-026b: add implement_idea description to P2 ───────────────────────
+    {
+        "id":             "FIX-E2E-026b",
+        "description":    "Insert implement_idea intent description into run_large_eval_p2.py INTENT_SYSTEM",
+        "target_intents": ["implement_idea", "chat"],
+        "target_file":    "adwi/logs/simeval/run_large_eval_p2.py",
+        "check_pattern":  r"'run doctor'\)\..*\n.*'backup_now'",
+        "old_str": (
+            '    "                      \'doctor\' is ONLY for EXPLICIT deep health-check requests (\'run doctor\').\\n"\n'
+            '    "   \'backup_now\'     : backup to GitHub. Includes \'push to github\', \'push my changes\',\\n"\n'
+        ),
+        "new_str": (
+            '    "                      \'doctor\' is ONLY for EXPLICIT deep health-check requests (\'run doctor\').\\n"\n'
+            '    "   \'implement_idea\' : user wants to add/build/implement a specific feature or improvement.\\n"\n'
+            '    "                      \'add this feature to adwi\', \'implement: better error handling\',\\n"\n'
+            '    "                      \'build X for adwi\', \'make adwi do X\'. NOT run_code. NOT vague (→ chat).\\n"\n'
+            '    "   \'backup_now\'     : backup to GitHub. Includes \'push to github\', \'push my changes\',\\n"\n'
+        ),
+        "minimum_examples": 1,
+    },
+    # ── FIX-E2E-026c: add implement_idea description to adwi_cli.py ──────────────
+    {
+        "id":             "FIX-E2E-026c",
+        "description":    "Insert implement_idea intent description into adwi_cli.py INTENT_SYSTEM",
+        "target_intents": ["implement_idea", "chat"],
+        "target_file":    "adwi/adwi_cli.py",
+        "check_pattern":  r"deep diagnostic'\)\..*\n.*'backup_now'",
+        "old_str": (
+            '    "                      \'doctor\' is ONLY for EXPLICIT deep health-check requests\\n"\n'
+            '    "                      (\'run doctor\', \'full health check\', \'deep diagnostic\').\\n"\n'
+            '    "   \'backup_now\'     : backup workspace to GitHub, push backup. Includes \'push to github\',\\n"\n'
+        ),
+        "new_str": (
+            '    "                      \'doctor\' is ONLY for EXPLICIT deep health-check requests\\n"\n'
+            '    "                      (\'run doctor\', \'full health check\', \'deep diagnostic\').\\n"\n'
+            '    "   \'implement_idea\' : user wants to add/build/implement a specific feature or improvement.\\n"\n'
+            '    "                      \'add this feature to adwi\', \'implement: better error handling\',\\n"\n'
+            '    "                      \'build X for adwi\', \'make adwi do X\'. NOT run_code. NOT vague (→ chat).\\n"\n'
+            '    "   \'backup_now\'     : backup workspace to GitHub, push backup. Includes \'push to github\',\\n"\n'
+        ),
+        "minimum_examples": 1,
+    },
+    # ── FIX-E2E-027a: expand fix_error in P1 — add HTTP/API error examples ────────
+    {
+        "id":             "FIX-E2E-027a",
+        "description":    "Expand fix_error in run_large_eval.py — add docker/fastapi/HTTP error examples",
+        "target_intents": ["fix_error"],
+        "target_file":    "adwi/logs/simeval/run_large_eval.py",
+        "check_pattern":  r"'fix_error'.*user pastes an EXACT.*HTTP status code\..*\n.*'self_heal'",
+        "old_str": (
+            '    "   \'fix_error\'      : user pastes an EXACT exception string with an error class (ModuleNotFoundError, TypeError, etc.) or HTTP status code.\\n"\n'
+            '    "   \'self_heal\'      : user says service is broken WITHOUT pasting an actual error message.\\n"\n'
+        ),
+        "new_str": (
+            '    "   \'fix_error\'      : user pastes an EXACT exception string with an error class (ModuleNotFoundError, TypeError, etc.) or HTTP status code.\\n"\n'
+            '    "                      \'docker.errors.APIError: 409 conflict\', \'fastapi.exceptions.HTTPException: 422\', any paste of stacktrace.\\n"\n'
+            '    "                      REQUIRES actual error text in the prompt. NOT \'something is broken\' (→ self_heal).\\n"\n'
+            '    "   \'self_heal\'      : user says service is broken WITHOUT pasting an actual error message.\\n"\n'
+        ),
+        "minimum_examples": 2,
+    },
+    # ── FIX-E2E-027b: same for P2 ────────────────────────────────────────────────
+    {
+        "id":             "FIX-E2E-027b",
+        "description":    "Expand fix_error in run_large_eval_p2.py — add docker/fastapi/HTTP error examples",
+        "target_intents": ["fix_error"],
+        "target_file":    "adwi/logs/simeval/run_large_eval_p2.py",
+        "check_pattern":  r"'fix_error'.*user pastes an EXACT.*HTTP status code\..*\n.*'self_heal'",
+        "old_str": (
+            '    "   \'fix_error\'      : user pastes an EXACT exception string with an error class (ModuleNotFoundError, TypeError, etc.) or HTTP status code.\\n"\n'
+            '    "   \'self_heal\'      : user says service is broken WITHOUT pasting an actual error message.\\n"\n'
+        ),
+        "new_str": (
+            '    "   \'fix_error\'      : user pastes an EXACT exception string with an error class (ModuleNotFoundError, TypeError, etc.) or HTTP status code.\\n"\n'
+            '    "                      \'docker.errors.APIError: 409 conflict\', \'fastapi.exceptions.HTTPException: 422\', any paste of stacktrace.\\n"\n'
+            '    "                      REQUIRES actual error text in the prompt. NOT \'something is broken\' (→ self_heal).\\n"\n'
+            '    "   \'self_heal\'      : user says service is broken WITHOUT pasting an actual error message.\\n"\n'
+        ),
+        "minimum_examples": 1,
+    },
+    # ── FIX-E2E-028a: expand memory_recall NOT clause — add sync/remember exclusions ─
+    {
+        "id":             "FIX-E2E-028a",
+        "description":    "Expand memory_recall NOT clause in run_large_eval.py — add sync-everything, remember-for-me",
+        "target_intents": ["memory_recall", "chat"],
+        "target_file":    "adwi/logs/simeval/run_large_eval.py",
+        "check_pattern":  r"Only for: 'what do you remember'.*recall X.*\n.*'disk_usage'",
+        "old_str": (
+            '    "                      Only for: \'what do you remember\', \'what do you know about me\', \'recall X\'.\\n"\n'
+            '    "   \'disk_usage\'     : storage/disk space questions ONLY\\n"\n'
+        ),
+        "new_str": (
+            '    "                      Only for: \'what do you remember\', \'what do you know about me\', \'recall X\'.\\n"\n'
+            '    "                      NOT \'sync everything\' (→ chat). NOT \'remember this for me\' (→ chat, adwi can\'t store new items).\\n"\n'
+            '    "   \'disk_usage\'     : storage/disk space questions ONLY\\n"\n'
+        ),
+        "minimum_examples": 1,
+    },
+    # ── FIX-E2E-028b: same for P2 ────────────────────────────────────────────────
+    {
+        "id":             "FIX-E2E-028b",
+        "description":    "Expand memory_recall NOT clause in run_large_eval_p2.py — add sync/remember exclusions",
+        "target_intents": ["memory_recall", "chat"],
+        "target_file":    "adwi/logs/simeval/run_large_eval_p2.py",
+        "check_pattern":  r"Only for: 'what do you remember'.*recall X.*\n.*'disk_usage'",
+        "old_str": (
+            '    "                      Only for: \'what do you remember\', \'what do you know about me\', \'recall X\'.\\n"\n'
+            '    "   \'disk_usage\'     : storage/disk space questions ONLY\\n"\n'
+        ),
+        "new_str": (
+            '    "                      Only for: \'what do you remember\', \'what do you know about me\', \'recall X\'.\\n"\n'
+            '    "                      NOT \'sync everything\' (→ chat). NOT \'remember this for me\' (→ chat, adwi can\'t store new items).\\n"\n'
+            '    "   \'disk_usage\'     : storage/disk space questions ONLY\\n"\n'
+        ),
+        "minimum_examples": 1,
+    },
+    # ── FIX-E2E-029a: expand model_status P1 — add "what model is responding" ─────
+    {
+        "id":             "FIX-E2E-029a",
+        "description":    "Expand model_status in run_large_eval.py — add 'what model is responding' example",
+        "target_intents": ["model_status"],
+        "target_file":    "adwi/logs/simeval/run_large_eval.py",
+        "check_pattern":  r"'model_status'.*NOT a disk question.*\n.*'use_local'",
+        "old_str": (
+            '    "   \'model_status\'   : user asks what model is loaded/active. NOT a disk question.\\n"\n'
+        ),
+        "new_str": (
+            '    "   \'model_status\'   : user asks what model is loaded/active. NOT a disk question.\\n"\n'
+            '    "                      \'what model is responding\', \'which model are you running\', \'current model\'.\\n"\n'
+        ),
+        "minimum_examples": 1,
+    },
+    # ── FIX-E2E-029b: same for P2 ────────────────────────────────────────────────
+    {
+        "id":             "FIX-E2E-029b",
+        "description":    "Expand model_status in run_large_eval_p2.py — add 'what model is responding' example",
+        "target_intents": ["model_status"],
+        "target_file":    "adwi/logs/simeval/run_large_eval_p2.py",
+        "check_pattern":  r"'model_status'.*user asks what model.*\n.*'use_local'",
+        "old_str": (
+            '    "   \'model_status\'   : user asks what model is loaded/active.\\n"\n'
+        ),
+        "new_str": (
+            '    "   \'model_status\'   : user asks what model is loaded/active.\\n"\n'
+            '    "                      \'what model is responding\', \'which model are you running\', \'current model\'.\\n"\n'
+        ),
+        "minimum_examples": 1,
+    },
+    # ── FIX-E2E-030a: add SQL to run_code NOT list P1 ────────────────────────────
+    {
+        "id":             "FIX-E2E-030a",
+        "description":    "Add SQL examples to run_code NOT clause in run_large_eval.py",
+        "target_intents": ["run_code"],
+        "target_file":    "adwi/logs/simeval/run_large_eval.py",
+        "check_pattern":  r"NOT SQL/DB commands.*NOT 'run local model'.*\n.*NOT 'do it'",
+        "old_str": (
+            '    "                      NOT SQL/DB commands. NOT \'run local model\' (→ use_local). NOT improvement requests.\\n"\n'
+            '    "                      NOT \'do it\', \'run local model\', \'why is X failing\'. Code must be implied.\\n"\n'
+        ),
+        "new_str": (
+            '    "                      NOT SQL/DB commands (\'DROP TABLE users\', \'SELECT *\' → __none__). NOT \'run local model\'.\\n"\n'
+            '    "                      NOT \'do it\', \'do this\', \'why is X failing\'. Code execution must be clearly implied.\\n"\n'
+        ),
+        "minimum_examples": 1,
+    },
+    # ── FIX-E2E-030b: same for P2 ────────────────────────────────────────────────
+    {
+        "id":             "FIX-E2E-030b",
+        "description":    "Add SQL examples to run_code NOT clause in run_large_eval_p2.py",
+        "target_intents": ["run_code"],
+        "target_file":    "adwi/logs/simeval/run_large_eval_p2.py",
+        "check_pattern":  r"NOT SQL/DB commands.*NOT 'run local model'.*\n.*NOT 'do it'",
+        "old_str": (
+            '    "                      NOT SQL/DB commands. NOT \'run local model\' (→ use_local). NOT improvement requests.\\n"\n'
+            '    "                      NOT \'do it\', \'run local model\', \'why is X failing\'. Code must be implied.\\n"\n'
+        ),
+        "new_str": (
+            '    "                      NOT SQL/DB commands (\'DROP TABLE users\', \'SELECT *\' → __none__). NOT \'run local model\'.\\n"\n'
+            '    "                      NOT \'do it\', \'do this\', \'why is X failing\'. Code execution must be clearly implied.\\n"\n'
+        ),
+        "minimum_examples": 1,
+    },
+    # ── FIX-E2E-030c: same for adwi_cli.py ───────────────────────────────────────
+    {
+        "id":             "FIX-E2E-030c",
+        "description":    "Add SQL examples to run_code NOT clause in adwi_cli.py",
+        "target_intents": ["run_code"],
+        "target_file":    "adwi/adwi_cli.py",
+        "check_pattern":  r"NOT SQL/DB commands.*NOT 'run local model'.*\n.*NOT 'do it'",
+        "old_str": (
+            '    "                      NOT SQL/DB commands. NOT \'run local model\' (→ use_local). NOT improvement requests.\\n"\n'
+            '    "                      NOT \'do it\', \'run local model\', \'why is X failing\'. Code must be implied.\\n"\n'
+        ),
+        "new_str": (
+            '    "                      NOT SQL/DB commands (\'DROP TABLE users\', \'SELECT *\' → __none__). NOT \'run local model\'.\\n"\n'
+            '    "                      NOT \'do it\', \'do this\', \'why is X failing\'. Code execution must be clearly implied.\\n"\n'
+        ),
+        "minimum_examples": 1,
+    },
+    # ── FIX-E2E-031a: expand gmail P1 — add "new messages?" and "check email" ────
+    {
+        "id":             "FIX-E2E-031a",
+        "description":    "Expand gmail in run_large_eval.py — add new-messages and check-email examples",
+        "target_intents": ["gmail"],
+        "target_file":    "adwi/logs/simeval/run_large_eval.py",
+        "check_pattern":  r"'gmail'.*questions about email.*\n.*'generate_image'",
+        "old_str": (
+            '    "   \'gmail\'          : questions about email, inbox, messages\\n"\n'
+            '    "   \'generate_image\' : ONLY when creating a brand-new image/picture/artwork/visual output.\\n"\n'
+        ),
+        "new_str": (
+            '    "   \'gmail\'          : questions about email, inbox, messages. \'new messages?\', \'check my email\',\\n"\n'
+            '    "                      \'any emails from X\', \'check my email then search for action items\'.\\n"\n'
+            '    "   \'generate_image\' : ONLY when creating a brand-new image/picture/artwork/visual output.\\n"\n'
+        ),
+        "minimum_examples": 2,
+    },
+    # ── FIX-E2E-031b: same for P2 ────────────────────────────────────────────────
+    {
+        "id":             "FIX-E2E-031b",
+        "description":    "Expand gmail in run_large_eval_p2.py — add new-messages and check-email examples",
+        "target_intents": ["gmail"],
+        "target_file":    "adwi/logs/simeval/run_large_eval_p2.py",
+        "check_pattern":  r"'gmail'.*questions about email.*\n.*'generate_image'",
+        "old_str": (
+            '    "   \'gmail\'          : questions about email, inbox, messages\\n"\n'
+            '    "   \'generate_image\' : ONLY when creating a brand-new image/picture/artwork/visual output.\\n"\n'
+        ),
+        "new_str": (
+            '    "   \'gmail\'          : questions about email, inbox, messages. \'new messages?\', \'check my email\',\\n"\n'
+            '    "                      \'any emails from X\', \'check my email then search for action items\'.\\n"\n'
+            '    "   \'generate_image\' : ONLY when creating a brand-new image/picture/artwork/visual output.\\n"\n'
+        ),
+        "minimum_examples": 1,
+    },
 ]
 
 
