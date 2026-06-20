@@ -602,7 +602,7 @@ class TestPhase5GmailReadOnlyCommands(unittest.TestCase):
     # Commands still deferred after Phase 7 (Phase 8+)
     PHASE8_DEFERRED = [
         "/gmail-followup",
-        "/gmail-cancel-scheduled",
+        "/gmail-triage",
     ]
 
     @classmethod
@@ -728,7 +728,7 @@ class TestPhase6GmailMutatingCommands(unittest.TestCase):
     # Commands still deferred after Phase 7 (Phase 8+)
     PHASE8_DEFERRED = [
         "/gmail-followup",
-        "/gmail-cancel-scheduled",
+        "/gmail-triage",
     ]
 
     @classmethod
@@ -866,7 +866,7 @@ class TestPhase7GmailDraftLifecycleCommands(unittest.TestCase):
 
     PHASE8_DEFERRED = [
         "/gmail-followup",
-        "/gmail-cancel-scheduled",
+        "/gmail-triage",
     ]
 
     @classmethod
@@ -982,9 +982,9 @@ class TestPhase8GmailDraftEditingCommands(unittest.TestCase):
         "/gmail-add-bcc",
     ]
 
-    PHASE11_DEFERRED = [
+    PHASE12_DEFERRED = [
         "/gmail-followup",
-        "/gmail-cancel-scheduled",
+        "/gmail-triage",
     ]
 
     @classmethod
@@ -1051,17 +1051,17 @@ class TestPhase8GmailDraftEditingCommands(unittest.TestCase):
         result = self.reg.dispatch("/gmail-rewrite", {})
         self.assertTrue(result)
 
-    def test_phase11_deferred_not_in_registry(self):
-        """Schedule/followup commands remain in elif chain (deferred to Phase 11+)."""
-        for cmd in self.PHASE11_DEFERRED:
+    def test_phase12_deferred_not_in_registry(self):
+        """Followup/triage commands remain in elif chain (deferred to Phase 12+)."""
+        for cmd in self.PHASE12_DEFERRED:
             with self.subTest(cmd=cmd):
                 self.assertIsNone(
                     self.reg.get(cmd),
-                    f"{cmd} must remain deferred until Phase 11",
+                    f"{cmd} must remain deferred until Phase 12",
                 )
 
-    def test_phase11_deferred_still_return_false(self):
-        for cmd in self.PHASE11_DEFERRED:
+    def test_phase12_deferred_still_return_false(self):
+        for cmd in self.PHASE12_DEFERRED:
             with self.subTest(cmd=cmd):
                 self.assertFalse(
                     self.reg.dispatch(cmd, {}),
@@ -1101,9 +1101,9 @@ class TestPhase9GmailDraftManagementCommands(unittest.TestCase):
         "/gmail-delete-draft",
     ]
 
-    PHASE11_DEFERRED = [
+    PHASE12_DEFERRED = [
         "/gmail-followup",
-        "/gmail-cancel-scheduled",
+        "/gmail-triage",
     ]
 
     @classmethod
@@ -1165,17 +1165,17 @@ class TestPhase9GmailDraftManagementCommands(unittest.TestCase):
         result = self.reg.dispatch("/gmail-delete-draft", {})
         self.assertTrue(result)
 
-    def test_phase11_deferred_not_in_registry(self):
-        """Schedule/followup commands remain in elif chain (deferred to Phase 11+)."""
-        for cmd in self.PHASE11_DEFERRED:
+    def test_phase12_deferred_not_in_registry(self):
+        """Followup/triage commands remain in elif chain (deferred to Phase 12+)."""
+        for cmd in self.PHASE12_DEFERRED:
             with self.subTest(cmd=cmd):
                 self.assertIsNone(
                     self.reg.get(cmd),
-                    f"{cmd} must remain deferred until Phase 11",
+                    f"{cmd} must remain deferred until Phase 12",
                 )
 
-    def test_phase11_deferred_still_return_false(self):
-        for cmd in self.PHASE11_DEFERRED:
+    def test_phase12_deferred_still_return_false(self):
+        for cmd in self.PHASE12_DEFERRED:
             with self.subTest(cmd=cmd):
                 self.assertFalse(
                     self.reg.dispatch(cmd, {}),
@@ -1204,14 +1204,13 @@ class TestPhase10GmailDraftReply(unittest.TestCase):
     registry args path (raw text after the slash command) is handled identically
     to the elif chain: cmd_gmail_draft_reply(line[19:].strip()).
 
-    Deferred to Phase 11+: schedule-send, cancel-scheduled, reschedule,
-    followup-reminder, extract-tasks, triage, attachment mutations.
+    Deferred to Phase 12+: followup-reminder, extract-tasks, triage, attachment
+    mutations. Schedule cluster migrated in Phase 11.
     """
 
-    PHASE11_DEFERRED = [
+    PHASE12_DEFERRED = [
         "/gmail-followup",
-        "/gmail-cancel-scheduled",
-        "/gmail-schedule",
+        "/gmail-triage",
     ]
 
     @classmethod
@@ -1248,17 +1247,17 @@ class TestPhase10GmailDraftReply(unittest.TestCase):
         result = self.reg.dispatch("/gmail-draft-reply reply to the latest ask", {})
         self.assertTrue(result)
 
-    def test_phase11_deferred_not_in_registry(self):
-        """Schedule/followup commands remain in elif chain (deferred to Phase 11+)."""
-        for cmd in self.PHASE11_DEFERRED:
+    def test_phase12_deferred_not_in_registry(self):
+        """Followup/triage commands remain in elif chain (deferred to Phase 12+)."""
+        for cmd in self.PHASE12_DEFERRED:
             with self.subTest(cmd=cmd):
                 self.assertIsNone(
                     self.reg.get(cmd),
-                    f"{cmd} must remain deferred until Phase 11",
+                    f"{cmd} must remain deferred until Phase 12",
                 )
 
-    def test_phase11_deferred_still_return_false(self):
-        for cmd in self.PHASE11_DEFERRED:
+    def test_phase12_deferred_still_return_false(self):
+        for cmd in self.PHASE12_DEFERRED:
             with self.subTest(cmd=cmd):
                 self.assertFalse(
                     self.reg.dispatch(cmd, {}),
@@ -1267,6 +1266,137 @@ class TestPhase10GmailDraftReply(unittest.TestCase):
 
     def test_total_unique_commands_at_phase10(self):
         self.assertGreaterEqual(len(set(self.reg.all_names())), 99)
+
+
+# ── Phase 11 wiring verification ──────────────────────────────────────────────
+
+
+class TestPhase11GmailScheduleCluster(unittest.TestCase):
+    """
+    Verify Phase 11 schedule cluster is registered via discover() and dispatches
+    correctly.
+
+    Commands migrated in this phase:
+      /gmail-schedule        — schedule current draft for future send (preview+confirm, local queue)
+      /gmail-cancel-scheduled — cancel a pending scheduled send (confirm required)
+      /gmail-reschedule      — move a pending scheduled send to a new time (preview+confirm)
+      /gmail-open-scheduled  — load draft from a pending scheduled send into session ctx
+
+    No live send on schedule/reschedule/cancel paths. open-scheduled makes a
+    read-only gh.get_draft() call. All input() confirmations are preserved inside
+    adwi_cli.py handlers — the registry delegation is identical to the elif chain.
+
+    Deferred to Phase 12+: followup-reminder, extract-tasks, triage, attachment
+    mutations.
+    """
+
+    PHASE11 = [
+        "/gmail-schedule",
+        "/gmail-cancel-scheduled",
+        "/gmail-reschedule",
+        "/gmail-open-scheduled",
+    ]
+
+    PHASE12_DEFERRED = [
+        "/gmail-followup",
+        "/gmail-triage",
+    ]
+
+    @classmethod
+    def setUpClass(cls):
+        cls.reg = CommandRegistry()
+        cls.reg.discover("adwi.commands")
+
+    def test_all_phase11_commands_registered(self):
+        for cmd in self.PHASE11:
+            with self.subTest(cmd=cmd):
+                self.assertIsNotNone(self.reg.get(cmd), f"{cmd} must be registered")
+
+    def test_all_phase11_commands_dispatch_true(self):
+        for cmd in self.PHASE11:
+            with self.subTest(cmd=cmd):
+                self.assertTrue(
+                    self.reg.dispatch(cmd, {}),
+                    f"dispatch('{cmd}') must return True",
+                )
+
+    def test_all_phase11_commands_have_descriptions(self):
+        for cmd in self.PHASE11:
+            with self.subTest(cmd=cmd):
+                spec = self.reg.get(cmd)
+                self.assertIsNotNone(spec)
+                self.assertGreater(len(spec.description), 0)
+
+    def test_all_phase11_commands_in_gmail_category(self):
+        for cmd in self.PHASE11:
+            with self.subTest(cmd=cmd):
+                self.assertEqual(self.reg.get(cmd).category, "gmail")
+
+    def test_schedule_cluster_intents_wired(self):
+        expected = {
+            "gmail_schedule_send": "/gmail-schedule",
+            "gmail_cancel_scheduled": "/gmail-cancel-scheduled",
+            "gmail_reschedule_send": "/gmail-reschedule",
+            "gmail_open_scheduled": "/gmail-open-scheduled",
+        }
+        for intent, cmd in expected.items():
+            with self.subTest(intent=intent):
+                self.assertIn(intent, self.reg.intent_map())
+                self.assertEqual(self.reg.intent_map()[intent], cmd)
+
+    def test_schedule_passes_time_args(self):
+        """/gmail-schedule with time text dispatches correctly."""
+        result = self.reg.dispatch("/gmail-schedule tomorrow at 9am", {})
+        self.assertTrue(result)
+
+    def test_schedule_no_args_dispatches(self):
+        """/gmail-schedule with no args dispatches (handler shows time-parse error)."""
+        result = self.reg.dispatch("/gmail-schedule", {})
+        self.assertTrue(result)
+
+    def test_cancel_scheduled_passes_ref_args(self):
+        result = self.reg.dispatch("/gmail-cancel-scheduled 1", {})
+        self.assertTrue(result)
+
+    def test_cancel_scheduled_no_args_dispatches(self):
+        result = self.reg.dispatch("/gmail-cancel-scheduled", {})
+        self.assertTrue(result)
+
+    def test_reschedule_passes_time_args(self):
+        result = self.reg.dispatch("/gmail-reschedule to Friday at 9am", {})
+        self.assertTrue(result)
+
+    def test_reschedule_no_args_dispatches(self):
+        result = self.reg.dispatch("/gmail-reschedule", {})
+        self.assertTrue(result)
+
+    def test_open_scheduled_passes_ref_args(self):
+        result = self.reg.dispatch("/gmail-open-scheduled 2", {})
+        self.assertTrue(result)
+
+    def test_open_scheduled_no_args_dispatches(self):
+        result = self.reg.dispatch("/gmail-open-scheduled", {})
+        self.assertTrue(result)
+
+    def test_phase12_deferred_not_in_registry(self):
+        """Followup/triage commands remain in elif chain (deferred to Phase 12+)."""
+        for cmd in self.PHASE12_DEFERRED:
+            with self.subTest(cmd=cmd):
+                self.assertIsNone(
+                    self.reg.get(cmd),
+                    f"{cmd} must remain deferred until Phase 12",
+                )
+
+    def test_phase12_deferred_still_return_false(self):
+        for cmd in self.PHASE12_DEFERRED:
+            with self.subTest(cmd=cmd):
+                self.assertFalse(
+                    self.reg.dispatch(cmd, {}),
+                    f"{cmd} must fall through to elif chain",
+                )
+
+    def test_total_unique_commands_at_phase11(self):
+        self.assertGreaterEqual(len(set(self.reg.all_names())), 103)
 
 
 if __name__ == "__main__":

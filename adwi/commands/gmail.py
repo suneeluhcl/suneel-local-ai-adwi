@@ -28,8 +28,13 @@ Phase 10 (draft-reply): draft a reply to the current email. Requires
 _GMAIL_CTX["current_email"]; optionally uses current_thread for context-aware
 mode. LLM generates body, creates Gmail draft, shows preview — no live send.
 
-Deferred to Phase 11+: schedule-send, cancel-scheduled, reschedule,
-followup-reminder, extract-tasks, triage, attachment mutations.
+Phase 11 (schedule cluster): schedule-send, cancel-scheduled, reschedule,
+open-scheduled. All operate on the local scheduled-sends JSON queue via
+_resolve_scheduled_ref() / _resolve_schedule_time(); no live send on any path.
+open-scheduled makes a read-only gh.get_draft() call to load the draft.
+
+Deferred to Phase 12+: followup-reminder, extract-tasks, triage, attachment
+mutations.
 """
 
 from __future__ import annotations
@@ -149,6 +154,25 @@ def _forward(args: str, ctx: dict) -> None:
 
 def _draft_reply(args: str, ctx: dict) -> None:
     _cli().cmd_gmail_draft_reply(args)
+
+
+# ── Phase 11 handlers (schedule cluster) ──────────────────────────────────────
+
+
+def _schedule_send(args: str, ctx: dict) -> None:
+    _cli().cmd_gmail_schedule_send(args)
+
+
+def _cancel_scheduled(args: str, ctx: dict) -> None:
+    _cli().cmd_gmail_cancel_scheduled_send(args)
+
+
+def _reschedule(args: str, ctx: dict) -> None:
+    _cli().cmd_gmail_reschedule_send(args)
+
+
+def _open_scheduled(args: str, ctx: dict) -> None:
+    _cli().cmd_gmail_open_scheduled_draft(args)
 
 
 # ── Phase 9 handlers (draft management cluster) ───────────────────────────────
@@ -439,3 +463,37 @@ def register(registry: "CommandRegistry") -> None:
         intents=["gmail_draft_reply"],
         args_schema={"instruction": "str?"},
     )(_draft_reply)
+
+    # Phase 11 — schedule cluster
+
+    registry.register(
+        "/gmail-schedule",
+        description="Schedule the current draft to send at a future time (preview + confirm, no live send)",
+        category="gmail",
+        intents=["gmail_schedule_send"],
+        args_schema={"time": "str?"},
+    )(_schedule_send)
+
+    registry.register(
+        "/gmail-cancel-scheduled",
+        description="Cancel a pending scheduled send by index, ID, or most recent (confirm required)",
+        category="gmail",
+        intents=["gmail_cancel_scheduled"],
+        args_schema={"ref": "str?"},
+    )(_cancel_scheduled)
+
+    registry.register(
+        "/gmail-reschedule",
+        description="Move a pending scheduled send to a new time (preview + confirm, no live send)",
+        category="gmail",
+        intents=["gmail_reschedule_send"],
+        args_schema={"ref_and_time": "str?"},
+    )(_reschedule)
+
+    registry.register(
+        "/gmail-open-scheduled",
+        description="Load the draft from a pending scheduled send into session context for editing",
+        category="gmail",
+        intents=["gmail_open_scheduled"],
+        args_schema={"ref": "str?"},
+    )(_open_scheduled)
