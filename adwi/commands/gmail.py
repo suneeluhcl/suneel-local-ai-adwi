@@ -33,8 +33,11 @@ open-scheduled. All operate on the local scheduled-sends JSON queue via
 _resolve_scheduled_ref() / _resolve_schedule_time(); no live send on any path.
 open-scheduled makes a read-only gh.get_draft() call to load the draft.
 
-Deferred to Phase 12+: followup-reminder, extract-tasks, triage, attachment
-mutations.
+Phase 12 (follow-up reminder cluster): followup, cancel-followup. Both operate
+on the local follow-up reminder store (_load/_save_followup_reminders); no live
+send. List-followups was already migrated in Phase 5A as /gmail-followups.
+
+Deferred to Phase 13+: extract-tasks, triage, attachment mutations.
 """
 
 from __future__ import annotations
@@ -173,6 +176,17 @@ def _reschedule(args: str, ctx: dict) -> None:
 
 def _open_scheduled(args: str, ctx: dict) -> None:
     _cli().cmd_gmail_open_scheduled_draft(args)
+
+
+# ── Phase 12 handlers (follow-up reminder cluster) ────────────────────────────
+
+
+def _followup(args: str, ctx: dict) -> None:
+    _cli().cmd_gmail_followup_reminder(args)
+
+
+def _cancel_followup(args: str, ctx: dict) -> None:
+    _cli().cmd_gmail_cancel_followup(args)
 
 
 # ── Phase 9 handlers (draft management cluster) ───────────────────────────────
@@ -497,3 +511,21 @@ def register(registry: "CommandRegistry") -> None:
         intents=["gmail_open_scheduled"],
         args_schema={"ref": "str?"},
     )(_open_scheduled)
+
+    # Phase 12 — follow-up reminder cluster
+
+    registry.register(
+        "/gmail-followup",
+        description="Set a follow-up reminder on last sent email or current thread (confirm, no auto-send)",
+        category="gmail",
+        intents=["gmail_followup_reminder"],
+        args_schema={"time": "str?"},
+    )(_followup)
+
+    registry.register(
+        "/gmail-cancel-followup",
+        description="Cancel an active follow-up reminder by index or most recent (confirm required)",
+        category="gmail",
+        intents=["gmail_cancel_followup"],
+        args_schema={"ref": "str?"},
+    )(_cancel_followup)
