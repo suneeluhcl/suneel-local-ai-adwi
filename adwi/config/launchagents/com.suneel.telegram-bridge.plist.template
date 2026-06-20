@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  Adwi Telegram Bridge LaunchAgent
+  Runs the long-polling Telegram bot at login and keeps it alive.
+  Outbound HTTPS only — no inbound port, no public endpoint.
+
+  Prerequisites:
+    - adwi/config/.env must contain TELEGRAM_BOT_TOKEN and TELEGRAM_ALLOWED_USER_ID
+    - adwi/config/.env must contain ADWI_LOCAL_SECRET (or command API runs unauthenticated)
+    - Safe Command API must be running at 127.0.0.1:5055 before commands work
+      (it has its own LaunchAgent; load that first)
+
+  Install:
+    sed "s|__REPO_ROOT__|$HOME/SuneelWorkSpace|g; \
+         s|__PYTHON__|$HOME/SuneelWorkSpace/adwi/.venv/bin/python3|g; \
+         s|__HOME__|$HOME|g" \
+      adwi/config/launchagents/com.suneel.telegram-bridge.plist.template \
+      > ~/Library/LaunchAgents/com.suneel.telegram-bridge.plist
+    launchctl load ~/Library/LaunchAgents/com.suneel.telegram-bridge.plist
+
+  Logs:
+    tail -f /tmp/adwi-telegram-bridge.log
+
+  Status:
+    launchctl list | grep telegram-bridge
+
+  Unload:
+    launchctl unload ~/Library/LaunchAgents/com.suneel.telegram-bridge.plist
+
+  Uninstall:
+    launchctl unload ~/Library/LaunchAgents/com.suneel.telegram-bridge.plist
+    rm ~/Library/LaunchAgents/com.suneel.telegram-bridge.plist
+-->
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.suneel.telegram-bridge</string>
+
+  <key>ProgramArguments</key>
+  <array>
+    <string>__PYTHON__</string>
+    <string>__REPO_ROOT__/adwi/services/telegram-bridge/bot.py</string>
+  </array>
+
+  <key>RunAtLoad</key>
+  <true/>
+
+  <key>KeepAlive</key>
+  <true/>
+
+  <key>WorkingDirectory</key>
+  <string>__REPO_ROOT__</string>
+
+  <key>StandardOutPath</key>
+  <string>/tmp/adwi-telegram-bridge.log</string>
+  <key>StandardErrorPath</key>
+  <string>/tmp/adwi-telegram-bridge.log</string>
+
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>PATH</key>
+    <string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
+    <key>HOME</key>
+    <string>__HOME__</string>
+    <key>PYTHONUNBUFFERED</key>
+    <string>1</string>
+  </dict>
+</dict>
+</plist>
