@@ -858,13 +858,13 @@ Enforced by `_classify_cli_risk()` (adwi_cli.py) and `classify_risk()` (reason_e
 > Numeric annotations (command counts, fixture counts) are validated by `bin/validate-docs`.
 > Narrative file descriptions and line-count annotations may lag behind code.
 > For authoritative counts, run `bin/validate-docs` or check `adwi/system_manifest.json`.
-> Last verified: 2026-06-17.
+> Last verified: 2026-06-20.
 
 ```
 SuneelWorkSpace/
 │
 ├── adwi/                              # Core AI brain
-│   ├── adwi_cli.py                    # 5,100+ lines · 177 commands · REPL entry point
+│   ├── adwi_cli.py                    # 5,200+ lines · 184 commands · REPL entry point
 │   ├── reason_engine.py               # LangGraph: Planner→Executor→Critic (822 lines)
 │   ├── memory.py                      # AdwiMemory: SQLite + nomic-embed cosine search (96 NLU fixtures)
 │   ├── path_validator.py              # Deny-first path containment; hard-blocks credential dirs
@@ -875,10 +875,27 @@ SuneelWorkSpace/
 │   ├── repair.py                      # Self-repair utilities
 │   ├── backup.py                      # Backup orchestration
 │   ├── voice.py                       # STT (faster-whisper) + TTS (piper-tts)
-│   ├── gmail_helper.py                # Gmail OAuth2 + API integration
+│   ├── gmail_helper.py                # Gmail OAuth2 + API integration (864 lines)
 │   ├── Modelfile                      # Custom adwi:latest definition (qwen3:30b base)
 │   ├── capabilities.json              # Machine-readable capability registry
 │   ├── allowed-read-roots.txt         # Trusted filesystem roots
+│   ├── commands/                      # CommandRegistry handler modules (dispatch-first pattern)
+│   │   ├── __init__.py
+│   │   ├── gmail.py                   # Gmail command cluster handlers (Phases 7–17)
+│   │   ├── remote.py                  # Remote/HA read-only cluster (Phase 18)
+│   │   ├── diagnostics.py             # Diagnostics + viewer cluster (Phase 23)
+│   │   ├── voice.py                   # Voice command handlers
+│   │   ├── disk.py                    # Disk/FS command handlers
+│   │   ├── system.py                  # System command handlers
+│   │   ├── assistant.py               # Assistant upgrade/status handlers
+│   │   ├── knowledge.py               # Knowledge/RAG command handlers
+│   │   └── eval.py                    # Eval routing command handlers
+│   ├── tests/                         # Unit test suite for core modules
+│   │   ├── test_command_registry.py   # 320 tests — registry dispatch, fallback integrity, safety boundary
+│   │   ├── test_nlu_fast_path.py      # NLU Qdrant fast-path bypass tests
+│   │   ├── test_path_validator.py     # PathValidator containment tests
+│   │   ├── test_search_orchestrator.py # Search orchestrator tests
+│   │   └── test_telemetry.py          # OTel credential redaction tests
 │   ├── simlab/                        # Bounded eval & self-improvement harness (Phase 10)
 │   │   ├── schemas.py                 # Dataclasses + SHA-256[:16] failure fingerprinting
 │   │   ├── golden_baseline.jsonl      # 20 immutable scenarios — never auto-modified
@@ -890,12 +907,24 @@ SuneelWorkSpace/
 │   │   ├── improvement_engine.py      # Tier A/B/C proposals; Tier C = human review only
 │   │   ├── verification.py            # Must score 100% golden before promotion; git rollback
 │   │   ├── reporter.py                # Markdown + JSON reports (logs/simlab/)
-│   │   └── tests/test_simlab.py       # 41 unit tests, 0 ResourceWarnings
+│   │   └── tests/
+│   │       ├── test_simlab.py         # 41 unit tests, 0 ResourceWarnings
+│   │       └── test_nlu_regex.py      # 481 NLU regression tests (Cycles 1–11 + REL-S)
+│   ├── logs/simeval/                  # Large-scale eval artifacts
+│   │   ├── run_large_eval.py          # P1 eval harness (1,834 scenarios, standalone)
+│   │   ├── run_large_eval_p2.py       # P2 eval harness (570 scenarios, weak-family targeting)
+│   │   ├── generate_master_report.py  # Combines P1+P2 sessions into MASTER_REPORT_v2.md
+│   │   ├── MASTER_REPORT_v2.md        # Combined dedup report: 98.3% (2026-06-20)
+│   │   ├── combined_summary_v2.json   # Machine-readable combined summary
+│   │   └── fix_backlog_v2.json        # Remaining failure clusters + repair proposals
+│   ├── docs/
+│   │   ├── NLU_REPAIR_BACKLOG.md      # Prioritized fix list with exact code proposals
+│   │   └── SETUP_NEW_MACHINE.md       # Bootstrap guide for new machines
 │   ├── .venv/                         # [gitignored] Python 3.14 virtualenv (uv)
 │   ├── memory.db                      # [gitignored] Semantic memory (380+ items)
 │   └── knowledge.db                   # [gitignored] Q&A pairs (1,565+) + chunks
 │
-├── bin/                               # 41 scripts (auto-update-readme counts authoritative)
+├── adwi/bin/                          # 41 scripts (auto-update-readme counts authoritative)
 │   ├── adwi                           # Launcher (uses .venv python if available)
 │   ├── auto-update-readme             # README auto-injection pipeline
 │   ├── start-obsidian-bridge          # Start bridge (:5056)
@@ -910,14 +939,11 @@ SuneelWorkSpace/
 │   ├── docker-compose.yml             # 11 compose services + Qdrant (LaunchAgent) = 12 containers (§2)
 │   └── monitoring/                    # Prometheus, Loki, Promtail, Grafana configs
 │
-├── mcp-servers/
-│   ├── obsidian-bridge/
-│   │   ├── server.py                  # stdlib-only vault HTTP API (:5056)
-│   │   ├── start.sh / stop.sh
-│   └── [playwright, github, sqlite, memory via npx]
-│
-├── local-command-api/
-│   └── server.py                      # Safe Command API (:5055) · 8 allowlisted routes
+├── adwi/services/
+│   ├── command-api/server.py          # Safe Command API (:5055) · 8 allowlisted routes
+│   └── mcp/obsidian-bridge/
+│       ├── server.py                  # stdlib-only vault HTTP API (:5056)
+│       └── start.sh / stop.sh
 │
 ├── obsidian-vault/                    # Markdown knowledge base (git-tracked)
 │   ├── knowledge/                     # Architecture, troubleshooting, guardrails
@@ -929,11 +955,14 @@ SuneelWorkSpace/
 ├── config/
 │   └── .env                           # [gitignored] Tavily, Exa, Firecrawl, HA, CF tokens
 │
-├── notes/                             # AI learning journal + logs
-│   ├── ADWI-START-HERE.md
+├── adwi/notes/                        # AI learning journal + logs
+│   ├── adwi-mistakes-and-fixes.md     # Running bug/fix log (updated after every repair)
 │   ├── adwi-trace-logs/               # Per-action execution traces
 │   ├── git-backup-logs/               # Per-backup git logs
-│   └── adwi-repair-logs/              # aider pre-flight records
+│   ├── adwi-repair-logs/              # aider pre-flight records
+│   ├── daily-briefs/                  # Daily AI-generated briefs
+│   ├── research/                      # Research note saves
+│   └── tech-radar/                    # Tech radar snapshots
 │
 ├── logs/
 │   └── adwi_system_log.md             # Append-only engineering change log
@@ -1035,6 +1064,44 @@ All 10 phases verified on 2026-06-20. Each phase committed atomically as an inde
 *Auto-updated: 2026-06-20*
 <!-- /AUTO:PHASES -->
 
+### CommandRegistry Migration (Phases 11–23, 2026-06-19/20)
+
+The `CommandRegistry` is a dispatch-first handler pattern layered on top of the existing elif chain in `adwi_cli.py`. Every `handle()` call first attempts `_cmd_registry.dispatch(line, {})` before falling through to the legacy elif chain. This allows incremental migration of command handlers into typed, independently-testable modules.
+
+**Architecture:**
+```
+handle(line)
+    │
+    ├── _cmd_registry.dispatch(line, {})  ← checks first
+    │       │
+    │       ├── match found → execute handler → return True
+    │       └── no match   → return False
+    │
+    └── elif chain (legacy fallback)
+```
+
+**Migration progress** (as of 2026-06-20):
+
+| Phase | Cluster | Commands migrated | Notes |
+|-------|---------|-------------------|-------|
+| 7 | Gmail draft lifecycle | `/gmail-drafts`, `/gmail-show-draft`, `/gmail-open-draft`, `/gmail-cancel-draft`, `/gmail-delete-draft` | Test suite: `TestPhase7GmailDraftLifecycle` |
+| 8 | Gmail draft editing | `/gmail-rewrite`, `/gmail-update-subject`, `/gmail-add-cc`, `/gmail-add-bcc`, `/gmail-attach`, `/gmail-remove-attachment` | Draft mutation cluster |
+| 11 | Gmail schedule | `/gmail-scheduled`, `/gmail-open-scheduled`, `/gmail-cancel-scheduled`, `/gmail-reschedule` | LaunchAgent delivery queue |
+| 13 | Gmail extract-tasks | `/gmail-extract-tasks`, `/gmail-tasks-save`, `/gmail-tasks-remind` | Task extraction + Obsidian save |
+| 14 | Gmail triage | `/gmail-triage` | AI-driven inbox triage |
+| 15 | Gmail attachments | `/gmail-attachments`, `/gmail-save-attachment`, `/gmail-summarize-attachment` | Attachment read + save cluster |
+| 16B | Inbox navigation | `/gmail-thread`, `/gmail-thread-intel`, `/gmail-social`, `/gmail-promos`, `/gmail-spam` | Navigation cluster |
+| 18 | Remote/HA read-only | `/ha`, `/remote`, `/remote-status`, `/tailscale`, `/watcher-status` | No mutations |
+| 23 | Diagnostics + viewer | `/doctor`, `/status`, `/inspect-system`, `/model-status`, `/models`, `/capabilities`, `/capability-audit`, `/capability-status`, `/eval-routing`, `/eval-adwi`, `/route`, `/test-adwi`, `/trace-log` | 13 commands; 315 → 320 tests |
+
+**Safety invariant:** Commands in `ELIF_ONLY` (e.g., `/notify`, `/e2e-auto-loop`, `/run-python`, `/run-bash`, `/implement-idea`) are **intentionally not registered** in the `CommandRegistry`. These require interactive human confirmation at the elif layer. `TestElifFallbackIntegrity` and `TestSafetyBoundaryRegistry` in `test_command_registry.py` enforce this invariant continuously.
+
+**Test coverage:** `adwi/tests/test_command_registry.py` — 320 tests covering:
+- All registered cluster dispatch paths
+- Fallback (False return) for unregistered commands
+- ELIF_ONLY commands confirmed absent from registry
+- Dangerous commands confirmed absent from `all_names()`
+
 ---
 
 ## §9 SimLab Operational Guide
@@ -1121,33 +1188,34 @@ bin/adwi
 
 ## §10 NLU Eval Status & Repair Backlog
 
-> **Stop Condition A reached 2026-06-17** — combined NLU pass rate exceeded 95% target.
-> **Last verified:** 2026-06-17 · P1: 1,808 scenarios · P2: 561 scenarios
+> **Stop Condition B reached 2026-06-19** — combined NLU pass rate exceeded 98%.
+> **Last verified:** 2026-06-20 · P1: 1,834 scenarios · P2: 570 scenarios
 >
-> Eval harness: `logs/simeval/run_large_eval.py` (P1), `logs/simeval/run_large_eval_p2.py` (P2)
-> Latest summary files: `logs/simeval/large-20260617-192423/summary.json`, `logs/simeval/large-p2-20260617-193419/summary.json`
-> Living repair list: `docs/NLU_REPAIR_BACKLOG.md`
-> Historical master report (post-session-4): `logs/simeval/MASTER_REPORT_v2.md`
+> Eval harness: `adwi/logs/simeval/run_large_eval.py` (P1), `adwi/logs/simeval/run_large_eval_p2.py` (P2)
+> Latest P1 session: `adwi/logs/simeval/large-20260620-014026/summary.json`
+> Latest P2 session: `adwi/logs/simeval/large-p2-20260620-020631/summary.json`
+> Combined master report: `adwi/logs/simeval/MASTER_REPORT_v2.md`
+> Living repair list: `adwi/docs/NLU_REPAIR_BACKLOG.md`
 
-### Current pass rates (2026-06-17, verified from eval summary.json)
+### Current pass rates (2026-06-20, verified from eval summary.json)
 
-| Eval | Scenarios | Pass | Fail | Pass rate | Safety breaches |
-|------|-----------|------|------|-----------|-----------------|
-| Large P1 (broad coverage) | 1,808 | 1,748 | 40 | **96.7%** | 0 |
-| Large P2 (weak-family targeting) | 561 | 551 | 0 | **98.2%** | — |
-| **Combined** | **~2,369** | **~2,299** | **~40** | **~97.0%** | **0** |
+| Eval | Scenarios | Pass | Fail | Pass rate | Safety breaches | Regex fast-path |
+|------|-----------|------|------|-----------|-----------------|-----------------|
+| Large P1 (broad coverage) | 1,834 | 1,805 | 24 | **98.4%** | 0 | 70.0% (1,283/1,834) |
+| Large P2 (weak-family targeting) | 570 | 560 | 4 | **98.2%** | 0 | 67.5% (385/570) |
+| **Combined (dedup)** | **2,283** | **2,244** | **28** | **98.3%** | **0** | **67.8%** |
 
-Regex fast-path handles 67.8% of P1 inputs (1,225 / 1,808). Average latency: 1,621 ms.
+Average P1 latency: 1,252 ms (P95: 4,779 ms). P2 run time: 246 s (3 workers).
 
 ### Full improvement history
 
-| Eval | Pre-NHR | Session-1 | Session-2 | Session-3 | Session-4 | Gmail burn-in | Stab. sprint | CYCLE-5 | CYCLE-6 | Total gain |
-|------|---------|-----------|-----------|-----------|-----------|---------------|--------------|---------|---------|------------|
-| P1 (broad) | 78.0% | 83.7% | 88.6% | 90.7% | ~89.0%* | — | 92.6% | 96.3% | **96.7%** | **+18.7pp** |
-| P2 (weak fam.) | 68.6% | 77.6% | 81.4% | 83.9% | ~83.9%* | 88.8% | 88.8% | 97.0% | **98.2%** | **+29.6pp** |
-| **Combined** | **75.8%** | **82.1%** | **86.0%** | **89.0%** | **~89.0%*** | — | **~91.7%** | **~96.5%** | **~97.0%** | **+21.2pp** |
+| Eval | Pre-NHR | S-1 | S-2 | S-3 | S-4 | Burn-in | Sprint | C-5 | C-6 | C-7 | C-11 | REL-S |
+|------|---------|-----|-----|-----|-----|---------|--------|-----|-----|-----|------|-------|
+| P1 (1,834) | 78.0% | 83.7% | 88.6% | 90.7% | ~89% | — | 92.6% | 96.3% | 96.7% | 95.7% | **98.6%** | **98.4%** |
+| P2 (570) | 68.6% | 77.6% | 81.4% | 83.9% | ~84% | 88.8% | 88.8% | 97.0% | 98.2% | 97.0% | 98.1% | **98.2%** |
+| Combined | 75.8% | 82.1% | 86.0% | 89.0% | ~89% | — | ~91.7% | ~96.5% | ~97.0% | ~95.8% | 98.4% | **98.3%** |
 
-\* Session-4 applied 8 false-positive fixes; eval not re-run at that step — expected ≥89%.
+Total gain P1: +20.4pp. Total gain P2: +29.6pp. Total gain combined: +22.5pp.
 
 ### All applied repair cycles
 
@@ -1157,54 +1225,74 @@ Regex fast-path handles 67.8% of P1 inputs (1,225 / 1,808). Average latency: 1,6
 
 **Session-3** (2026-06-16): 9 regex groups — FIX-CLEAN-004, FIX-NOTES-001, FIX-STATUS-002, FIX-WHAT-002, FIX-WEB-002, FIX-OBS-002, FIX-NIGHT-001, FIX-EVAL-003, FIX-PATCH-002, FIX-RC-001, FIX-GMAIL-002, FIX-MEMST-001, FIX-MEMCTX-001, FIX-FR-001, FIX-S3-001 through FIX-S3-009, plus 4 `_INTENT_SYSTEM` clarifications — ✅ All applied.
 
-**Session-4 code-review hardening** (2026-06-16): 8 false-positive fixes — `.{0,30}` → `.{0,10}` tightening, `different` removed from git_status, broad `is X running` removed, `what last ran` context-noun required, bare `tps`/`kb` removed, `MEMCTX` negative lookahead, duplicate typo removed — ✅ All applied.
+**Session-4 code-review hardening** (2026-06-16): 8 false-positive fixes — `.{0,30}` → `.{0,10}` tightening, `different` removed from git_status, broad `is X running` removed, bare `tps`/`kb` removed, `MEMCTX` negative lookahead — ✅ All applied.
 
 **Gmail burn-in** (2026-06-17): 12 FIX-STRESS patches + 4 FIX-STAGE3 patches — Gmail-heavy stress testing across all 50 Gmail intents, 418 comms scenarios — ✅ All applied.
 
-**Stabilization sprint** (2026-06-17): 9 regex fix groups + 4 `_INTENT_SYSTEM` additions + 6 test gap fills — ✅ All applied. Total test suite after sprint: **897 tests**.
+**Stabilization sprint** (2026-06-17): 9 regex fix groups + 4 `_INTENT_SYSTEM` additions + 6 test gap fills — ✅ All applied.
 
 **CYCLE-5** (2026-06-17): 13 bare-command anchors, chat advisory fixes, status/advisory boundary, `memory_scan`/`github_connected`/`web_search` additions — ✅ All applied, synced to all 3 files.
 
-**CYCLE-6** (2026-06-17): `PermissionError` guard (before CYCLE-1), `run-aider` before self-heal, `organize` before chat, `use_local`/`large_files`/`gmail_list_attachments`/`capabilities`/`trusted_roots`/`tool_roadmap`/`test_adwi` targeted fixes — ✅ All applied, synced to all 3 files.
+**CYCLE-6** (2026-06-17): `PermissionError` guard before CYCLE-1, `run-aider` before self-heal, `organize` before chat, `use_local`/`large_files`/`gmail_list_attachments`/`capabilities`/`trusted_roots`/`tool_roadmap`/`test_adwi` targeted fixes — ✅ All applied, synced to all 3 files.
 
-### Category health (post-CYCLE-6, from P1 summary 2026-06-17)
+**CYCLE-7** (2026-06-18): 6 new intents (research, browser_delegate, daily_brief, tech_radar, memory_curate, assistant_upgrade_status) added. `memory_curate` word-boundary fix. `rag_search` guard (was matching "research" via substring). `save-research-about` regex added. 35 new eval scenarios (26 P1 + 9 P2). P1 total: 1,834. P2 total: 570 — ✅ All applied.
+
+**CYCLE-8–10** (2026-06-18/19): E2E auto-loop applied — 14 patches in cycle 1 (+0.7pp), FIX-042 through FIX-062 (voice_out order, browse `_INTENT_SYSTEM`, web_search/rag_search tightening, capabilities/old_files/trusted_roots/test_adwi regexes, web_search changelog regex) — ✅ All applied.
+
+**CYCLE-11** (2026-06-19): FIX-063 (rag_search before obsidian_search for "search my notes" + typo-tolerant sea?r?a?ch), FIX-064a–e (research, patch_adwi, nightly_status, github_connected typo, duplicates typo). P1: 98.6%, P2: 97.7%, Combined: 98.3% — ✅ All applied.
+
+**Trust-baseline repair pass** (2026-06-19): 3 NLU safety breaches fixed (`~/Library/Passwords`, `/root/.bashrc`, developer-mode social-engineering → `__none__`) + browse guard. All env-path drift fixed across nightly.py, reason_engine.py, obsidian-bridge, adwi-sandbox. `reason_engine.py` write guard expanded to 12 entries. OpenTelemetry startup hang fixed (port-check gate). P1: 98.6%, P2: 98.1%, Combined: 98.4%. Safety breaches: 0 — ✅ All applied.
+
+**Reliability-push session** (2026-06-20): 14 NLU regex fixes — FIX-REL-001 through FIX-REL-014. Targets: disk_usage hogs/hasn't/capacity patterns, file_search locate/Dockerfile patterns, file_list list-contents, backup_now commit-and-push, use_local local-llm patterns, benchmark guard (prevents use_local false positive on "benchmark my local model"), fix_error extended to StopIteration/UnicodeDecodeError/OverflowError/LookupError/ArithmeticError. All 3 files synced. P1: 98.4%, P2: 98.2%, Combined: 98.3%. Safety breaches: 0. Regex fast-path: 67.8% — ✅ All applied.
+
+### Category health (REL-S, from P1 session large-20260620-014026)
 
 | Category | Scenarios | Pass | Rate | Status |
 |----------|-----------|------|------|--------|
-| voice | 41 | 41 | 100% | ✅ Perfect |
-| vault | 60 | 60 | 100% | ✅ Perfect |
-| safety | 46 | 46 | 100% | ✅ Perfect (0 breaches) |
+| file | 85 | 85 | 100% | ✅ Perfect |
+| search | 71 | 71 | 100% | ✅ Perfect |
 | media | 48 | 48 | 100% | ✅ Perfect |
-| meta | 29 | 27 | 93.1% | ✅ Healthy |
+| memory | 85 | 85 | 100% | ✅ Perfect |
+| vault | 60 | 60 | 100% | ✅ Perfect |
+| git | 108 | 108 | 100% | ✅ Perfect |
+| voice | 41 | 41 | 100% | ✅ Perfect |
 | security | 18 | 18 | 100% | ✅ Perfect |
-| repair | 83 | 82 | 98.8% | ✅ Healthy |
+| repair | 83 | 83 | 100% | ✅ Perfect |
+| eval | 25 | 25 | 100% | ✅ Perfect |
+| safety | 46 | 46 | 100% | ✅ Perfect (0 breaches) |
+| upgrade_pack | 26 | 26 | 100% | ✅ Perfect |
+| comms (Gmail) | 418 | 415 | 99.3% | ✅ Excellent |
+| system | 199 | 195 | 98.0% | ✅ Healthy |
 | model | 54 | 53 | 98.1% | ✅ Healthy |
-| git | 108 | 104 | 96.3% | ✅ Healthy |
-| disk | 241 | 235 | 97.5% | ✅ Healthy |
-| memory | 85 | 81 | 95.3% | ✅ Healthy |
-| comms (Gmail) | 418 | 411 | 98.3% | ✅ Healthy |
-| system | 199 | 193 | 96.9% | ✅ Healthy |
-| file | 85 | 81 | 95.3% | ✅ Healthy |
-| search | 71 | 64 | 90.1% | ✅ Good |
-| ambiguous | 40 | 38 | 95.0% | ✅ Good |
-| eval | 25 | 24 | 96.0% | ✅ Good |
+| ambiguous | 40 | 39 | 97.5% | ✅ Healthy |
+| disk | 241 | 230 | 95.4% | ✅ Healthy (10 disk_usage → LLM __none__ timeouts) |
 | planning | 30 | 28 | 93.3% | ✅ Good |
-| chat | 126 | 113 | 89.7% | ⚠️ Advisory questions → LLM variance; irreducible below ~90% |
+| chat | 126 | 120 | 95.2% | ⚠️ Advisory questions → LLM variance; irreducible below ~95% |
 
-### Remaining failures (P1, 40 total)
+### Remaining failures (P1, 24 total; P2, 4 total)
 
 | Family | Count | Nature |
 |--------|-------|--------|
-| `chat` advisory mislabeling | 11 | LLM variance on advisory questions — no regex fix practical |
-| `__none__` | 2 | Irreducible — correct safety response for some blocked probes |
-| Scattered Gmail edge cases | 7 | `gmail_confirm`, `gmail_add_cc/bcc`, `gmail_save_attachment`, `gmail_tasks_save`, `gmail_list_category` — 1 each |
-| Other single-intent misroutes | 20 | 1 failure each across `file_read`, `file_list`, `file_search`, `web_search`, `browse`, `memory_recall`, `memory_stats`, `git_status`, `backup_now`, `backup_status`, `patch_adwi`, `test_adwi`, `run_code`, `status`, `github_connected`, `duplicates`, `nightly_run`, `gmail`, `use_local`, `benchmark` |
+| `disk_usage` → `__none__` | 10 | LLM misroutes disk_usage phrases to __none__ when LLM is under load; regex path handles 70% correctly |
+| `chat` advisory mislabeling | 5 | LLM variance on advisory questions — no regex fix practical |
+| Scattered single-intent LLM variance | 9 | 1 failure each: `status`, `gmail_tasks_save`, `gmail_confirm`, `nightly_run`, `gmail`, `use_local`, `benchmark`, `__none__` (2) |
+| P2 LLM variance (chat/search) | 4 | "how does vector memory work", "how does RAG memory work", "search with tavily for python packages", "notes" |
 
-P2 has zero hard failures (551/561 pass; 10 warns are low-confidence LLM classifications, not wrong routes).
+### NLU regression test suite
+
+Three layers of protection prevent NLU regressions:
+
+| Layer | File | Tests | Covers |
+|-------|------|-------|--------|
+| Fast regex unit tests | `adwi/simlab/tests/test_nlu_regex.py` | **481** | All cycles 1–11 + REL-S; intent/negative pairs for every pattern |
+| Large eval P1 harness | `adwi/logs/simeval/run_large_eval.py` | **1,834 scenarios** | Broad coverage across all 115 intents |
+| Large eval P2 harness | `adwi/logs/simeval/run_large_eval_p2.py` | **570 scenarios** | Weak-family targeting for historically low-accuracy intents |
+
+All regex changes must be synced to all 3 files: `adwi/adwi_cli.py`, `run_large_eval.py`, `run_large_eval_p2.py`.
 
 ### Safety assessment
 
-46 safety probes in P1 — **0 breaches**. All injection, jailbreak, and DAN prompt probes handled correctly. "Safety breach" flags in older reports were NLU routing artifacts only: the classifier correctly routes blocked-path requests to `file_read` intent — safety is enforced at the execution layer by `PathValidator` + `BLOCKED_PATHS`. Defense-in-depth working as designed.
+46 safety probes in P1 — **0 breaches**. The trust-baseline repair pass (2026-06-19) resolved 3 prior safety gaps (`~/Library/Passwords` path + `/root/.bashrc` path + developer-mode social-engineering prompt → all correctly return `__none__`). Defense-in-depth: NLU routes safely, execution layer enforced by `PathValidator` + `BLOCKED_PATHS`.
 
 ### How to run evals
 
@@ -1212,12 +1300,18 @@ P2 has zero hard failures (551/561 pass; 10 warns are low-confidence LLM classif
 
 ```bash
 # Requires: Ollama running + llama3.1:8b loaded
-python3 logs/simeval/run_large_eval.py --workers 5      # P1: ~1,808 scenarios (~25 min)
-python3 logs/simeval/run_large_eval_p2.py --workers 5   # P2: ~561 scenarios (~15 min)
-python3 logs/simeval/generate_master_report.py logs/simeval/<p1-dir> logs/simeval/<p2-dir>
+# Use 3 workers (not 5) to avoid LLM timeout cascade
+python3 adwi/logs/simeval/run_large_eval.py --workers 3       # P1: ~1,834 scenarios (~30 min)
+python3 adwi/logs/simeval/run_large_eval_p2.py --workers 3    # P2: ~570 scenarios (~10 min)
+python3 adwi/logs/simeval/generate_master_report.py \
+    adwi/logs/simeval/<p1-dir> adwi/logs/simeval/<p2-dir>
+
+# Quick NLU regression check (no Ollama needed — pure Python regex)
+python3 -m unittest adwi/simlab/tests/test_nlu_regex.py -v    # 481 tests, ~5s
+python3 -m unittest adwi/tests/test_command_registry.py -v    # 320 tests, ~1s
 ```
 
-See `docs/EVAL_GUIDE.md` for the full eval workflow.
+See `adwi/docs/NLU_REPAIR_BACKLOG.md` for the full repair workflow and prioritized fix list.
 
 ---
 

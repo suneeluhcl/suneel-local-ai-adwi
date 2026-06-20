@@ -1,12 +1,19 @@
 # Tech Radar — 2026-06-20
 
+Here's a breakdown of today's tech signals for you, Suneel:
 
+*   **OpenAI Agents / Responses API**: [TRY NOW] — Build powerful cloud agents for n8n workflows; leverage advanced computer use features. — OpenAI takes on rivals with new Responses API, Agents SDK | InfoWorld
+*   **MCP & MCP Apps**: [TRY NOW] — Standardize context sharing between local models (Ollama), Qdrant, and n8n workflows. — Specification - Model Context Protocol
+*   **Ollama / local models**: [TRY NOW] — Upgrade to best-performing local Ollama models like Qwen 3.6 27B for M4 Max. — Best Open-Source Ollama Models June 2026: Top 10 Ranked
+*   **Browser automation agents**: [TRY NOW] — Enhance Playwright with AI agent SDKs like Stagehand for more intelligent browser automation. — Stagehand vs Browser Use vs Playwright Guide for AI Browser Agents | APIScout
+*   **LangGraph durable agents**: [TRY NOW] — Build robust, stateful multi-agent systems with LangGraph 1.0 for complex local AI workflows. — LangGraph 1.0: Stateful Multi-Agent Orchestration Framework — Jose Nobile
+*   **Local voice / vision / RAG**: [TRY NOW] — Leverage M4 Max for lightning-fast, private, serverless local RAG and voice processing. — Sub-Millisecond RAG on Apple Silicon. No Server. No API - GRDB - Swift Forums
 
 ---
 
 ## Raw Signals
 ### OpenAI Agents / Responses API
-  - OpenAI Launches New API, SDK, and Tools to Develop Custom Agents: *   [English edition](https://www.infoq.com/news/2025/03/openai-responses-api-agents-sdk#). *   [Go](https://www.infoq.c
+  - OpenAI takes on rivals with new Responses API, Agents SDK  | InfoWorld: # OpenAI takes on rivals with new Responses API, Agents SDK. ## OpenAI engineers say the new tools will help enterprises
   - New tools for building agents: Responses API, web search, file ...: # New tools for building agents: Responses API, web search, file search, computer use, and Agents SDK. These building bl
   - Models - OpenAI Agents SDK: Models - OpenAI Agents SDK
 
@@ -15,46 +22,50 @@ Skip to content
 # Models
 
 The Agents SDK comes with out-of-the-box support for OpenAI model
-  - Agents - OpenAI Agents SDK: Agents - OpenAI Agents SDK
-
-Skip to content
-
-# Agents
-
-Agents are the core building block in your apps. An agent is a la
+  - OpenAI Launches New Tools & APIs for Building Advanced AI Agents: # OpenAI Launches New Tools & APIs for Building Advanced AI Agents : r/OpenAI. Skip to main contentOpenAI Launches New T
 
 ### MCP & MCP Apps
+  - Specification - Model Context Protocol: *   [Specification](https://modelcontextprotocol.io/specification/2025-06-18). *   [Overview](https://modelcontextprotoc
   - Top 10 Model Context Protocol Use Cases: Complete Guide for 2025: # Top 10 Model Context Protocol Use Cases: Complete Guide for 2025. However, the lack of structured context sharing acro
   - modelcontextprotocol/example-remote-server: # Repository: modelcontextprotocol/example-remote-server
 
 A hosted version of the Everything server - for demonstration 
-  - 6 Model Context Protocol alternatives to consider in 2026 - Merge.dev: By clicking “Accept”, you are agreeing to the collection and use of data as described in our Privacy Policy. By using ou
-  - MCP Apps: Extending servers with interactive user interfaces: # MCP Apps: Extending servers with interactive user interfaces. Introducing the MCP Apps Extension proposal (SEP-1865) t
+  - modelcontextprotocol/servers: # Repository: modelcontextprotocol/servers
+
+Model Context Protocol Servers
+
+- Stars: 87432
+- Forks: 11027
+- Watchers: 62
 
 ### Ollama / local models
-  - The Best Local LLMs to Run on Ollama in 2026 (Ranked by Use Case) | Convly AI: The Best Local LLMs to Run on Ollama in 2026 (Ranked by Use Case) | Convly AI
-
-Sunday, 14 June 2026 | Updating Daily AI 
   - Top 5 Local LLM Tools and Models in 2026 - DEV Community: Top 5 Local LLM Tools in 2026 · 1) Ollama (the fastest path from zero to running a model) · 2) LM Studio (the most polis
   - Best AI Models You Can Run Locally with Ollama (2026 Guide): ... model you use locally #AIModels #Ollama #LocalAI #LLM #ArtificialIntelligence #AIForDevelopers #OpenSourceAI.
-  - Best Open Source LLM 2026 Ranking + Ollama Guide - WhatLLM.org: Best open source LLMs in 2026 ranked by real benchmarks. Top open-weight models for self-hosting, Ollama, and free API u
+  - Best Open-Source Ollama Models June 2026: Top 10 Ranked: Best open-source Ollama models June 2026, ranked: Qwen 3.6 27B (best overall), Kimi K2.6 (coding), gpt-oss:20b (16 GB).
+  - Top 5 Local LLM Tools and Models in 2026 - Pinggy: Ollama has emerged as the go-to solution for running LLMs locally, striking an ideal balance between ease of use and pow
 
 ### Browser automation agents
-  - Stagehand vs Browser Use vs Playwright - NxCode: Stagehand vs Browser Use vs Playwright: AI Browser Automation Compared (2026). * **Different tools for different archite
+  - Browser Use vs Stagehand: Which is Better? (February 2026): # Browser Use vs Stagehand: Which is Better? Teams assessing Browser Use and Stagehand are usually trying to solve the s
+  - Stagehand vs Browser Use: AI Browser Agent Guide: Blog  /  cloud-browser  /  Stagehand vs Browser Use: AI Browser Agent Guide. # Stagehand vs Browser Use: AI Browser Agen
   - browserbase/stagehand: The SDK For Browser Agents - GitHub: ## Use saved searches to filter your results more quickly. **The AI Browser Automation Framework**. Stagehand is a brows
-  - Browser Automation AI Agents: Playwright vs Stagehand: 5 stacks · 4 reference workloads · reliability benchmarks, runtime control, and cost-per-task data. Five browser-control
-  - Stagehand vs Playwright AI vs Browser Use 2026 — PkgPulse Guides: Stagehand vs Playwright AI vs Browser Use 2026 — PkgPulse Guides
+  - Stagehand vs Browser Use vs Playwright Guide for AI Browser Agents | APIScout: Stagehand vs Browser Use vs Playwright Guide for AI Browser Agents | APIScout
 
-# Stagehand vs Playwright AI vs Browser Use: AI Web Au
+## TL;DR
+
+Evaluate Stagehand vs Browser U
 
 ### LangGraph durable agents
   - Mastering LangGraph State Management in 2025: Mastering LangGraph State Management in 2025. Dive deep into LangGraph state management with explicit schemas, checkpoin
+  - LangGraph 1.0: Stateful Multi-Agent Orchestration Framework — Jose Nobile: LangGraph 1.0: Stateful Multi-Agent Orchestration Framework — Jose Nobile
+
+# LangGraph 1.0: Stateful Multi-Agent Orchest
   - LangGraph AI Framework 2025: Complete Architecture Guide + ...: # LangGraph AI Framework 2025: Complete Architecture Guide + Multi-Agent Orchestration Analysis. Explore the complexitie
   - Why LangGraph Dominates the Agentic AI Landscape in 2025: [Sign in](https://www.linkedin.com/login?session_redirect=https%3A%2F%2Fwww%2Elinkedin%2Ecom%2Fposts%2Fnisargkadam_agent
-  - LangGraph: Agent Orchestration Framework for Reliable AI Agents - LangChain: [![Image 7](https://cdn.prod.website-files.com/65b8cd72835ceeacd4449a53/6989c02453d869396317aaa3_updated-1.svg) deepagen
 
 ### Local voice / vision / RAG
-  - Sub-Millisecond RAG on Apple Silicon. No Server. No API - GRDB: # Sub-Millisecond RAG on Apple Silicon. I wanted the SQLite of RAG -- import a library, open a file, query. The architec
-  - On-Device RAG Pipeline: Voice Document QA with Local Embeddings: # Build an on-deviceRAG pipeline to query documents by voice. Ask questions about any document by voice and get spoken a
-  - Apple Silicon Speech Models Outperform Whisper Large v3 - LinkedIn: Chatterbox does text to speech faster than real time. Full voice synthesis on a laptop. Local RAG through embedding mode
-  - argmaxinc/argmax-oss-swift: On-device Speech AI for Apple Silicon: ## Use saved searches to filter your results more quickly. # argmaxinc/argmax-oss-swift. | Package@swift-6.2.swift | | P
+  - 🍎 Your Health Data Stays Local: Building a Private RAG with Llama 3, MLX, and Apple Silicon - DEV Community: # 🍎 Your Health Data Stays Local: Building a Private RAG with Llama 3, MLX, and Apple Silicon. When it comes to personal
+  - Sub-Millisecond RAG on Apple Silicon. No Server. No API - GRDB - Swift Forums: # Sub-Millisecond RAG on Apple Silicon. I wanted the SQLite of RAG -- import a library, open a file, query. The architec
+  - gabrimatic/local-whisper: # gabrimatic/local-whisper
+
+Offline-first voice dictation, transcription, cleanup, and text-to-speech for macOS, iOS, an
+  - Sub-Millisecond RAG on Apple Silicon. No Server. No API. ...: Embeddings live in unified memory (MTLBuffer). ... I made a completely free open source AI app with local RAG, web searc

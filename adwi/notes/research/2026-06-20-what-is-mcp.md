@@ -1,8 +1,39 @@
 # Research: what is MCP
-_Generated: 2026-06-20 01:59_
+_Generated: 2026-06-20 09:27_
 _Mode: standard_
 
+## Answer
+MCP stands for Model Context Protocol, an open standard and client-server protocol designed to allow AI systems to securely connect with external data sources, tools, and services through a consistent interface [1, 2, 3]. It standardizes how AI applications discover capabilities, exchange structured context, and execute actions, eliminating the need for custom integrations for every tool or service [2, 3]. MCP acts like a "USB-C port for AI systems," enabling AI agents to interact seamlessly with the real world [1, 4].
 
+## Key Findings
+*   **Definition**: The Model Context Protocol (MCP) is an open standard and client-server protocol [1, 2].
+*   **Purpose**: It allows AI assistants and models to securely access and interact with external data sources, tools, and services [1, 2, 3].
+*   **Standardization**: MCP provides a standardized integration framework, acting as a consistent interface for AI systems to connect to the outside world [1, 3].
+*   **Problem Solved**: It addresses the "N×M integration problem" by reducing the need for countless custom integrations, making it scalable to connect many AI clients to many external tools [1, 3].
+*   **Functionality**: MCP defines how AI systems discover capabilities, exchange structured context, and execute actions through external tools and services [2].
+*   **Benefits**: It separates how AI clients interact with models from how they discover and call external tools, reduces vendor lock-in, and makes building secure, reliable AI applications easier [1].
+*   **Inspiration**: MCP draws inspiration from established standards like REST for web services and the Language Server Protocol (LSP) for developer tools [3].
+*   **Origin and Evolution**: The protocol was initially introduced by Anthropic and later adopted, expanded, and released as an open-source project by GitHub in collaboration with other industry leaders [2].
+
+## Source Check
+*   **What was fetched**: All provided search context URLs (Databricks, GitHub, Elastic, InfoWorld, DEV Community) were fetched. The fetched evidence consistently defines MCP, explains its purpose, highlights its benefits, and describes its origin.
+*   **What agreed**: All fetched sources (specifically [1], [2], [3], [4]) universally agree that MCP is an open standard/protocol designed to standardize how AI models/agents connect to external tools, data, and services. They all emphasize its role in solving integration complexity and enabling secure, consistent interaction.
+*   **What conflicted**: There were no conflicts in the information provided across the fetched sources.
+*   **What was snippet-only**: Snippet [5] mentions a specific "2026-07-28 MCP Spec" as the "largest revision since the protocol launched," containing "breaking changes to transport, authorization, and how tool." This detail about the upcoming specification and its breaking changes was only present in the search snippet and not elaborated upon in the fetched evidence.
+
+## Sources
+1.  What is the Model Context Protocol (MCP)? | Databricks
+2.  What is the Model Context Protocol (MCP)? · GitHub · GitHub
+3.  What is the Model Context Protocol (MCP)? | Elastic
+4.  What is Model Context Protocol? How MCP bridges AI and external services | InfoWorld
+
+## Confidence
+High. The fetched evidence from multiple reputable sources (Databricks, GitHub, Elastic, InfoWorld) provides a consistent and clear definition, purpose, and key benefits of the Model Context Protocol. There were no conflicting details, and the information was sufficient to answer the research question comprehensively.
+
+## Open Questions
+*   What are the technical specifics of the MCP protocol (e.g., message formats, communication methods, authorization flows)?
+*   What specific tools, APIs, or data sources are currently implementing or planning to implement MCP?
+*   What are detailed examples of how MCP is used in real-world AI applications beyond general "AI assistants" or "IDEs"?
 
 ---
 
@@ -70,8 +101,8 @@ The Model Context Protocol (MCP) is an open-source client–server protocol that
 The protocol was originally introduced by Anthropic and later adopted and expanded by GitHub in collaboration with other industry leaders. GitHub took ownership of the specification, rewrote it for broader applicability, and released it as an open-source project. Within a week of launch, MCP became one of the most po
 
 ---
-[3] GitHub - microsoft/mcp-for-beginners: This open-source curriculum ...
-URL: http
+[3] What is the Model Context Protocol (MCP)? | Elastic
+URL: https://www.elastic.co
 
 ## Ranked Search Context
 [1] What is the Model Context Protocol (MCP)? | Databricks
@@ -101,13 +132,19 @@ What is the Model Context Protocol (MCP)? · GitHub · GitHub
 
 The Model Context Protocol (MCP) is an open-source client–server protocol that defines how AI systems discover capabilities, exchange structured context, and execute actions through external tools and services. Instead of building custom integrations for every application, MCP establishes a standardized interface between an MCP client—such as an integrated development environment (IDE) or AI assistant—and an MCP server 
 
-[3] GitHub - microsoft/mcp-for-beginners: This open-source curriculum ...
-URL: https://github.com/microsoft/mcp-for-beginners
-Providers: tavily
-Score: 1.18 Trust: 0.68
-📘 MCP Documentation – This is your go-to resource for step-by-step tutorials and user guides. The documentation is written with beginners in mind, providing clear examples you can follow along with at your own pace.
-   📜 MCP Specification – Think of this as your comprehensive reference manual. As you work through the curriculum, you'll find yourself returning here to look up specific details and explore advanced features.
-   📜 MCP Specification Versioning – This contains information about protoc
+[3] What is the Model Context Protocol (MCP)? | Elastic
+URL: https://www.elastic.co/what-is/mcp
+Providers: exa
+Score: 1.17 Trust: 0.50
+What is the Model Context Protocol (MCP)? | Elastic
+
+Skip to main content
+
+# What is the Model Context Protocol (MCP)?
+
+### Why was MCP created? The need for a standard integration layer
+
+The Model Context Protocol (MCP) was created to address a fundamental challenge in building agentic AI applications: connecting isolated large language models (LLMs) to the outside world. By default, LLMs are powerful reasoning engines, but their knowledge is static, tied to a training cut-off date, and they la
 
 [4] What is Model Context Protocol? How MCP bridges AI and external services | InfoWorld
 URL: https://www.infoworld.com/article/4029634/what-is-model-context-protocol-how-mcp-bridges-ai-and-external-services.html
@@ -133,4 +170,4 @@ The Model Context Protocol (MCP) is an open source framework that aims to
 URL: https://dev.to/gustavo_gated/the-2026-07-28-mcp-spec-a-server-readiness-checklist-14nf
 Providers: exa
 Score: 1.17 Trust: 0.50
-# The 2026-07-28 MCP Spec: A Server
+# The 2026-07-28 MCP Spec: A Server Readiness Checklist - DEV Commun
