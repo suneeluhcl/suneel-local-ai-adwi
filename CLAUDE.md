@@ -78,7 +78,7 @@ Changes are synchronized across all 3 files: `adwi/adwi_cli.py`, `adwi/logs/sime
 
 | File | Owns |
 |------|------|
-| `adwi/adwi_cli.py` | REPL, 177 commands, NLU pipeline (`_REGEX_INTENTS`, `_INTENT_SYSTEM`, dispatch), Phase 3 risk classifier, Phase 4 live self-heal |
+| `adwi/adwi_cli.py` | REPL, 184 commands, NLU pipeline (`_REGEX_INTENTS`, `_INTENT_SYSTEM`, dispatch), Phase 3 risk classifier, Phase 4 live self-heal |
 | `adwi/reason_engine.py` | LangGraph Planner→Executor→Critic, permission gate, aider integration, AchievementLedger |
 | `adwi/memory.py` | SQLite memory store, nomic-embed cosine search, Qdrant NLU fixtures, knowledge.db |
 | `adwi/path_validator.py` | Deny-first path containment — blocks `~/.ssh`, `~/.aws`, `secrets/`, etc. |

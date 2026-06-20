@@ -17,7 +17,7 @@
 |---|---|---|
 | [§1](#1-system-dna--model-matrix) | System DNA & Model Matrix | Hardware, models, NLU pipeline |
 | [§2](#2-infrastructure-topography) | Infrastructure Topography | Every port, container, agent, data flow |
-| [§3](#3-deterministic-capability-grid) | Deterministic Capability Grid | All 177+ commands, args, behaviors |
+| [§3](#3-deterministic-capability-grid) | Deterministic Capability Grid | All 184+ commands, args, behaviors |
 | [§3a](#3a-gmail-capability-surface) | Gmail Capability Surface | Full Gmail feature inventory — read/write/draft/send/schedule/rules |
 | [§4](#4-agentic-lifecycle-flows) | Agentic Lifecycle Flows | ASCII diagrams of every execution path |
 | [§5](#5-security--boundary-invariants) | Security & Boundary Invariants | Hard blocks, credential isolation, API auth status |

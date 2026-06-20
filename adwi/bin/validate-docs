@@ -14,21 +14,23 @@ Usage:
 
 from __future__ import annotations
 
+import datetime
 import json
 import re
 import sys
 import urllib.request
 from pathlib import Path
 
-WORKSPACE   = Path.home() / "SuneelWorkSpace"
-README      = WORKSPACE / "README.md"
-CLAUDE_MD   = WORKSPACE / "CLAUDE.md"
-CLI_PATH    = WORKSPACE / "adwi" / "adwi_cli.py"
-CAPS_PATH   = WORKSPACE / "adwi" / "capabilities.json"
-MANIFEST    = WORKSPACE / "adwi" / "system_manifest.json"
-PORTS_JSON  = WORKSPACE / "adwi" / "config" / "infra_ports.json"
-COMPOSE     = WORKSPACE / "adwi" / "infra" / "docker" / "docker-compose.yml"
-MASTER_RPT  = WORKSPACE / "adwi" / "logs" / "simeval" / "MASTER_REPORT_v2.md"
+WORKSPACE    = Path.home() / "SuneelWorkSpace"
+README       = WORKSPACE / "README.md"
+CLAUDE_MD    = WORKSPACE / "CLAUDE.md"
+CLI_PATH     = WORKSPACE / "adwi" / "adwi_cli.py"
+CAPS_PATH    = WORKSPACE / "adwi" / "capabilities.json"
+MANIFEST     = WORKSPACE / "adwi" / "system_manifest.json"
+PORTS_JSON   = WORKSPACE / "adwi" / "config" / "infra_ports.json"
+COMPOSE      = WORKSPACE / "adwi" / "infra" / "docker" / "docker-compose.yml"
+MASTER_RPT   = WORKSPACE / "adwi" / "logs" / "simeval" / "MASTER_REPORT_v2.md"
+PRIMING_FILE = WORKSPACE / "adwi" / "docs" / "LLM_SYSTEM_PRIMING.md"
 
 STRICT = "--strict" in sys.argv
 
@@ -289,6 +291,92 @@ def run_checks() -> None:
             check("PASS", "CLAUDE-003", "CLAUDE.md does not present MASTER_REPORT_v2.md as current")
     else:
         check("SKIP", "CLAUDE-001", "CLAUDE.md not found")
+
+    # ── LLM_SYSTEM_PRIMING.md fact checks ───────────────────────────────────
+    # This file is the cold-start oracle for external models. Its numeric claims
+    # must stay in sync with the authoritative code sources. All ground-truth
+    # values (true_cmd_count, true_intent_count, fixture_count) are already
+    # computed above; we just verify the priming file agrees with them.
+
+    if PRIMING_FILE.exists():
+        priming = PRIMING_FILE.read_text()
+
+        # Command count
+        m = re.search(r"\*\*Total commands:\*\*\s*(\d+)", priming)
+        if m:
+            pr_cmds = int(m.group(1))
+            if pr_cmds == true_cmd_count:
+                check("PASS", "PRIMEFILE-001",
+                      f"LLM_SYSTEM_PRIMING.md command count matches code: {pr_cmds}")
+            else:
+                check("FAIL", "PRIMEFILE-001",
+                      f"LLM_SYSTEM_PRIMING.md says {pr_cmds} commands but code has {true_cmd_count}"
+                      " — update CURRENT SYSTEM STATE in LLM_SYSTEM_PRIMING.md")
+        else:
+            check("WARN", "PRIMEFILE-001",
+                  "Could not find '**Total commands:**' in LLM_SYSTEM_PRIMING.md")
+
+        # Intent count
+        m = re.search(r"\*\*Intent classes:\*\*\s*(\d+)", priming)
+        if m:
+            pr_intents = int(m.group(1))
+            if pr_intents == true_intent_count:
+                check("PASS", "PRIMEFILE-002",
+                      f"LLM_SYSTEM_PRIMING.md intent count matches code: {pr_intents}")
+            else:
+                check("FAIL", "PRIMEFILE-002",
+                      f"LLM_SYSTEM_PRIMING.md says {pr_intents} intent classes but _ALL_INTENTS has {true_intent_count}"
+                      " — update CURRENT SYSTEM STATE in LLM_SYSTEM_PRIMING.md")
+        else:
+            check("WARN", "PRIMEFILE-002",
+                  "Could not find '**Intent classes:**' in LLM_SYSTEM_PRIMING.md")
+
+        # Qdrant fixture count (only when Qdrant is reachable)
+        if fixture_count is not None:
+            m = re.search(r"\*\*Qdrant fixtures:\*\*\s*(\d+)", priming)
+            if m:
+                pr_fixtures = int(m.group(1))
+                if pr_fixtures == fixture_count:
+                    check("PASS", "PRIMEFILE-003",
+                          f"LLM_SYSTEM_PRIMING.md Qdrant fixture count matches live: {pr_fixtures}")
+                else:
+                    check("FAIL", "PRIMEFILE-003",
+                          f"LLM_SYSTEM_PRIMING.md says {pr_fixtures} fixtures but Qdrant has {fixture_count}"
+                          " — update CURRENT SYSTEM STATE in LLM_SYSTEM_PRIMING.md")
+            else:
+                check("WARN", "PRIMEFILE-003",
+                      "Could not find '**Qdrant fixtures:**' in LLM_SYSTEM_PRIMING.md")
+        else:
+            check("SKIP", "PRIMEFILE-003",
+                  "Qdrant not reachable — skipping priming fixture count check")
+
+        # LAST VERIFIED date freshness (warn >14 days, fail >30 days)
+        m = re.search(r"LAST VERIFIED.*?(\d{4}-\d{2}-\d{2})", priming)
+        if m:
+            try:
+                verified_date = datetime.date.fromisoformat(m.group(1))
+                age_days = (datetime.date.today() - verified_date).days
+                if age_days <= 14:
+                    check("PASS", "PRIMEFILE-004",
+                          f"LLM_SYSTEM_PRIMING.md LAST VERIFIED is {age_days} day(s) old ({m.group(1)})")
+                elif age_days <= 30:
+                    check("WARN", "PRIMEFILE-004",
+                          f"LLM_SYSTEM_PRIMING.md LAST VERIFIED is {age_days} days old"
+                          " — update after next significant system change")
+                else:
+                    check("FAIL", "PRIMEFILE-004",
+                          f"LLM_SYSTEM_PRIMING.md LAST VERIFIED is {age_days} days old ({m.group(1)})"
+                          " — update the date and verify all values are current")
+            except ValueError:
+                check("WARN", "PRIMEFILE-004",
+                      f"Could not parse LAST VERIFIED date in LLM_SYSTEM_PRIMING.md: {m.group(1)}")
+        else:
+            check("WARN", "PRIMEFILE-004",
+                  "Could not find LAST VERIFIED date in LLM_SYSTEM_PRIMING.md")
+
+    else:
+        check("WARN", "PRIMEFILE-001",
+              "adwi/docs/LLM_SYSTEM_PRIMING.md not found — external model priming is unavailable")
 
     # ── MASTER_REPORT staleness banner check ─────────────────────────────────
 
