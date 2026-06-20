@@ -11,6 +11,7 @@ Run:
 from __future__ import annotations
 
 import importlib.util
+import json
 import sys
 import unittest
 from pathlib import Path
@@ -309,6 +310,145 @@ class TestCommandTableShape(unittest.TestCase):
 
     def test_help_has_no_route(self):
         self.assertIsNone(bridge.TELEGRAM_COMMANDS["/help"])
+
+
+# ── 8. /daily-brief JSON formatter ───────────────────────────────────────────
+
+class TestDailyBriefFormatter(unittest.TestCase):
+
+    _VALID_PAYLOAD: dict = {
+        "ok": True,
+        "generated_at": "2026-06-20T10:45:30.123456",
+        "mode": "n8n",
+        "services": {"ollama": "up", "qdrant": "up", "safe_api": "up"},
+        "gmail": {
+            "available": True,
+            "unread_count": 2,
+            "summary": "• alice@example.com: Hello there\n• bob@example.com: Meeting notes",
+            "warnings": [],
+        },
+        "brief": "**Priorities**\n1. Finish the NLU fixes\n2. Review PR\n\n**Inbox**\nAlice email needs reply.\n\n**Learning**\nRead the LangGraph docs.",
+        "saved_to": "/tmp/2026-06-20.md",
+        "warnings": [],
+        "errors": [],
+    }
+
+    def _raw(self, overrides: dict | None = None) -> str:
+        payload = {**self._VALID_PAYLOAD}
+        if overrides:
+            payload.update(overrides)
+        return json.dumps(payload)
+
+    def test_valid_json_produces_readable_text(self):
+        result = bridge._format_daily_brief(self._raw())
+        self.assertIn("Daily Brief", result)
+        self.assertIn("2026-06-20 10:45", result)
+        self.assertIn("ollama=up", result)
+        self.assertIn("2 unread today", result)
+        self.assertIn("alice@example.com", result)
+        self.assertIn("Priorities", result)
+        self.assertIn("Finish the NLU fixes", result)
+
+    def test_bold_markers_stripped(self):
+        result = bridge._format_daily_brief(self._raw())
+        self.assertNotIn("**", result, "Markdown ** must be stripped for plain-text Telegram")
+
+    def test_malformed_json_returns_raw(self):
+        raw = '{"ok": true, "brief": "unterminated'
+        self.assertEqual(bridge._format_daily_brief(raw), raw)
+
+    def test_non_json_string_passthrough(self):
+        raw = "This is plain text, not JSON at all."
+        self.assertEqual(bridge._format_daily_brief(raw), raw)
+
+    def test_json_without_ok_field_passthrough(self):
+        raw = json.dumps({"generated_at": "2026-06-20", "brief": "hello"})
+        self.assertEqual(bridge._format_daily_brief(raw), raw, "JSON without ok=true must pass through")
+
+    def test_json_with_ok_false_passthrough(self):
+        raw = json.dumps({"ok": False, "error": "something went wrong"})
+        self.assertEqual(bridge._format_daily_brief(raw), raw)
+
+    def test_inbox_clear_when_zero_unread(self):
+        result = bridge._format_daily_brief(self._raw({
+            "gmail": {**self._VALID_PAYLOAD["gmail"], "unread_count": 0, "summary": "Inbox clear."},
+        }))
+        self.assertIn("Inbox clear.", result)
+
+    def test_gmail_warning_shown_when_unavailable(self):
+        result = bridge._format_daily_brief(self._raw({
+            "gmail": {**self._VALID_PAYLOAD["gmail"],
+                      "available": False,
+                      "warnings": ["Gmail not authorized — run /gmail-auth"]},
+        }))
+        self.assertIn("Gmail not authorized", result)
+
+    def test_system_level_warnings_shown(self):
+        result = bridge._format_daily_brief(self._raw({
+            "warnings": ["Obsidian save skipped: connection refused"],
+        }))
+        self.assertIn("Obsidian save skipped", result)
+
+    def test_system_level_errors_shown(self):
+        result = bridge._format_daily_brief(self._raw({
+            "errors": ["LLM timeout after 60s"],
+        }))
+        self.assertIn("LLM timeout", result)
+
+    def test_empty_brief_field_handled_gracefully(self):
+        result = bridge._format_daily_brief(self._raw({"brief": ""}))
+        self.assertIn("Daily Brief", result)  # header always present; no crash
+
+    def test_formatter_applied_when_daily_brief_dispatched(self):
+        """_format_daily_brief must be called when /daily-brief is dispatched."""
+        called_with: list[str] = []
+
+        def mock_fmt(raw: str) -> str:
+            called_with.append(raw)
+            return "FORMATTED"
+
+        with patch.object(bridge, "_format_daily_brief", mock_fmt), \
+             patch.object(bridge, "_call_adwi", return_value='{"ok":true}'), \
+             patch.object(bridge, "_send_reply", lambda *a: None):
+            bridge._handle_update(
+                _make_update(ALLOWED_UID, "/daily-brief"),
+                TOKEN, ALLOWED_UID, SECRET,
+            )
+        self.assertGreater(len(called_with), 0, "Formatter must be called for /daily-brief")
+
+    def test_formatter_not_applied_to_status(self):
+        """/status output must never pass through the daily-brief formatter."""
+        called_with: list[str] = []
+
+        def mock_fmt(raw: str) -> str:
+            called_with.append(raw)
+            return "FORMATTED"
+
+        with patch.object(bridge, "_format_daily_brief", mock_fmt), \
+             patch.object(bridge, "_call_adwi", return_value="status output"), \
+             patch.object(bridge, "_send_reply", lambda *a: None):
+            bridge._handle_update(
+                _make_update(ALLOWED_UID, "/status"),
+                TOKEN, ALLOWED_UID, SECRET,
+            )
+        self.assertEqual(called_with, [], "Formatter must NOT be called for /status")
+
+    def test_formatter_not_applied_to_doctor(self):
+        """/doctor output must never pass through the daily-brief formatter."""
+        called_with: list[str] = []
+
+        def mock_fmt(raw: str) -> str:
+            called_with.append(raw)
+            return "FORMATTED"
+
+        with patch.object(bridge, "_format_daily_brief", mock_fmt), \
+             patch.object(bridge, "_call_adwi", return_value="doctor output"), \
+             patch.object(bridge, "_send_reply", lambda *a: None):
+            bridge._handle_update(
+                _make_update(ALLOWED_UID, "/doctor"),
+                TOKEN, ALLOWED_UID, SECRET,
+            )
+        self.assertEqual(called_with, [], "Formatter must NOT be called for /doctor")
 
 
 if __name__ == "__main__":

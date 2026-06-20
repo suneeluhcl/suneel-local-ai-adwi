@@ -167,6 +167,69 @@ def _call_adwi(route: str, secret: str) -> str:
         conn.close()
 
 
+# ── /daily-brief JSON formatter ──────────────────────────────────────────────
+
+def _format_daily_brief(raw: str) -> str:
+    """
+    Parse the JSON emitted by /daily-brief --n8n and render as plain text.
+    Falls back to raw text unchanged on any parse failure or unrecognized structure.
+    Applied only to /daily-brief — no other command passes through this function.
+
+    Expected top-level keys (from cmd_daily_brief n8n_mode in adwi_cli.py):
+        ok, generated_at, services, gmail, brief, warnings, errors
+    """
+    try:
+        data = json.loads(raw)
+    except (json.JSONDecodeError, ValueError):
+        return raw   # not JSON — pass through unchanged
+
+    if not isinstance(data, dict) or not data.get("ok"):
+        return raw   # unrecognized structure — pass through unchanged
+
+    lines: list[str] = []
+
+    # Header with timestamp (slice ISO string to "YYYY-MM-DD HH:MM")
+    ts = (data.get("generated_at") or "")[:16].replace("T", " ")
+    lines.append(f"Daily Brief — {ts}" if ts else "Daily Brief")
+
+    # Services: compact single line
+    services = data.get("services")
+    if isinstance(services, dict) and services:
+        lines.append("Services: " + "  ".join(f"{k}={v}" for k, v in services.items()))
+
+    # Gmail section
+    gmail = data.get("gmail") or {}
+    if isinstance(gmail, dict):
+        g_warns = [w for w in (gmail.get("warnings") or []) if w]
+        if g_warns:
+            lines.append(f"Gmail: {'; '.join(g_warns)}")
+        else:
+            unread  = gmail.get("unread_count") or 0
+            summary = (gmail.get("summary") or "").strip()
+            if unread:
+                lines.append(f"Gmail: {unread} unread today")
+                if summary:
+                    lines.append(summary)
+            else:
+                lines.append(f"Gmail: {summary or 'Inbox clear.'}")
+
+    # LLM-generated brief — strip markdown ** bold markers for plain-text Telegram
+    brief = (data.get("brief") or "").strip()
+    if brief:
+        lines.append("")
+        lines.append(brief.replace("**", ""))
+
+    # Surface system-level warnings / errors
+    warns = [w for w in (data.get("warnings") or []) if w]
+    errs  = [e for e in (data.get("errors")   or []) if e]
+    if warns:
+        lines.append(f"Warnings: {'; '.join(warns)}")
+    if errs:
+        lines.append(f"Errors: {'; '.join(errs)}")
+
+    return "\n".join(lines).strip()
+
+
 # ── Update handler ────────────────────────────────────────────────────────────
 
 def _handle_update(update: dict, token: str, allowed_uid: int, secret: str) -> None:
@@ -212,6 +275,8 @@ def _handle_update(update: dict, token: str, allowed_uid: int, secret: str) -> N
     log.info("cmd=%s route=%s sender=%s", cmd_token, route, sender_id)
     _send_reply(token, chat_id, f"Running {cmd_token}…")
     result = _call_adwi(route, secret)
+    if cmd_token == "/daily-brief":
+        result = _format_daily_brief(result)
     _send_reply(token, chat_id, result or "(empty response)")
 
 

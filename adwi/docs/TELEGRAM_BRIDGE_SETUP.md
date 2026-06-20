@@ -250,7 +250,7 @@ rm ~/Library/LaunchAgents/com.suneel.telegram-bridge.plist
 
 - Single allowed user (one `TELEGRAM_ALLOWED_USER_ID`).
 - Read-only commands only — no Gmail, no file writes, no patching, no shell.
-- `/daily-brief` returns raw JSON from the `--n8n` mode. Readable but not formatted.
+- `/daily-brief` formats the n8n JSON response into readable plain text (services, Gmail, brief). Falls back to raw text if parsing fails.
 - No message history — each command is stateless.
 - Commands may take up to 120 s (bridge timeout); `/doctor` can be slow if Ollama is busy.
 
