@@ -54,6 +54,11 @@ save-attachment and summarize-attachment download from Gmail to ATTACH_SAVE_DIR
 (path safety enforced in handler). attach reads a local file (safe_to_read()
 check in handler) and updates Gmail draft. remove-attachment updates Gmail draft
 to remove an outbound attachment. No input() on any path.
+
+Phase 16B (inbox navigation cluster): auth, inbox (/gmail + /inbox alias),
+read, open, thread, summarize, summary, thread-intel, category. All are
+read-only or LLM-only — no inbox mutation. /gmail-auth uses input() for OAuth
+confirm (preserved via _cli() delegation). All others have no input() calls.
 """
 
 from __future__ import annotations
@@ -289,6 +294,45 @@ def _rule_apply(args: str, ctx: dict) -> None:
 
 def _rule_cancel(args: str, ctx: dict) -> None:
     _cli().cmd_gmail_filter_cancel(args)
+
+
+# ── Phase 16B handlers (inbox navigation cluster) ────────────────────────────
+
+
+def _gmail_auth(args: str, ctx: dict) -> None:
+    _cli().cmd_gmail_auth()
+
+
+def _gmail_inbox(args: str, ctx: dict) -> None:
+    _cli().cmd_gmail(args)
+
+
+def _gmail_read(args: str, ctx: dict) -> None:
+    _cli().cmd_gmail_read(args)
+
+
+def _gmail_open(args: str, ctx: dict) -> None:
+    _cli().cmd_gmail_open(args)
+
+
+def _gmail_thread(args: str, ctx: dict) -> None:
+    _cli().cmd_gmail_thread(args)
+
+
+def _gmail_summarize(args: str, ctx: dict) -> None:
+    _cli().cmd_gmail_summarize(args)
+
+
+def _gmail_summary(args: str, ctx: dict) -> None:
+    _cli().cmd_gmail_summary(args)
+
+
+def _gmail_thread_intel(args: str, ctx: dict) -> None:
+    _cli().cmd_gmail_thread_intel(args)
+
+
+def _gmail_category(args: str, ctx: dict) -> None:
+    _cli().cmd_gmail_list_category(args)
 
 
 # ── Registration ──────────────────────────────────────────────────────────────
@@ -654,3 +698,77 @@ def register(registry: "CommandRegistry") -> None:
         intents=["gmail_remove_attachment"],
         args_schema={"ref": "str?"},
     )(_remove_attachment)
+
+    # Phase 16B — inbox navigation cluster
+
+    registry.register(
+        "/gmail-auth",
+        description="Authorize Gmail access via OAuth (opens browser, requires interactive confirm)",
+        category="gmail",
+        intents=["gmail_auth"],
+    )(_gmail_auth)
+
+    registry.register(
+        "/gmail",
+        aliases=["/inbox"],
+        description="Show Gmail inbox (optionally filtered by query)",
+        category="gmail",
+        intents=["gmail_inbox"],
+        args_schema={"query": "str?"},
+    )(_gmail_inbox)
+
+    registry.register(
+        "/gmail-read",
+        description="Open an email by inbox ordinal or message ID and set it as current email",
+        category="gmail",
+        intents=["gmail_read"],
+        args_schema={"ref": "str?"},
+    )(_gmail_read)
+
+    registry.register(
+        "/gmail-open",
+        description="Search for and open the first matching email, setting it as current email",
+        category="gmail",
+        intents=["gmail_open"],
+        args_schema={"query": "str?"},
+    )(_gmail_open)
+
+    registry.register(
+        "/gmail-thread",
+        description="Load a full email thread into session context (by search or current email)",
+        category="gmail",
+        intents=["gmail_thread"],
+        args_schema={"query": "str?"},
+    )(_gmail_thread)
+
+    registry.register(
+        "/gmail-summarize",
+        description="LLM-summarize the current email or thread (or search + summarize first match)",
+        category="gmail",
+        intents=["gmail_summarize"],
+        args_schema={"query": "str?"},
+    )(_gmail_summarize)
+
+    registry.register(
+        "/gmail-summary",
+        description="Fetch recent emails and produce a grouped LLM digest (optionally filtered)",
+        category="gmail",
+        intents=["gmail_summary"],
+        args_schema={"query": "str?"},
+    )(_gmail_summary)
+
+    registry.register(
+        "/gmail-thread-intel",
+        description="Deep LLM analysis of the current thread: tone, risks, action items, key decisions",
+        category="gmail",
+        intents=["gmail_thread_intel"],
+        args_schema={"query": "str?"},
+    )(_gmail_thread_intel)
+
+    registry.register(
+        "/gmail-category",
+        description="List emails from a Gmail category (promotions, social, updates, forums)",
+        category="gmail",
+        intents=["gmail_category"],
+        args_schema={"category": "str?"},
+    )(_gmail_category)

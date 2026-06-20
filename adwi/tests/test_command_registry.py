@@ -1828,5 +1828,150 @@ class TestPhase15GmailAttachmentCluster(unittest.TestCase):
         self.assertGreaterEqual(len(set(self.reg.all_names())), 113)
 
 
+# ── Phase 16B wiring verification ─────────────────────────────────────────────
+
+
+class TestPhase16BGmailInboxNavigation(unittest.TestCase):
+    """
+    Verify Phase 16B inbox navigation cluster is registered via discover()
+    and dispatches correctly.
+
+    Commands migrated in this phase:
+      /gmail-auth         — OAuth confirm via input() (preserved via _cli() delegation)
+      /gmail              — inbox list; alias /inbox; sets _GMAIL_IDS / candidates
+      /gmail-read         — open email by ordinal or ID; sets current_email
+      /gmail-open         — search + open first match; sets current_email
+      /gmail-thread       — load full thread; sets current_thread
+      /gmail-summarize    — LLM summarize current email/thread or search result
+      /gmail-summary      — fetch recent emails and produce grouped LLM digest
+      /gmail-thread-intel — deep LLM thread analysis (tone, risks, actions)
+      /gmail-category     — list emails by Gmail category (read-only)
+
+    All are read-only or LLM-only. No inbox mutation on any path.
+    The /inbox alias for /gmail is verified explicitly.
+    """
+
+    PHASE16B = [
+        "/gmail-auth",
+        "/gmail",
+        "/gmail-read",
+        "/gmail-open",
+        "/gmail-thread",
+        "/gmail-summarize",
+        "/gmail-summary",
+        "/gmail-thread-intel",
+        "/gmail-category",
+    ]
+
+    @classmethod
+    def setUpClass(cls):
+        cls.reg = CommandRegistry()
+        cls.reg.discover("adwi.commands")
+
+    def test_all_phase16b_commands_registered(self):
+        for cmd in self.PHASE16B:
+            with self.subTest(cmd=cmd):
+                self.assertIsNotNone(self.reg.get(cmd), f"{cmd} must be registered")
+
+    def test_all_phase16b_commands_dispatch_true(self):
+        for cmd in self.PHASE16B:
+            with self.subTest(cmd=cmd):
+                self.assertTrue(
+                    self.reg.dispatch(cmd, {}),
+                    f"dispatch('{cmd}') must return True",
+                )
+
+    def test_all_phase16b_commands_have_descriptions(self):
+        for cmd in self.PHASE16B:
+            with self.subTest(cmd=cmd):
+                spec = self.reg.get(cmd)
+                self.assertIsNotNone(spec)
+                self.assertGreater(len(spec.description), 0)
+
+    def test_all_phase16b_commands_in_gmail_category(self):
+        for cmd in self.PHASE16B:
+            with self.subTest(cmd=cmd):
+                self.assertEqual(self.reg.get(cmd).category, "gmail")
+
+    def test_phase16b_intents_wired(self):
+        expected = {
+            "gmail_auth":          "/gmail-auth",
+            "gmail_inbox":         "/gmail",
+            "gmail_read":          "/gmail-read",
+            "gmail_open":          "/gmail-open",
+            "gmail_thread":        "/gmail-thread",
+            "gmail_summarize":     "/gmail-summarize",
+            "gmail_summary":       "/gmail-summary",
+            "gmail_thread_intel":  "/gmail-thread-intel",
+            "gmail_category":      "/gmail-category",
+        }
+        for intent, cmd in expected.items():
+            with self.subTest(intent=intent):
+                self.assertIn(intent, self.reg.intent_map())
+                self.assertEqual(self.reg.intent_map()[intent], cmd)
+
+    def test_inbox_alias_registered(self):
+        """/inbox alias must resolve to the same spec as /gmail."""
+        spec_gmail = self.reg.get("/gmail")
+        spec_inbox = self.reg.get("/inbox")
+        self.assertIsNotNone(spec_inbox)
+        self.assertIs(spec_inbox, spec_gmail)
+
+    def test_inbox_alias_dispatches_true(self):
+        self.assertTrue(self.reg.dispatch("/inbox", {}))
+
+    def test_inbox_alias_with_query_dispatches_true(self):
+        self.assertTrue(self.reg.dispatch("/inbox unread from boss", {}))
+
+    def test_gmail_with_query_dispatches_true(self):
+        self.assertTrue(self.reg.dispatch("/gmail is:unread label:work", {}))
+
+    def test_gmail_read_with_ordinal_dispatches_true(self):
+        self.assertTrue(self.reg.dispatch("/gmail-read 3", {}))
+
+    def test_gmail_read_no_args_dispatches_true(self):
+        self.assertTrue(self.reg.dispatch("/gmail-read", {}))
+
+    def test_gmail_open_with_query_dispatches_true(self):
+        self.assertTrue(self.reg.dispatch("/gmail-open sprint planning", {}))
+
+    def test_gmail_thread_with_query_dispatches_true(self):
+        self.assertTrue(self.reg.dispatch("/gmail-thread sprint", {}))
+
+    def test_gmail_thread_no_args_dispatches_true(self):
+        self.assertTrue(self.reg.dispatch("/gmail-thread", {}))
+
+    def test_gmail_summarize_with_query_dispatches_true(self):
+        self.assertTrue(self.reg.dispatch("/gmail-summarize the budget email", {}))
+
+    def test_gmail_summarize_no_args_dispatches_true(self):
+        self.assertTrue(self.reg.dispatch("/gmail-summarize", {}))
+
+    def test_gmail_summary_with_query_dispatches_true(self):
+        self.assertTrue(self.reg.dispatch("/gmail-summary is:unread", {}))
+
+    def test_gmail_summary_no_args_dispatches_true(self):
+        self.assertTrue(self.reg.dispatch("/gmail-summary", {}))
+
+    def test_gmail_thread_intel_no_args_dispatches_true(self):
+        self.assertTrue(self.reg.dispatch("/gmail-thread-intel", {}))
+
+    def test_gmail_thread_intel_with_query_dispatches_true(self):
+        self.assertTrue(self.reg.dispatch("/gmail-thread-intel deal thread", {}))
+
+    def test_gmail_category_with_category_dispatches_true(self):
+        self.assertTrue(self.reg.dispatch("/gmail-category promotions", {}))
+
+    def test_gmail_category_no_args_dispatches_true(self):
+        self.assertTrue(self.reg.dispatch("/gmail-category", {}))
+
+    def test_gmail_auth_dispatches_true(self):
+        self.assertTrue(self.reg.dispatch("/gmail-auth", {}))
+
+    def test_total_unique_commands_at_phase16b(self):
+        # Phase 15 had ≥113; Phase 16B adds 9 canonicals + 1 alias (/inbox)
+        self.assertGreaterEqual(len(set(self.reg.all_names())), 122)
+
+
 if __name__ == "__main__":
     unittest.main()
