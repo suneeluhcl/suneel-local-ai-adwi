@@ -15,7 +15,7 @@ or is handled locally by the bridge process itself (no API call).
 | `/status` | `/adwi-status` | Adwi REPL `/status` output |
 | `/doctor` | `/adwi-doctor` | Adwi REPL `/doctor` health check |
 | `/brief` | `/adwi-brief` | What-next brief from Adwi AI |
-| `/daily-brief` | `/adwi-daily-brief-n8n` | LLM-generated daily brief (JSON → formatted) |
+| `/daily-brief` | `/adwi-daily-brief-n8n` | LLM-generated daily brief (JSON → formatted) ⚠ writes report file |
 | `/config` | `/adwi-config-check` | Env var config status (names only, never values) |
 | `/disk` | `/adwi-disk-summary` | Disk usage for key Adwi paths |
 | `/eval-status` | `/adwi-eval-status` | NLU eval pass rate from MASTER_REPORT_v2 |
@@ -61,6 +61,18 @@ cause irreversible side effects):
 **Hard rule:** never add commands that execute shell, mutate files, or bypass confirmation gates.
 
 ---
+
+## Command Classification
+
+| Class | Description | Examples |
+|-------|-------------|---------|
+| **local** | Handled by bridge; zero API calls; instant | `/help`, `/ping` |
+| **read-only** | Reads state; no files written by the command | `/status`, `/doctor`, `/disk`, `/eval-status`, `/ports`, `/uptime`, `/version`, `/config`, `/models`, `/git-status`, `/watcher-status`, `/nightly-status`, `/e2e-status` |
+| **generates-report** | Calls LLM + writes a local report file as a side effect | `/brief`, `/daily-brief` |
+
+> ⚠ `/daily-brief` calls `adwi_cli.py /daily-brief --n8n` which writes to `notes/daily-briefs/` and
+> attempts an Obsidian daily-note update. This is intentional behavior (not a bug), but it is not
+> purely read-only. The Telegram bridge does not write files directly.
 
 ## Response Handling
 
