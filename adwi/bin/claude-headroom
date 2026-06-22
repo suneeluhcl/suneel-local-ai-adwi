@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+# claude-headroom — launch Claude Code through the Headroom compression proxy.
+#
+# Usage:
+#   claude-headroom                    # standard wrapped session
+#   claude-headroom -- --model opus    # pass args to claude
+#
+# Starts the Headroom proxy on :8787, routes Claude through it, and cleans up
+# on exit. Run `claude` directly as fallback if Headroom is unavailable.
+exec headroom wrap claude "$@"

@@ -164,7 +164,9 @@ After making any change:
 
 ## Headroom Usage
 
-Headroom (headroom-ai 0.27.0, installed via pipx, Python 3.12) is a local context compression layer for Claude. It reduces tokens sent to Anthropic by 60–95% with no accuracy loss. Installed 2026-06-22.
+Headroom (headroom-ai 0.27.0, installed via pipx, Python 3.12) is a local context compression layer for Claude. It aims to reduce tokens sent to Anthropic while preserving useful context quality. Accuracy is not guaranteed to be identical to uncompressed sessions. Installed 2026-06-22.
+
+Current install: `headroom-ai[proxy]` — SmartCrusher (JSON) and CodeCompressor (AST) active. ML Kompress-base (prose/text) is NOT installed (requires `headroom-ai[ml]`).
 
 **How to launch Claude through Headroom:**
 ```bash
@@ -181,7 +183,8 @@ This is the recommended way to start Claude Code sessions from a terminal. Witho
 
 **Validation scripts (stdlib-only, read-only):**
 ```bash
-adwi/.venv/bin/python3 adwi/scripts/validate_claude_headroom.py   # 8 checks
+adwi/.venv/bin/python3 adwi/scripts/smoke_claude_headroom.py      # install smoke check
+adwi/.venv/bin/python3 adwi/scripts/validate_claude_headroom.py   # 8 static checks
 adwi/.venv/bin/python3 adwi/scripts/claude_headroom_status.py     # compact status
 headroom doctor                                                     # proxy + routing health
 headroom perf                                                       # savings stats (after sessions)

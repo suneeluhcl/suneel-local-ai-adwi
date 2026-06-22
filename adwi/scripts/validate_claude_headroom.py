@@ -11,12 +11,19 @@ Checks:
   2. headroom command exists
   3. headroom --help works
   4. claude command exists
-  5. headroom proxy reachable at :8787 (WARN if not — proxy must be started first)
+  5. headroom proxy reachable at :8787
+     (WARN if not — expected unless inside a `headroom wrap claude` session)
   6. Claude project settings route through Headroom proxy
+     (WARN if not — expected unless inside a `headroom wrap claude` session)
   7. headroom --version returns a version string
   8. No secret patterns in headroom --help output
 
-Exits 0 only if all checks pass. Warnings do not count as failures.
+Exits 0 only if all PASS checks pass. WARN lines are informational and do not
+cause failure — checks 5 and 6 are only active during a wrap session.
+
+Install note: headroom-ai[proxy] is installed. ML Kompress-base (for text/prose
+compression) requires `headroom-ai[ml]` (adds torch/onnxruntime) and is NOT
+currently installed. SmartCrusher (JSON) and CodeCompressor (AST) are available.
 
 Usage:
   python3 adwi/scripts/validate_claude_headroom.py
@@ -114,7 +121,7 @@ def main() -> int:
     else:
         _warn(
             "Headroom proxy reachable at :8787",
-            detail="not running — start with: headroom wrap claude",
+            detail="expected WARN unless inside `headroom wrap claude` session",
         )
 
     # 6. Claude project settings route through Headroom
@@ -135,7 +142,7 @@ def main() -> int:
     else:
         _warn(
             "Project settings route Claude through Headroom proxy",
-            detail="not configured — run: headroom wrap claude (sets this automatically)",
+            detail="expected WARN unless inside `headroom wrap claude` session",
         )
 
     # 7. headroom --version returns a version string
@@ -177,12 +184,17 @@ def main() -> int:
             detail="skipped — no output to check",
         )
 
+    # Extra info: installed extra
+    print()
+    print("  INFO  Package: headroom-ai[proxy] — SmartCrusher (JSON) + CodeCompressor (AST) available")
+    print("  INFO  ML Kompress-base (prose/text): NOT installed (needs headroom-ai[ml] + torch)")
+
     # Summary
     total = _pass_count + _fail_count
     print(f"\n{_pass_count}/{total} checks passed"
           + (f", {_warn_count} warning(s)" if _warn_count else ""))
     if _warn_count:
-        print("NOTE: warnings are informational — proxy must be started via `headroom wrap claude`")
+        print("NOTE: WARN lines are expected — checks 5/6 only pass inside `headroom wrap claude`")
     if _fail_count == 0:
         print("PASS")
         return 0

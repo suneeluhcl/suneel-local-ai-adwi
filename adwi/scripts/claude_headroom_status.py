@@ -75,8 +75,11 @@ def _doctor_status() -> str:
             return "OK"
         failures = out.count("✗ fail")
         warnings = out.count("⚠ warn")
+        proxy_reachable = _proxy_reachable()
         if failures == 0:
             return f"WARN ({warnings} warning(s))"
+        if failures == 1 and not proxy_reachable and "not reachable" in out:
+            return f"WARN (proxy not running — expected outside wrap session)"
         return f"FAIL ({failures} failure(s), {warnings} warning(s))"
     except Exception as exc:
         return f"ERROR: {exc}"
@@ -98,6 +101,10 @@ def main() -> int:
         f"  Proxy reachable:     {'yes (:' + str(_PROXY_PORT) + ')' if proxy_ok else 'no (not running)'}",
         f"  Doctor:              {doctor}",
         "",
+        "NOTE: Headroom active only inside `headroom wrap claude` sessions.",
+        "      Outside a wrap session, Claude uses the direct Anthropic API.",
+        "      `headroom perf` shows no data until after the first wrapped session.",
+        "",
     ]
 
     if not installed:
@@ -108,8 +115,8 @@ def main() -> int:
     elif not proxy_ok:
         lines += [
             "Next: start Claude through Headroom",
-            "  headroom wrap claude",
-            "  (starts proxy + routes Claude through it)",
+            "  headroom wrap claude          # or: adwi/bin/claude-headroom",
+            "  (starts proxy on :8787 + routes Claude through it)",
         ]
     elif "yes" not in wrapped:
         lines += [
@@ -119,7 +126,7 @@ def main() -> int:
     else:
         lines += [
             "Status: Headroom active for this Claude session.",
-            "  Run `headroom perf` to see compression savings.",
+            "  Run `headroom perf` to see token savings.",
         ]
 
     print("\n".join(lines))

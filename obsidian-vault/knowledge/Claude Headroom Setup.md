@@ -7,7 +7,9 @@ updated: 2026-06-22
 
 # Claude Headroom Setup
 
-Headroom is a local context compression proxy that reduces the tokens sent to Anthropic by 60–95%, with no accuracy loss. It runs entirely on your Mac — data never leaves your machine.
+Headroom is a local context compression proxy that reduces the tokens sent to Anthropic, with the aim of preserving useful context quality. It runs entirely on your Mac — data never leaves your machine.
+
+**Accuracy note:** Headroom is designed to preserve semantically important content, but compression cannot guarantee zero accuracy loss. For critical or nuanced tasks, prefer lower-compression settings or the uncompressed fallback.
 
 ---
 
@@ -74,20 +76,29 @@ When the proxy is running, `headroom doctor` shows all green. `headroom perf` sh
 
 ## What Headroom compresses
 
-| Content type | Algorithm | Savings |
-|---|---|---|
-| JSON tool outputs | SmartCrusher | 70–90% |
-| Source code | CodeCompressor (AST) | 40–75% |
-| Prose / logs | Kompress-base (text) | 60–85% |
-| Git/search results | RTK shell filters | 60–92% |
+Current install: `headroom-ai[proxy]`. Available compressors:
 
-The RTK shell filter (`rtk <cmd>`) is also available and reduces what gets into context in the first place. Add `rtk` as a prefix to common commands:
+| Content type | Algorithm | Status | Indicative savings |
+|---|---|---|---|
+| JSON tool outputs | SmartCrusher | ✅ Available | 70–90% |
+| Source code | CodeCompressor (AST) | ✅ Available | 40–75% |
+| Git/search outputs | RTK shell filters | ✅ Available | 60–92% |
+| Prose / logs (ML) | Kompress-base | ❌ Not installed | 60–85% |
+
+**ML Kompress-base** (text/prose compression) requires `headroom-ai[ml]` which adds `torch` and `onnxruntime`. Not currently installed. To add it later:
+```bash
+pipx inject headroom-ai "headroom-ai[ml]"
+```
+
+The RTK shell filter (`rtk <cmd>`) reduces what enters context before the proxy sees it. Add `rtk` as a prefix to common commands:
 
 ```bash
-rtk git status    # 59% smaller
-rtk git diff      # 80% smaller
-rtk grep <pat>    # filtered
+rtk git status    # ~59% smaller
+rtk git diff      # ~80% smaller
+rtk grep <pat>    # filtered to matches only
 ```
+
+Savings figures are indicative from Headroom benchmarks — actual savings depend on content type and size.
 
 ---
 
@@ -114,13 +125,38 @@ To stop using Headroom:
 
 ---
 
+## First wrapped session checklist
+
+Do this the first time you use Headroom with Claude:
+
+1. **Start the wrapped session:** `headroom wrap claude` (or `adwi/bin/claude-headroom`)
+2. **In a second terminal, run:** `headroom doctor` — confirm proxy shows OK
+3. **Ask Claude to read a few files** in the Claude session to generate some context traffic
+4. **Check savings:** `headroom perf` — should show token counts for that session
+5. **If anything behaves unexpectedly:** exit the wrap session (Ctrl+C), run `claude` directly as fallback, and report the issue
+
+---
+
+## When to use normal Claude (not Headroom)
+
+Use `claude` directly (not `headroom wrap claude`) when:
+- Debugging proxy or routing issues
+- Headroom is unavailable or the proxy fails to start
+- You notice compressed context affecting response quality on a subtle task
+- You need to reproduce a bug without compression in the picture
+
+The bare `claude` command is always the reliable fallback and is never affected by Headroom config.
+
+---
+
 ## Known limitations
 
-- Headroom reduces token usage but cannot guarantee Claude will never hit context limits — it extends the effective window, not eliminates it.
-- The proxy must be running (`headroom wrap claude`) for compression to be active. If the proxy is not running, Claude falls back to direct Anthropic API silently.
+- Headroom is designed to preserve semantically important content, but compression is lossy — accuracy cannot be guaranteed to be identical to uncompressed sessions.
+- Context limits are extended, not eliminated. Very large codebases may still hit limits.
+- The proxy must be running (`headroom wrap claude`) for compression to be active. Outside a wrap session, Claude uses the direct Anthropic API.
 - Python 3.12 is used for the Headroom venv (pipx-isolated). The adwi `.venv` (Python 3.14) is untouched.
-- The `[proxy]` extra is installed. ML-based Kompress compression (requires `torch`) is not included — SmartCrusher + CodeCompressor + RTK still give 60–90% savings on coding workloads.
-- `headroom perf` shows accurate stats only after sessions routed through the proxy.
+- `headroom-ai[proxy]` is installed. ML Kompress-base (text/prose) is not installed — requires `headroom-ai[ml]`.
+- `headroom perf` shows no data until after the first wrapped session.
 
 ---
 
@@ -128,8 +164,10 @@ To stop using Headroom:
 
 | Script | Purpose |
 |---|---|
+| `adwi/scripts/smoke_claude_headroom.py` | Smoke check — install valid, binary works, doctor interpreted |
 | `adwi/scripts/validate_claude_headroom.py` | 8-check static validator (stdlib-only, read-only) |
 | `adwi/scripts/claude_headroom_status.py` | Compact one-screen status |
+| `adwi/bin/claude-headroom` | Shell helper — `headroom wrap claude "$@"` |
 
 ---
 
