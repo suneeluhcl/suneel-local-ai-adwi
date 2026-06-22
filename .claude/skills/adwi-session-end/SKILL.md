@@ -31,10 +31,23 @@ Ask: "Was an eval run this session?"
 ### 5. Open items summary
 Show any remaining open NHR items from `adwi/adwi/docs/NLU_REPAIR_BACKLOG.md` so the next session can pick up immediately.
 
-### 6. Commit if needed
+### 6. Codex review (optional, recommended for non-trivial sessions)
+
+Check if the session warrants a second-opinion review:
+```bash
+git diff --name-only HEAD | grep -cE 'adwi_cli\.py|path_validator\.py|reason_engine\.py|simlab/|services/|\.claude/|gmail_helper\.py|repair\.py'
+```
+
+- If result > 0 **or** more than 5 files changed: run `/codex-advisor` (trigger: `session-end`)
+- If only docs, trace logs, daily briefs, or backup logs changed: skip Codex review
+
+The `/codex-advisor` skill will produce a severity-ranked artifact in `adwi/notes/codex-reviews/`.
+Any Blocker or Major finding should be resolved before committing.
+
+### 7. Commit if needed
 If there are uncommitted changes worth keeping, offer to run `/adwi-commit`.
 
-### 7. Backup trigger
+### 8. Backup trigger
 The git backup LaunchAgent runs every 30 minutes automatically. To trigger immediately:
 ```bash
 bin/adwi-git-backup

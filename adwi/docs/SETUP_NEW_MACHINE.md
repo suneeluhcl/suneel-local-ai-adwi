@@ -125,7 +125,7 @@ $EDITOR ~/SuneelWorkSpace/adwi/config/.env
 
 Fill in at minimum:
 - `TAVILY_API_KEY` — free at https://tavily.com (web search)
-- `HA_TOKEN` + `HA_URL` — if you use Home Assistant
+- `HOME_ASSISTANT_TOKEN` + `HOME_ASSISTANT_URL` — if you use Home Assistant
 - `EXA_API_KEY` — optional, for Exa neural search
 - `BRAVE_SEARCH_API_KEY` — optional, for Brave Search API web results
 - `FIRECRAWL_API_KEY` — optional, for clean web scraping
@@ -217,7 +217,7 @@ To manually install the nightly agent:
 
 ## Step 9 — NLU fixtures (Qdrant collection)
 
-The NLU fast-path uses a Qdrant collection called `nlu_fixtures` with 89 seed scenarios for few-shot routing. Rebuild it after Qdrant is running:
+The NLU fast-path uses a Qdrant collection called `nlu_fixtures` with 96 seed scenarios for few-shot routing. Rebuild it after Qdrant is running:
 
 ```bash
 cd ~/SuneelWorkSpace
@@ -228,7 +228,7 @@ python3 adwi/memory.py provision-nlu
 ```bash
 curl -s http://localhost:6333/collections/nlu_fixtures | python3 -c \
     "import sys,json; d=json.load(sys.stdin); print('Fixtures:', d.get('result',{}).get('points_count'))"
-# Should show ~89 points
+# Should show ~96 points
 ```
 
 ---

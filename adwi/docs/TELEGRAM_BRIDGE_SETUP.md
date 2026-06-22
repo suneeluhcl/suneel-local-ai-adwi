@@ -11,7 +11,7 @@ Long-polls the Telegram Bot API from this Mac (outbound HTTPS only — no inboun
 no public endpoint). When you send a command from your Telegram account, it routes
 through the Safe Command API at `localhost:5055` and replies with the result.
 
-v1 command surface: `/help` `/status` `/doctor` `/brief` `/daily-brief` `/git-status` `/models` `/watcher-status`
+v1 command surface: `/help` `/status` `/doctor` `/brief` `/daily-brief` `/git-status` `/models` `/watcher-status` `/e2e-status`
 
 Everything else is rejected. Only your configured Telegram user ID can issue commands.
 
@@ -115,9 +115,12 @@ Adwi Telegram Bridge  —  v1 read-only commands:
   /brief         → /adwi-brief
   /daily-brief   → /adwi-daily-brief-n8n
   /doctor        → /adwi-doctor
+  /e2e-status    → /adwi-e2e-auto-loop-status
   /git-status    → /git-status-workspace
   /help          → this message
+  /models        → /adwi-models
   /status        → /adwi-status
+  /watcher-status → /adwi-watcher-status
 
 Commands not listed here are rejected.
 ```
@@ -250,6 +253,7 @@ rm ~/Library/LaunchAgents/com.suneel.telegram-bridge.plist
 
 - Single allowed user (one `TELEGRAM_ALLOWED_USER_ID`).
 - Read-only commands only — no Gmail, no file writes, no patching, no shell.
+- `/e2e-status` shows whether the E2E auto-loop is running or idle and the last result. Start (`/adwi-e2e-auto-loop-start`) and cancel (`/adwi-e2e-auto-loop-cancel`) are intentionally excluded from Telegram.
 - `/daily-brief` formats the n8n JSON response into readable plain text (services, Gmail, brief). Falls back to raw text if parsing fails.
 - No message history — each command is stateless.
 - Commands may take up to 120 s (bridge timeout); `/doctor` can be slow if Ollama is busy.

@@ -676,17 +676,17 @@ n8n :5678  (webhook node)
         │
         ▼
 POST http://localhost:5055/<route>
-        │  Safe Command API — 8 allowlisted routes only
+        │  Safe Command API — 19 allowlisted routes (+ 1 background E2E Popen route)
         │  No arbitrary command execution
         │
-        ├── /status-ai ──────────────────► bin/status-ai
-        ├── /daily-ai-status-report ──────► nightly.py (report section)
-        ├── /auto-ai-maintenance ─────────► nightly.py (full loop)
-        ├── /adwi-self-heal ──────────────► aider-chat pass
-        ├── /rag-index ───────────────────► overnight_learn.py (index)
-        ├── /git-status-workspace ────────► git status + git log
-        ├── /index-ai-notes ──────────────► memory-scan
-        └── /benchmark-adwi ──────────────► bin/benchmark-adwi
+        ├── /status-ai · /daily-ai-status-report · /index-ai-notes ──► shell scripts
+        ├── /auto-ai-maintenance · /adwi-self-heal · /rag-index ──────► shell scripts
+        ├── /git-status-workspace · /benchmark-adwi ───────────────────► shell scripts
+        ├── /adwi-status · /adwi-doctor · /adwi-brief ─────────────────► adwi_cli.py
+        ├── /adwi-backup · /adwi-nightly · /adwi-models ───────────────► adwi_cli.py
+        ├── /adwi-watcher-status · /adwi-daily-brief-n8n ──────────────► adwi_cli.py
+        ├── /adwi-e2e-auto-loop-status · -report · -cancel ────────────► status reader
+        └── /adwi-e2e-auto-loop-start ──────────────────────────────────► Popen (background)
                 │
                 ▼
         JSON response → n8n → Siri → iPhone notification
@@ -895,7 +895,10 @@ SuneelWorkSpace/
 │   │   ├── test_nlu_fast_path.py      # NLU Qdrant fast-path bypass tests
 │   │   ├── test_path_validator.py     # PathValidator containment tests
 │   │   ├── test_search_orchestrator.py # Search orchestrator tests
-│   │   └── test_telemetry.py          # OTel credential redaction tests
+│   │   ├── test_telemetry.py          # OTel credential redaction tests
+│   │   ├── test_telegram_bridge.py    # 52 tests — Telegram bridge safety and routing
+│   │   ├── test_reason_engine_paths.py # 19 tests — PathValidator integration in reason_engine
+│   │   └── test_remote_control_surface.py # 17 tests — static surface guard for Safe Command API + Telegram
 │   ├── simlab/                        # Bounded eval & self-improvement harness (Phase 10)
 │   │   ├── schemas.py                 # Dataclasses + SHA-256[:16] failure fingerprinting
 │   │   ├── golden_baseline.jsonl      # 20 immutable scenarios — never auto-modified
@@ -935,12 +938,12 @@ SuneelWorkSpace/
 │   ├── adwi-git-backup                # 30-min auto-backup script
 │   └── ...                            # 33 more scripts
 │
-├── local-ai-stack/
+├── adwi/infra/docker/
 │   ├── docker-compose.yml             # 11 compose services + Qdrant (LaunchAgent) = 12 containers (§2)
 │   └── monitoring/                    # Prometheus, Loki, Promtail, Grafana configs
 │
 ├── adwi/services/
-│   ├── command-api/server.py          # Safe Command API (:5055) · 8 allowlisted routes
+│   ├── command-api/server.py          # Safe Command API (:5055) · 19 allowlisted routes
 │   └── mcp/obsidian-bridge/
 │       ├── server.py                  # stdlib-only vault HTTP API (:5056)
 │       └── start.sh / stop.sh
@@ -988,11 +991,11 @@ python3 -m py_compile adwi/adwi_cli.py && echo "syntax OK"
 
 ```bash
 # Docker stack
-cd ~/SuneelWorkSpace/local-ai-stack
+cd ~/SuneelWorkSpace/adwi/infra/docker
 docker compose down && docker compose up -d
 
 # Obsidian bridge
-mcp-servers/obsidian-bridge/stop.sh && mcp-servers/obsidian-bridge/start.sh
+adwi/services/mcp/obsidian-bridge/stop.sh && adwi/services/mcp/obsidian-bridge/start.sh
 
 # Reload all LaunchAgents
 for plist in ~/Library/LaunchAgents/com.suneel.*.plist; do
@@ -1022,7 +1025,7 @@ python3 -m py_compile adwi/adwi_cli.py        && echo "cli OK"
 python3 -m py_compile adwi/reason_engine.py   && echo "reason_engine OK"
 python3 -m py_compile adwi/nightly.py         && echo "nightly OK"
 python3 -m py_compile adwi/overnight_learn.py && echo "overnight OK"
-python3 -m py_compile mcp-servers/obsidian-bridge/server.py && echo "bridge OK"
+python3 -m py_compile adwi/services/mcp/obsidian-bridge/server.py && echo "bridge OK"
 curl -s http://localhost:11434/api/tags | python3 -c \
   "import sys,json; print('Ollama OK:', len(json.load(sys.stdin)['models']), 'models')"
 curl -s http://localhost:5056/ | python3 -c \
@@ -1168,7 +1171,7 @@ python3 adwi/simlab/tests/test_simlab.py -v
 
 ```bash
 # 1. Start Docker services
-cd ~/SuneelWorkSpace/local-ai-stack && docker compose up -d && cd ..
+cd ~/SuneelWorkSpace/adwi/infra/docker && docker compose up -d && cd -
 
 # 2. Start Obsidian bridge (if not already via launchd)
 bin/start-obsidian-bridge
@@ -1359,7 +1362,7 @@ ollama create adwi:latest -f ~/SuneelWorkSpace/adwi/Modelfile
 cp config/.env.example config/.env && $EDITOR config/.env
 
 # 5 — Docker stack
-cd ~/SuneelWorkSpace/local-ai-stack && docker compose up -d && cd ..
+cd ~/SuneelWorkSpace/adwi/infra/docker && docker compose up -d && cd -
 
 # 6 — Supporting services
 bin/start-obsidian-bridge && bin/start-command-api

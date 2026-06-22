@@ -38,14 +38,14 @@ Check each item before proceeding to the next. See `docs/SETUP_NEW_MACHINE.md` f
 
 - [ ] `config/.env` created from `config/.env.example`
 - [ ] `TAVILY_API_KEY` set (or accepted as missing — optional)
-- [ ] `HA_TOKEN` + `HA_URL` set (or accepted as missing — optional)
+- [ ] `HOME_ASSISTANT_TOKEN` + `HOME_ASSISTANT_URL` set (or accepted as missing — optional)
 - [ ] `EXA_API_KEY` set (or accepted as missing — optional)
 - [ ] `BRAVE_SEARCH_API_KEY` set (or accepted as missing — optional)
 - [ ] `secrets/` directory exists and is gitignored (`git check-ignore secrets/`)
 
 ## Phase 5 — Docker services
 
-- [ ] `cd local-ai-stack && docker compose up -d` succeeded
+- [ ] `cd adwi/infra/docker && docker compose up -d` succeeded
 - [ ] Qdrant responding: `curl http://localhost:6333/`
 - [ ] SearXNG responding: `curl "http://localhost:8888/search?q=test&format=json"`
 - [ ] Open WebUI responding: `curl -I http://localhost:3000`
@@ -60,7 +60,7 @@ Check each item before proceeding to the next. See `docs/SETUP_NEW_MACHINE.md` f
 ## Phase 7 — NLU and memory
 
 - [ ] NLU fixtures provisioned: `python3 adwi/memory.py provision-nlu`
-- [ ] Qdrant `nlu_fixtures` collection has ~89 points
+- [ ] Qdrant `nlu_fixtures` collection has ~96 points
 - [ ] (Optional) memory.db rebuilt: `/memory-scan` in adwi REPL
 - [ ] (Optional) knowledge.db rebuild started in background
 
@@ -100,6 +100,6 @@ adwi → /doctor
 
 After any NLU change, also run:
 ```bash
-python3 logs/simeval/run_large_eval.py --workers 5
-# Compare pass rate to baseline 75.8%
+python3 adwi/logs/simeval/run_large_eval.py --workers 3
+# Compare pass rate to current baseline — see CLAUDE.md §NLU for the number
 ```

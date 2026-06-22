@@ -30,6 +30,11 @@ try:
 except ModuleNotFoundError:
     from search_orchestrator import SearchOptions, SearchOrchestrator, metrics_summary  # type: ignore
 
+try:
+    from adwi.path_validator import PathValidator
+except ModuleNotFoundError:
+    from path_validator import PathValidator  # type: ignore
+
 # ── Constants ─────────────────────────────────────────────────────────────────
 OLLAMA_URL  = "http://127.0.0.1:11434"
 MODEL_MAIN  = "adwi:latest"
@@ -52,6 +57,37 @@ _AIDER_PATCHABLE = frozenset({
 _R = "\033[0m"; _B = "\033[1m"; _DIM = "\033[2m"
 _CY = "\033[36m"; _GR = "\033[32m"; _YL = "\033[33m"
 _RD = "\033[31m"; _PU = "\033[35m"; _GY = "\033[90m"
+
+# ── File-access gate ──────────────────────────────────────────────────────────
+# Single PathValidator shared by _exec_file_read and _exec_file_write.
+# allowed_roots=[] = deny-blocked, allow everything else (matches prior behaviour).
+# adwi/config/.env is an extra block specific to this module — it sits inside the
+# workspace so make_workspace_validator() alone would not block it.
+
+def _make_file_gate() -> PathValidator:
+    _h = Path.home()
+    return PathValidator(
+        allowed_roots=[],
+        blocked_roots=[
+            WORKSPACE / "secrets",
+            _h / ".ssh",
+            _h / ".gnupg",
+            _h / ".aws",
+            _h / ".kube",
+            _h / ".config" / "gcloud",
+            _h / ".npmrc",
+            _h / ".netrc",
+            _h / "Library" / "Keychains",
+            _h / "Library" / "Passwords",
+            Path("/etc"),
+            Path("/private"),
+            Path("/System"),
+            Path("/usr/lib"),
+            ADWI_DIR / "config" / ".env",
+        ],
+    )
+
+_FILE_GATE = _make_file_gate()
 
 # ── Phase 3: Safety classification ───────────────────────────────────────────
 
@@ -495,17 +531,9 @@ def _exec_shell(cmd: str, ledger: AchievementLedger, timeout: int = 60) -> tuple
 
 def _exec_file_read(path_str: str, ledger: AchievementLedger) -> tuple[bool, str]:
     p = Path(path_str).expanduser()
-    blocked = [
-        Path.home() / ".ssh", Path.home() / ".aws",
-        WORKSPACE / "secrets", Path("/etc"), Path("/private"),
-        ADWI_DIR / "config" / ".env",
-    ]
-    for b in blocked:
-        try:
-            p.resolve().relative_to(b.resolve())
-            return False, f"BLOCKED: {b}"
-        except ValueError:
-            pass
+    ok, reason = _FILE_GATE.check(p)
+    if not ok:
+        return False, f"BLOCKED: {reason}"
     if not p.exists():
         return False, f"File not found: {p}"
     try:
@@ -524,19 +552,9 @@ def _exec_file_write(spec: str, context: dict, ledger: AchievementLedger) -> tup
         path_str = spec
         content  = context.get("write_content", "")
     p = Path(path_str).expanduser()
-    _home = Path.home()
-    blocked = [
-        _home / ".ssh", _home / ".aws", _home / ".gnupg", _home / ".kube",
-        _home / "Library" / "Keychains", _home / "Library" / "Passwords",
-        WORKSPACE / "secrets", ADWI_DIR / "config" / ".env",
-        Path("/etc"), Path("/private"), Path("/System"), Path("/usr/lib"),
-    ]
-    for b in blocked:
-        try:
-            p.resolve().relative_to(b.resolve())
-            return False, f"BLOCKED: write to {b}"
-        except ValueError:
-            pass
+    ok, reason = _FILE_GATE.check(p)
+    if not ok:
+        return False, f"BLOCKED: write to {reason}"
     try:
         p.parent.mkdir(parents=True, exist_ok=True)
         p.write_text(content, encoding="utf-8")

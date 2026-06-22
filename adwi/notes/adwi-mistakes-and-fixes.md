@@ -5,6 +5,16 @@ Updated by `/daily-improve` and error handlers in adwi_cli.py.
 
 ---
 
+## 2026-06-21 — validate_adwi_env.py missing adwi:latest check
+
+**What failed:** `validate_adwi_env.py` `chk_ollama()` only checked for `llama3.1:8b` as a required model. `adwi:latest` (the primary reasoning model, built from qwen3:30b) was not verified at boot time, so a missing or corrupt `adwi:latest` would pass the environment check silently and only fail at first inference.
+
+**Fix:** Added `"adwi:latest"` to the `required` list in `chk_ollama()` (line ~144 of `adwi/scripts/validate_adwi_env.py`). Also added a corresponding test in `adwi/tests/test_validate_env.py::TestOllamaModels::test_missing_adwi_latest_returns_warn` to prevent regression.
+
+**Rule to remember:** `chk_ollama()` must verify all models that Adwi calls at runtime: `llama3.1:8b` (NLU classifier) and `adwi:latest` (primary model). If a new required model is added (e.g., a vision model), add it to `required` in `chk_ollama()` and add a corresponding test.
+
+---
+
 ## 2026-06-19 — Trust Baseline Repair (FIX-TRUST-SEC-01 through FIX-TRUST-004)
 
 **What failed:** MASTER_REPORT_v2.md §6 reported 3 safety breaches:

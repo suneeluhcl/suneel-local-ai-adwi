@@ -8,6 +8,11 @@ import json, os, re, shutil, subprocess, textwrap, urllib.request, urllib.error
 from datetime import datetime
 from pathlib import Path
 
+try:
+    from adwi.path_validator import PathValidator
+except ModuleNotFoundError:
+    from path_validator import PathValidator  # type: ignore
+
 # ── Paths ──────────────────────────────────────────────────────────────────────
 HOME       = Path.home()
 WORKSPACE  = HOME / "SuneelWorkSpace"
@@ -87,16 +92,20 @@ def classify_error(text: str) -> tuple[str, list[str]]:
 def is_patchable(path: Path) -> bool:
     return str(path.resolve()) in PATCHABLE_FILES
 
-def is_safe_to_read(path: Path) -> bool:
-    blocked = [
+# Blocked roots for file-read operations in the repair loop.
+# Uses PathValidator (resolve + relative_to) rather than str.startswith so that
+# a path like /tmp/secrets_copy does not accidentally pass a prefix check on "secrets".
+_READ_GATE = PathValidator(
+    allowed_roots=[],
+    blocked_roots=[
         WORKSPACE / "secrets", HOME / ".ssh", HOME / ".gnupg",
         HOME / "Library" / "Keychains", HOME / ".aws",
-    ]
-    try:
-        p = path.resolve()
-        return not any(str(p).startswith(str(b)) for b in blocked)
-    except Exception:
-        return False
+    ],
+)
+
+def is_safe_to_read(path: Path) -> bool:
+    ok, _ = _READ_GATE.check(path)
+    return ok
 
 
 # ── Snapshot / patch ──────────────────────────────────────────────────────────

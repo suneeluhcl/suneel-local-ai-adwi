@@ -3,7 +3,7 @@
 > **PURPOSE:** Optimized for cold-start ingestion by Claude, Gemini, Copilot, GPT-4, or any LLM
 > reading this for the first time. Minimal ambiguity. Current-state only. No historical narrative.
 >
-> **LAST VERIFIED:** 2026-06-20 against live code, config, and Qdrant.
+> **LAST VERIFIED:** 2026-06-21 against live code, config, and Qdrant.
 >
 > **GROUND TRUTH PRECEDENCE:** code > config > generator output > this file > README prose
 
@@ -294,6 +294,8 @@ If you are a cold-starting LLM, do NOT assume:
 | `docs/LLM_SYSTEM_PRIMING.md` | This file — cold-start model priming + operating contract | Human (update after major changes) |
 | `docs/OPERATOR_HANDBOOK.md` | Human operator daily-ops quick-reference | Human |
 | `adwi/docs/NLU_REPAIR_BACKLOG.md` | Prioritized NLU fix list with exact code proposals | Human |
+| `adwi/docs/CODEX_COLLABORATION.md` | Claude↔Codex collaboration guide — when to call `/codex-advisor`, safety boundaries, artifact format | Human |
+| `.claude/skills/codex-advisor/SKILL.md` | Six-step skill for Codex second-opinion reviews (read-only, `sandbox: read-only`, structured artifact output) | Human |
 
 ---
 
@@ -332,6 +334,7 @@ After significant changes:
 - [ ] Run `bin/auto-update-readme --force` — regenerate README AUTO: sections
 - [ ] Run `bin/generate-manifest` — update system_manifest.json
 - [ ] Run `bin/validate-docs` — confirm 0 FAIL
+- [ ] Run `python3 adwi/scripts/validate_adwi_env.py` — confirm Ollama models, services, secrets, and Telegram config are healthy
 - [ ] Update `CLAUDE.md` if combined eval baseline changed
 - [ ] Update LAST VERIFIED date at the top of this file
 

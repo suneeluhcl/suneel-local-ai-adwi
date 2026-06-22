@@ -1,17 +1,25 @@
 # CommandRegistry Live Wiring Plan
-*Design note — prepared 2026-06-19. Deferred until approved.*
+*Design note — prepared 2026-06-19. **IMPLEMENTED 2026-06-19/20 (Phases 7–23).***
 
 ---
 
-## Current state
+## Current state (as of 2026-06-20)
 
-`adwi/adwi_cli.py` has two dispatch systems in parallel:
+`adwi/adwi_cli.py` dispatch is **dispatch-first via CommandRegistry**, with the legacy elif chain as fallback:
 
-1. **`CommandRegistry`** — exists but is only used for `help` text generation (`.register()` decorates handlers with metadata). The live `handle()` method does NOT use the registry for dispatch.
+```
+handle(line)
+    │
+    ├── _cmd_registry.dispatch(line, {})  ← checked first
+    │       ├── match found → execute handler → return True
+    │       └── no match   → return False
+    │
+    └── elif chain (legacy fallback for unregistered commands)
+```
 
-2. **Legacy `elif` chain** — the actual dispatch. ~177 `elif cmd == "/..."` branches in `handle()`, plus NLU dispatch for non-slash inputs.
+**Registry-dispatched clusters (Phases 7–23):** Gmail draft/editing/schedule/extract/triage/attachments/inbox, Remote/HA read-only, Diagnostics+viewer, Voice, Disk, System, Knowledge, Eval — 13 clusters, 320+ tests in `test_command_registry.py`.
 
-The registry collects: name, description, handler fn, args schema, risk level, examples. Nothing currently reads it at dispatch time.
+**Intentionally NOT registered (`ELIF_ONLY`):** `/notify`, `/run-python`, `/run-bash`, `/implement-idea`, `/e2e-auto-loop` — these require interactive human confirmation and must stay in the elif chain. `TestElifFallbackIntegrity` and `TestSafetyBoundaryRegistry` enforce this continuously.
 
 ---
 

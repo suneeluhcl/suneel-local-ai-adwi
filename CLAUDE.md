@@ -87,7 +87,7 @@ Changes are synchronized across all 3 files: `adwi/adwi_cli.py`, `adwi/logs/sime
 | `adwi/voice.py` | STT (faster-whisper) + TTS (piper-tts) |
 | `adwi/backup.py` | Git backup orchestration |
 | `adwi/simlab/` | Bounded continuous eval & self-improvement (11 modules) |
-| `adwi/services/command-api/server.py` | Safe Command API :5055 (8 allowlisted routes for n8n/iPhone) |
+| `adwi/services/command-api/server.py` | Safe Command API :5055 (19 allowlisted routes + 1 background Popen route for E2E) |
 | `adwi/services/mcp/obsidian-bridge/` | Vault HTTP CRUD API :5056 |
 | `adwi/bin/` | 41 scripts (shell + Python helpers) |
 | `adwi/logs/simeval/` | Large-scale eval artifacts (MASTER_REPORT_v2.md, fix_backlog_v2.json, jsonl results) |
