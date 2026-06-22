@@ -63,6 +63,9 @@ adwi/notes/daily-status/
 adwi/notes/maintenance-logs/
 adwi/notes/self-heal-logs/
 adwi/notes/secrets-logs/
+adwi/notes/adwi-trace-logs/
+adwi/notes/git-backup-logs/
+adwi/notes/system-inspections/
 adwi/logs/overnight/
 
 # ── AI model files (large binaries) ─────────────────────────────────
