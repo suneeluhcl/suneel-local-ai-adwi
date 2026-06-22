@@ -187,6 +187,19 @@ def read_daily_plan(vault: Path, date: str) -> str | None:
     return body if body else None
 
 
+def clear_marker_block(text: str, marker: str) -> str:
+    """Set a marker block's body to empty string (idempotent).
+
+    If the marker is absent the text is returned unchanged.
+    Use this to semantically clear a block while keeping the tags in place,
+    so read helpers (e.g. read_daily_plan) can treat the block as absent.
+    """
+    start_tag = f"<!-- {marker}:START -->"
+    if start_tag not in text:
+        return text
+    return replace_marker_block(text, marker, "")
+
+
 def collect_daily_entries(vault: Path, start_date: str, end_date: str,
                            sections: list | None = None) -> list:
     """Scan daily notes from *start_date* to *end_date* inclusive (YYYY-MM-DD).

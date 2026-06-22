@@ -3530,6 +3530,7 @@ _extract_sections        = _ou_mod.extract_sections
 _collect_daily_entries   = _ou_mod.collect_daily_entries
 _write_daily_plan        = _ou_mod.write_daily_plan
 _read_daily_plan         = _ou_mod.read_daily_plan
+_clear_vault_marker      = _ou_mod.clear_marker_block
 del _ilu_ou, _ou_spec, _ou_mod
 # ──────────────────────────────────────────────────────────────────────────────
 
@@ -4040,14 +4041,54 @@ def cmd_obsidian_plan(args: str = "") -> None:
 
 
 def cmd_obsidian_plan_clear() -> None:
-    """Remove (blank) the ADWI:DAILY-PLAN block from today's daily note."""
+    """Blank the ADWI:DAILY-PLAN block in today's daily note.
+
+    Sets the block body to empty so read_daily_plan() returns None.
+    Manual sections and other generated blocks are untouched.
+    """
     from datetime import date as _dt
-    today_s = _dt.today().isoformat()
-    ok, msg = _write_daily_plan(OBSIDIAN_VAULT, today_s, "*Plan cleared.*")
-    if ok:
+    today_s   = _dt.today().isoformat()
+    note_path = OBSIDIAN_VAULT / "daily-notes" / f"{today_s}.md"
+    if not note_path.exists():
+        cprint(f"  {GRAY}No daily note for {today_s} — nothing to clear.{RESET}", "")
+        return
+    try:
+        text    = note_path.read_text(encoding="utf-8")
+        cleared = _clear_vault_marker(text, "ADWI:DAILY-PLAN")
+        if cleared == text:
+            cprint(f"  {GRAY}No ADWI:DAILY-PLAN block in {today_s}.md — nothing to clear.{RESET}", "")
+            return
+        note_path.write_text(cleared, encoding="utf-8")
         cprint(f"\n  {GREEN}✓ ADWI:DAILY-PLAN cleared in {today_s}.md{RESET}", "")
-    else:
-        cprint(f"\n  {RED}✗ {msg}{RESET}", "")
+    except Exception as exc:
+        cprint(f"\n  {RED}✗ {exc}{RESET}", "")
+
+
+def cmd_obsidian_status() -> None:
+    """Print a status summary for the Obsidian vault."""
+    from datetime import date as _dt
+    today_s   = _dt.today().isoformat()
+    vault     = OBSIDIAN_VAULT
+    dn_dir    = vault / "daily-notes"
+    notes     = sorted(dn_dir.glob("????-??-??.md")) if dn_dir.exists() else []
+    today_exists = (dn_dir / f"{today_s}.md").exists()
+    has_plan  = _read_daily_plan(vault, today_s) is not None
+
+    reviews_dir   = vault / "reviews"
+    latest_review = None
+    if reviews_dir.exists():
+        revs = sorted(reviews_dir.glob("????-??-??-weekly-review.md"), reverse=True)
+        if revs:
+            latest_review = revs[0].name
+
+    adwi_head("Obsidian Vault Status")
+    cprint(f"  Vault:           {vault}", "")
+    cprint(f"  Daily notes:     {len(notes)} note(s)", "")
+    cprint(f"  Today ({today_s}):", "")
+    cprint(f"    note:          {'✓ exists' if today_exists else '✗ not yet created'}", "")
+    cprint(f"    plan:          {'✓ ADWI:DAILY-PLAN present' if has_plan else '✗ none  (run /obsidian-plan)'}", "")
+    cprint(f"  Latest review:   {latest_review or '(none — run /obsidian-review-save)'}", "")
+    cprint(f"  .obsidian dir:   {'present' if (vault / '.obsidian').exists() else 'absent'}", "")
 
 
 # ── import for obsidian URL quoting ──────────────────────────────────────────
@@ -11225,6 +11266,7 @@ def handle(line: str) -> bool:
     elif line.startswith("/obsidian-plan "): cmd_obsidian_plan(line[15:].strip())
     elif line == "/obsidian-plan": cmd_obsidian_plan()
     elif line == "/obsidian-plan-clear": cmd_obsidian_plan_clear()
+    elif line == "/obsidian-status": cmd_obsidian_status()
     elif line.startswith("/run-python"): cmd_run_python(line[11:].strip())
     elif line.startswith("/run-bash "): cmd_run_bash(line[10:].strip())
     elif line in ("/github-status", "/github", "/gh-status"): cmd_github_connected()
@@ -11559,6 +11601,7 @@ You can say things like:
                                    approval → also logs to knowledge/Pending Approval.md
   /obsidian-plan [days]            Generate today's ADWI:DAILY-PLAN block from last N days
   /obsidian-plan-clear             Clear today's ADWI:DAILY-PLAN block
+  /obsidian-status                 Vault summary: notes, today's plan, latest review
   /obsidian-review [days]          Print review of last N daily notes (default 7, read-only)
   /obsidian-review-save [days]     Save review to reviews/YYYY-MM-DD-weekly-review.md
   /obsidian-promote-idea <Title> -- <desc>  Create idea note in projects/ideas/ + link in index

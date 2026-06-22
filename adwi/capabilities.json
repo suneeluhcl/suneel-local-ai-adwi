@@ -1631,6 +1631,16 @@
       "test_command": "/test-adwi"
     },
     {
+      "name": "Obsidian Status",
+      "command": "/obsidian-status",
+      "description": "Print vault summary: path, daily note count, today's note/plan status, latest review, .obsidian presence.",
+      "risk": "low",
+      "files_touched": [],
+      "uses_secrets": false,
+      "logs": "notes/adwi-action-logs",
+      "test_command": "/test-adwi"
+    },
+    {
       "name": "Obsidian Read",
       "command": "/obsidian-read",
       "description": "Adwi command /obsidian-read",

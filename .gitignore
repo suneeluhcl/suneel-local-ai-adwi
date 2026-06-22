@@ -112,8 +112,14 @@ adwi/config/.env
 # adwi/config/.env.example is intentionally tracked (safe template, no real values)
 
 # ── Obsidian vault runtime files ──
+# workspace.json / graph.json — volatile UI state (open files, window layout, graph positions)
+# app.json / appearance.json — empty defaults, not meaningful to track
+# core-plugins.json is tracked (stable plugin list useful for new machines)
 obsidian-vault/.obsidian/workspace.json
 obsidian-vault/.obsidian/workspace-mobile.json
+obsidian-vault/.obsidian/graph.json
+obsidian-vault/.obsidian/app.json
+obsidian-vault/.obsidian/appearance.json
 
 # ── Runtime logs and failure DBs ─────────────────────────────────────────────
 adwi/logs/adwi_nlu_fast.jsonl

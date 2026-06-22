@@ -61,7 +61,10 @@ Each section is deduplicated (same text at different times = one entry) and capp
 /obsidian-plan-clear
 ```
 
-Blanks the `ADWI:DAILY-PLAN` block in today's note. Only the generated plan block is cleared — all manual sections and other blocks (`ADWI:DAILY-SUMMARY`, `ADWI:DAILY-BRIEF`) are preserved.
+Blanks the `ADWI:DAILY-PLAN` block body in today's note (sets body to empty). After clearing, `/daily-brief` will no longer show a plan pointer and `read_daily_plan()` returns `None`.
+
+- Only the generated plan block is affected — manual sections and all other blocks (`ADWI:DAILY-SUMMARY`, `ADWI:DAILY-BRIEF`) are preserved.
+- If no daily note or no plan block exists today, the command is a safe no-op.
 
 ---
 

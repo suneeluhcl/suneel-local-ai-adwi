@@ -13,6 +13,7 @@ _spec = importlib.util.spec_from_file_location(
 _mod = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(_mod)
 replace_marker_block    = _mod.replace_marker_block
+clear_marker_block      = _mod.clear_marker_block
 daily_note_template     = _mod.daily_note_template
 today_note_path         = _mod.today_note_path
 append_under_heading    = _mod.append_under_heading
@@ -114,6 +115,54 @@ class TestReplaceMarkerBlock(unittest.TestCase):
         result = replace_marker_block(note, "ADWI:TEST", "")
         self.assertIn("<!-- ADWI:TEST:START -->", result)
         self.assertIn("<!-- ADWI:TEST:END -->", result)
+
+
+class TestClearMarkerBlock(unittest.TestCase):
+
+    _NOTE = (
+        "# 2026-01-01\n\n"
+        "## Manual Section\n\nsome handwritten text\n\n"
+        "<!-- ADWI:DAILY-PLAN:START -->\n"
+        "## Daily Plan\n- real plan item\n"
+        "<!-- ADWI:DAILY-PLAN:END -->\n"
+        "<!-- ADWI:DAILY-BRIEF:START -->\nbrief content\n<!-- ADWI:DAILY-BRIEF:END -->\n"
+    )
+
+    def test_clears_body_to_empty(self):
+        result = clear_marker_block(self._NOTE, "ADWI:DAILY-PLAN")
+        start = result.index("<!-- ADWI:DAILY-PLAN:START -->")
+        end   = result.index("<!-- ADWI:DAILY-PLAN:END -->")
+        body  = result[start + len("<!-- ADWI:DAILY-PLAN:START -->"):end].strip()
+        self.assertEqual(body, "")
+
+    def test_preserves_manual_content(self):
+        result = clear_marker_block(self._NOTE, "ADWI:DAILY-PLAN")
+        self.assertIn("some handwritten text", result)
+
+    def test_preserves_other_marker_blocks(self):
+        result = clear_marker_block(self._NOTE, "ADWI:DAILY-PLAN")
+        self.assertIn("<!-- ADWI:DAILY-BRIEF:START -->", result)
+        self.assertIn("brief content", result)
+
+    def test_idempotent_if_marker_absent(self):
+        text = "# 2026-01-01\n\n## Notes\n\nno plan here\n"
+        result = clear_marker_block(text, "ADWI:DAILY-PLAN")
+        self.assertEqual(result, text)
+
+    def test_read_daily_plan_returns_none_after_clear(self):
+        import tempfile, shutil
+        tmp   = tempfile.mkdtemp()
+        vault = Path(tmp) / "vault"
+        (vault / "daily-notes").mkdir(parents=True)
+        try:
+            write_daily_plan(vault, "2026-01-01", "plan body")
+            self.assertIsNotNone(read_daily_plan(vault, "2026-01-01"))
+            note_path = vault / "daily-notes" / "2026-01-01.md"
+            text = note_path.read_text(encoding="utf-8")
+            note_path.write_text(clear_marker_block(text, "ADWI:DAILY-PLAN"), encoding="utf-8")
+            self.assertIsNone(read_daily_plan(vault, "2026-01-01"))
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
 
 
 class TestDailyNoteTemplate(unittest.TestCase):
@@ -379,6 +428,20 @@ class TestExtractSections(unittest.TestCase):
     def test_count_of_focus_entries(self):
         result = extract_sections(self._NOTE)
         self.assertEqual(len(result["## Current Focus"]), 2)
+
+    def test_plan_block_content_excluded(self):
+        """Generated ADWI:DAILY-PLAN content must not appear in section extracts."""
+        note = (
+            "# 2026-01-15\n\n"
+            "## Current Focus\n\n"
+            "- 09:00 — real task\n\n"
+            "<!-- ADWI:DAILY-PLAN:START -->\n"
+            "## Daily Plan\n- plan-only entry\n"
+            "<!-- ADWI:DAILY-PLAN:END -->\n"
+        )
+        result = extract_sections(note)
+        all_entries = [e for entries in result.values() for e in entries]
+        self.assertNotIn("- plan-only entry", all_entries)
 
 
 class TestCollectDailyEntries(unittest.TestCase):

@@ -95,6 +95,23 @@ print('done')
 
 ---
 
+## `.obsidian/` Vault Config
+
+Obsidian stores its internal config in `obsidian-vault/.obsidian/`. Most of these files are local UI state and are **gitignored**:
+
+| File | Status | Reason |
+|------|--------|--------|
+| `workspace.json` | gitignored | volatile — open tabs, window layout |
+| `workspace-mobile.json` | gitignored | volatile — mobile layout |
+| `graph.json` | gitignored | volatile — graph filter positions |
+| `app.json` | gitignored | empty default, not meaningful |
+| `appearance.json` | gitignored | empty default |
+| `core-plugins.json` | **tracked** | stable — list of enabled built-in plugins |
+
+If you add a community plugin, its config appears in `.obsidian/plugins/` — those are also gitignored by the pattern above.
+
+---
+
 ## Related Notes
 
 - [[Adwi Home]]
