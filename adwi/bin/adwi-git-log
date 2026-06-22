@@ -1,0 +1,13 @@
+#!/bin/bash
+# adwi-git-log — show recent commits in the workspace.
+# Read-only. Safe for Telegram bridge / Safe Command API.
+set -euo pipefail
+
+WORKSPACE="$HOME/SuneelWorkSpace"
+cd "$WORKSPACE"
+
+echo "Recent Commits — $(date '+%Y-%m-%d %H:%M')"
+echo "Branch: $(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo '?')"
+echo ""
+
+git log --oneline -15 2>/dev/null || echo "(no commits)"

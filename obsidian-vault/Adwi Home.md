@@ -28,7 +28,7 @@ updated: 2026-06-21
 | Adwi AI OS | 🟢 Active | [[projects/Adwi]] |
 | NLU Reliability | 🟢 98.3% combined | [[knowledge/Eval and Reliability Map]] |
 | Obsidian as thinking layer | 🟡 In progress | this file |
-| Telegram Bridge | ✅ Live | `adwi/services/telegram-bridge/bot.py` |
+| Telegram Bridge | ✅ Wave 4 (41 cmds) | [[knowledge/Telegram Control Plane]] |
 | CommandRegistry migration | ✅ Phases 7–23 complete | [[knowledge/Automation Map]] |
 
 ---

@@ -67,6 +67,11 @@ ALLOWED_COMMANDS = {
     "/adwi-e2e-auto-loop-report": [VENV_PY, E2E_STATUS_READER, "--report"],
     "/adwi-e2e-auto-loop-cancel": [VENV_PY, E2E_STATUS_READER, "--cancel"],
     # Note: /adwi-e2e-auto-loop-start is handled separately via Popen (see _handle_e2e_start)
+    # ── Extended Telegram routes (Wave 4) ────────────────────────────────────
+    "/adwi-services":          [os.path.join(BIN, "adwi-services")],
+    "/adwi-obsidian-status":   [VENV_PY, ADWI_CLI, "/obsidian-status"],
+    "/adwi-git-diff":          [os.path.join(BIN, "adwi-git-diff")],
+    "/adwi-git-log":           [os.path.join(BIN, "adwi-git-log")],
 }
 
 class Handler(BaseHTTPRequestHandler):

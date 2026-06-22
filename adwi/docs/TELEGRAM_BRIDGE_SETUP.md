@@ -11,7 +11,7 @@ Long-polls the Telegram Bot API from this Mac (outbound HTTPS only — no inboun
 no public endpoint). When you send a command from your Telegram account, it routes
 through the Safe Command API at `localhost:5055` and replies with the result.
 
-v1 command surface: `/help` `/status` `/doctor` `/brief` `/daily-brief` `/git-status` `/models` `/watcher-status` `/e2e-status`
+**Wave 4 (2026-06-22) — 41 commands total.** Full reference: `obsidian-vault/knowledge/Telegram Control Plane.md`
 
 Everything else is rejected. Only your configured Telegram user ID can issue commands.
 
@@ -249,21 +249,30 @@ rm ~/Library/LaunchAgents/com.suneel.telegram-bridge.plist
 
 ---
 
-## v1 limits
+## Limits
 
 - Single allowed user (one `TELEGRAM_ALLOWED_USER_ID`).
-- Read-only commands only — no Gmail, no file writes, no patching, no shell.
-- `/e2e-status` shows whether the E2E auto-loop is running or idle and the last result. Start (`/adwi-e2e-auto-loop-start`) and cancel (`/adwi-e2e-auto-loop-cancel`) are intentionally excluded from Telegram.
-- `/daily-brief` formats the n8n JSON response into readable plain text (services, Gmail, brief). Falls back to raw text if parsing fails.
-- No message history — each command is stateless.
-- Commands may take up to 120 s (bridge timeout); `/doctor` can be slow if Ollama is busy.
+- No Gmail, no file writes, no patching, no direct shell.
+- `/e2e-status` is read-only; start/cancel not exposed from Telegram.
+- `/daily-brief` formats the n8n JSON response into readable plain text. Falls back to raw text if parsing fails.
+- Background jobs have a 5-minute timeout per job.
+- Confirmation tokens (repair, backup) expire after 5 minutes and are single-use.
+- Commands via Safe API may take up to 120 s; `/doctor` can be slow if Ollama is busy.
 
 ---
 
 ## Adding a command in the future
 
-1. Confirm the command already exists in `ALLOWED_COMMANDS` in `adwi/services/command-api/server.py`.
-2. Add one line to `TELEGRAM_COMMANDS` dict in `adwi/services/telegram-bridge/bot.py`.
-3. Add a test case to `adwi/tests/test_telegram_bridge.py`.
-4. Run `python3 -m unittest adwi/tests/test_telegram_bridge.py` — must be 0 failures.
-5. Reload the LaunchAgent: `launchctl unload …` then `launchctl load …`.
+**Safe API route (synchronous):**
+1. Add route to `ALLOWED_COMMANDS` in `adwi/services/command-api/server.py`.
+2. Add entry to `TELEGRAM_COMMANDS` in `bot.py` with the route as value.
+3. Add test to `test_telegram_bridge.py` and `test_telegram_upgrade.py`.
+4. Run `python3 -m unittest adwi.tests.test_telegram_bridge adwi.tests.test_remote_control_surface adwi.tests.test_telegram_upgrade` — 0 failures.
+5. Reload LaunchAgent.
+
+**Local/background command (no Safe API):**
+1. Add entry to `TELEGRAM_COMMANDS` with `None` as value.
+2. Add handler branch in `_handle_local_cmd()` in `bot.py`.
+3. For background jobs: call `_JOB_RUNNER.submit(name, argv)`.
+4. For mutations: use `_make_token()` / `_consume_token()` gate.
+5. Add tests to `test_telegram_upgrade.py`.

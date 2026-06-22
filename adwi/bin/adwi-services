@@ -1,0 +1,71 @@
+#!/usr/bin/env python3
+"""
+adwi-services — Probe Adwi service ports and report up/down.
+
+Reads from adwi/config/infra_ports.json if available; falls back to a
+hardcoded default list. All checks use TCP connect (no HTTP content).
+Safe for Telegram bridge / Safe Command API — no shell, no user input.
+"""
+import json
+import socket
+import sys
+from datetime import datetime
+from pathlib import Path
+
+WORKSPACE  = Path.home() / "SuneelWorkSpace"
+PORTS_FILE = WORKSPACE / "adwi" / "config" / "infra_ports.json"
+PROBE_TIMEOUT = 0.8  # seconds per port
+
+DEFAULT_SERVICES = [
+    ("Ollama",          11434),
+    ("Safe API",         5055),
+    ("Obsidian Bridge",  5056),
+    ("Open WebUI",       3000),
+    ("n8n",              5678),
+    ("SearXNG",          8888),
+    ("Qdrant",           6333),
+    ("Grafana",          4000),
+    ("Prometheus",       9090),
+    ("Loki",             3100),
+]
+
+
+def _probe(port: int) -> bool:
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.settimeout(PROBE_TIMEOUT)
+        result = s.connect_ex(("127.0.0.1", port))
+        s.close()
+        return result == 0
+    except Exception:
+        return False
+
+
+def main() -> int:
+    # Load port registry if available
+    services = DEFAULT_SERVICES
+    if PORTS_FILE.exists():
+        try:
+            registry = json.loads(PORTS_FILE.read_text())
+            if isinstance(registry, list):
+                services = [(e.get("name", "?"), int(e["port"])) for e in registry if "port" in e]
+        except Exception:
+            pass  # fall back to defaults
+
+    ts   = datetime.now().strftime("%Y-%m-%d %H:%M")
+    up   = [(name, port) for name, port in services if _probe(port)]
+    down = [(name, port) for name, port in services if not _probe(port)]
+
+    print(f"Service Health — {ts}")
+    print(f"  {len(up)}/{len(services)} services up")
+    print()
+    for name, port in services:
+        alive = _probe(port)
+        mark  = "✓" if alive else "✗"
+        print(f"  {mark} {name:<20} :{port}")
+
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

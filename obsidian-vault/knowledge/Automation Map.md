@@ -55,15 +55,31 @@ LaunchAgent fires → adwi/nightly.py
     Step 10: Write morning_brief.md
 ```
 
-## Flow D — Telegram Bridge
+## Flow D — Telegram Bridge (Wave 4, 41 commands)
 
 ```
 /cmd on Telegram
-    → sender allowlist check (TELEGRAM_ALLOWED_USER_ID)
-    → command allowlist check (9 commands)
-    → POST http://127.0.0.1:5055/<route> + X-Adwi-Secret
-    → Safe Command API executes allowlisted binary/script
-    → response truncated to 4000 chars → Telegram reply
+    → sender allowlist (TELEGRAM_ALLOWED_USER_ID)
+    → command allowlist (TELEGRAM_COMMANDS — 41 entries)
+    ├── route = None (locally handled):
+    │     /help /menu /ping → static reply
+    │     /test_* /obsidian_* /memory_scan → job_runner.submit()
+    │     /capture /idea /plan → _run_quick(adwi_cli.py …)
+    │     /repair_plan → plan text + _make_token("repair")
+    │     /repair_ok <token> → _consume_token() → job_runner.submit(adwi-self-heal)
+    │     /git_backup → plan + _make_token("git_backup")
+    │     /backup_ok <token> → _consume_token() → job_runner.submit(adwi-git-backup)
+    │     /jobs /job /cancel → job_runner.status() / list_recent() / cancel()
+    └── route = "/adwi-*" (Safe Command API):
+          POST http://127.0.0.1:5055/<route> + X-Adwi-Secret
+          → subprocess.run() → stdout/stderr
+          → _redact() → _strip_ansi() → truncate 4000 chars → Telegram reply
+
+Background job lifecycle:
+    job_runner.submit(name, argv)
+        → threading.Thread → subprocess.Popen → log file
+        → state written to adwi/logs/telegram-jobs/jobs.json
+        → job status: queued → running → succeeded / failed / cancelled
 ```
 
 ## Flow E — n8n / Safe Command API

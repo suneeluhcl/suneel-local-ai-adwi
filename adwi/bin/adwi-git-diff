@@ -1,0 +1,21 @@
+#!/bin/bash
+# adwi-git-diff — show git diff stat for the workspace.
+# Read-only. Safe for Telegram bridge / Safe Command API.
+set -euo pipefail
+
+WORKSPACE="$HOME/SuneelWorkSpace"
+cd "$WORKSPACE"
+
+echo "Git Diff — $(date '+%Y-%m-%d %H:%M')"
+echo ""
+
+echo "Unstaged changes:"
+git diff --stat HEAD 2>/dev/null | head -30 || echo "  (none)"
+echo ""
+
+echo "Staged (cached):"
+git diff --cached --stat 2>/dev/null | head -20 || echo "  (nothing staged)"
+echo ""
+
+echo "Branch: $(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo '?')"
+echo "Head:   $(git log --oneline -1 2>/dev/null || echo '?')"
