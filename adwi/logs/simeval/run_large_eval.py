@@ -2442,6 +2442,7 @@ def build_corpus() -> list[dict]:
         "show all commands","what can adwi handle","your commands please",
         "show capabilities","what is adwi able to do","adwi features",
         "what can you do","show adwi help","adwi feature list",
+        "what else can adwi do",
     ]:
         add(p, "meta", "capabilities", "easy", fam=F)
 
@@ -2656,7 +2657,7 @@ def build_corpus() -> list[dict]:
         "can you help me manage my data","update adwi",
         "make adwi smarter","sync everything","remember this for me",
         "show me everything","what can i manage",
-        "how do I make the most of adwi","what else can adwi do",
+        "how do I make the most of adwi",
         "can you do more than just status checks",
     ]
     for p in chat_prompts:
