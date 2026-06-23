@@ -187,8 +187,8 @@ echo "" | tee -a "\$LOG_FILE"
 # Spawn background jobs that inject the kickoff after Claude TUI has initialised.
 # The exec below replaces this bash process with the 'script | claude' chain,
 # so the terminal input flows into Claude — the screen-stuff lands in Claude's REPL.
-(sleep 10 && screen -S "\$SESSION" -p 0 -X stuff "\${KICKOFF_CLAUDE}\$(printf '\\\r')") &
-(sleep 14 && screen -S "\$SESSION" -p 0 -X stuff "\$(printf '\\\r')") &
+(sleep 10 && screen -S "\$SESSION" -p 0 -X stuff "\${KICKOFF_CLAUDE}"$'\r') &
+(sleep 14 && screen -S "\$SESSION" -p 0 -X stuff $'\r') &
 
 exec script -q -a -F "\$LOG_FILE" claude --dangerously-skip-permissions
 WRAPPER
