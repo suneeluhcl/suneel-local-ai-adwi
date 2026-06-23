@@ -708,7 +708,10 @@ _REGEX_INTENTS = [
     (re.compile(r"\bclean\s*up\b.{0,40}(my\s+)?(downloads?|desktop|cache|temp|trash|junk)\b", re.I), "cleanup"),
     (re.compile(r"\bremove\b.{0,20}\b(unneeded|unnecessary|useless|unwanted|redundant)\b", re.I), "cleanup"),
     (re.compile(r"\b(suggest|find|show)\b.{0,20}\bthings?\b.{0,25}\b(i\s+(can|could|should)\s+)?(remove|delete|trash|get\s+rid\s+of)\b", re.I), "cleanup"),
-    # rag_search beats obsidian_search for notes+summarize and "my notes" (with typo tolerance)
+    # FIX-OBS-004: obsidian_search wins for topic-qualified "search my notes about/on/for X"
+    # Must precede the broad rag_search "search my notes" pattern below
+    (re.compile(r"\bsea?r?a?ch\s+my\s+notes?\b.{0,5}(?:about|on|regarding|for)\b", re.I), "obsidian_search"),
+    # rag_search beats obsidian_search for notes+summarize and bare "my notes" (with typo tolerance)
     (re.compile(r"\bsea?r?a?ch\s+(?:my\s+)?notes?\b.{0,40}(?:then|and)\s+summariz", re.I), "rag_search"),
     (re.compile(r"\bsea?r?a?ch\s+my\s+notes?\b", re.I), "rag_search"),
     # FIX-NOTES-001: "find/search notes about X" → obsidian_search BEFORE rag_search swallows it
@@ -889,7 +892,8 @@ _REGEX_INTENTS = [
     (re.compile(r"\bresearch\b.{0,20}\b(latest|recent|current|new)\b.{0,30}\b(changes?|updates?|protocol|spec|release|version)", re.I), "research"),
     (re.compile(r"\bresearch\b.{0,10}\b(MCP|LLM|AI|ML|API|protocol|framework)\b", re.I), "research"),
     (re.compile(r"\b(deep.?dive|deep.?research|research.?brief|cited\s+report|research\s+report)\b", re.I), "research"),
-    (re.compile(r"\b(research|investigate|look\s+into).{0,15}\bfor\s+me\b", re.I), "research"),
+    # FIX-RES-001: expand window {0,15}→{0,25} — "investigate this topic deeply for me" has 19 chars between verb and "for me"
+    (re.compile(r"\b(research|investigate|look\s+into).{0,25}\bfor\s+me\b", re.I), "research"),
     (re.compile(r"\b(write|produce|generate)\b.{0,20}\b(research|cited|sourced)\s+(brief|report|summary)\b", re.I), "research"),
     (re.compile(r"\bsave\b.{0,20}\bresearch\b.{0,30}\b(about|on|into)\b", re.I), "research"),
     # ── Browse — URL/domain visit patterns BEFORE web_search ─────────────────────
@@ -1488,7 +1492,8 @@ _REGEX_INTENTS = [
     (re.compile(r"\b(tech.?radar|technology.?radar)\b", re.I), "tech_radar"),
     (re.compile(r"\bscan\b.{0,20}\b(new|latest|trending).{0,20}\b(ai.?tools?|tech.?tools?|frameworks?|models?)\b", re.I), "tech_radar"),
     # FIX-TR-001: bare "what's trending in tech/AI/ML" — no action suffix needed for these common phrasings
-    (re.compile(r"\bwhat'?s\b.{0,20}\b(new|trending|interesting)\b.{0,20}\b(tech|ai|llm|ml|tools?)\b", re.I), "tech_radar"),
+    # FIX-TR-002: "what is trending" (space form) + "what is new in AI"
+    (re.compile(r"\bwhat(?:'?s|\s+is)\b.{0,20}\b(new|trending|interesting)\b.{0,20}\b(tech|ai|llm|ml|tools?)\b", re.I), "tech_radar"),
     (re.compile(r"\b(what.{0,20}(new|interesting|trending).{0,20}(tech|ai.?tools?|frameworks?|models?))\b.{0,30}\b(try|watch|ignore|adopt|for\s+me|my\s+setup)\b", re.I), "tech_radar"),
     # ── Memory curate (propose + confirm durable memories, BEFORE memory_scan) ───
     (re.compile(r"\bmemory.{0,2}curat\w+\b", re.I), "memory_curate"),

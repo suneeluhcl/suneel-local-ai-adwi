@@ -2551,5 +2551,49 @@ class TestDailyImproveContinuationPhrases(unittest.TestCase):
         self.assertEqual(self._match("continue the self improvement experiment"), "daily_improve")
 
 
+class TestFIXOBS004SearchMyNotesAboutTopic(unittest.TestCase):
+    """FIX-OBS-004: topic-qualified 'search my notes about X' → obsidian_search, not rag_search."""
+
+    def test_search_my_notes_about_research(self):
+        self.assertEqual(_classify("search my notes about research"), "obsidian_search")
+
+    def test_search_my_notes_about_python(self):
+        self.assertEqual(_classify("search my notes about python async"), "obsidian_search")
+
+    def test_search_my_notes_on_project_planning(self):
+        self.assertEqual(_classify("search my notes on project planning"), "obsidian_search")
+
+    def test_bare_search_my_notes_still_rag(self):
+        # bare "search my notes" (no topic) stays rag_search
+        self.assertEqual(_classify("search my notes"), "rag_search")
+
+    def test_search_my_notes_then_summarize_still_rag(self):
+        self.assertEqual(_classify("search my notes then summarize the results"), "rag_search")
+
+
+class TestFIXRES001ResearchWindowExpansion(unittest.TestCase):
+    """FIX-RES-001: research/investigate/look-into window {0,15}→{0,25} for longer phrases."""
+
+    def test_investigate_this_topic_deeply_for_me(self):
+        # 19 chars between "investigate" and "for me" — previously fell through
+        self.assertEqual(_classify("investigate this topic deeply for me"), "research")
+
+    def test_look_into_this_complex_issue_for_me(self):
+        self.assertEqual(_classify("look into this complex issue for me"), "research")
+
+
+class TestFIXTR002TechRadarWhatIs(unittest.TestCase):
+    """FIX-TR-002: tech_radar matches 'what is trending/new in tech' (space form)."""
+
+    def test_what_is_trending_in_tech_this_week(self):
+        self.assertEqual(_classify("what is trending in tech this week"), "tech_radar")
+
+    def test_what_is_new_in_ai_tools(self):
+        self.assertEqual(_classify("what is new in AI tools"), "tech_radar")
+
+    def test_whats_trending_still_works(self):
+        self.assertEqual(_classify("what's trending in ML"), "tech_radar")
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
