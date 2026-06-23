@@ -3237,5 +3237,30 @@ class TestFIXFL002ShowAllFilesType(unittest.TestCase):
         self.assertEqual(_classify("show me what files are available"), "file_list")
 
 
+class TestFIXFE003DebugTroubleshoot(unittest.TestCase):
+    """FIX-FE-003: 'debug/troubleshoot/diagnose this error/bug/issue' → fix_error."""
+
+    def test_debug_this_error(self):
+        self.assertEqual(_classify("debug this error"), "fix_error")
+
+    def test_troubleshoot_this_issue(self):
+        self.assertEqual(_classify("troubleshoot this issue"), "fix_error")
+
+    def test_diagnose_the_problem(self):
+        self.assertEqual(_classify("diagnose the problem"), "fix_error")
+
+    def test_troubleshoot_this_bug(self):
+        self.assertEqual(_classify("troubleshoot this bug"), "fix_error")
+
+    def test_debug_this_crash(self):
+        self.assertEqual(_classify("debug this crash"), "fix_error")
+
+    def test_debug_this_code(self):
+        self.assertEqual(_classify("debug this code"), "fix_error")
+
+    def test_troubleshoot_my_code(self):
+        self.assertEqual(_classify("troubleshoot my code"), "fix_error")
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

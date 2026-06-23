@@ -1123,6 +1123,9 @@ _REGEX_INTENTS = [
     (re.compile(r"\bgetting\s+(a\s+)?\d{3}\b", re.I), "fix_error"),
     (re.compile(r"\b(fix|help.{0,5}fix)\s+this\s+(error|exception|bug)\b", re.I), "fix_error"),
     (re.compile(r"\[Errno\s+\d+\]", re.I), "fix_error"),
+    # FIX-FE-003: "debug/troubleshoot/diagnose this error/bug/issue/crash" → fix_error
+    (re.compile(r"\b(?:debug|troubleshoot|diagnose)\b.{0,25}\b(?:this|the|my|that)\b.{0,20}\b(?:error|exception|bug|issue|problem|crash|failure)\b", re.I), "fix_error"),
+    (re.compile(r"\b(?:debug|troubleshoot)\s+(?:this|that|my|the)\s+code\b", re.I), "fix_error"),
     # CYCLE-3: pasted network/HTTP client errors (httpx, aiohttp, requests, urllib)
     (re.compile(r"\bhttpx\.(ConnectError|HTTPStatusError|TimeoutException|ReadTimeout|ConnectTimeout|RemoteProtocolError)\b", re.I), "fix_error"),
     (re.compile(r"\baiohttp\.(ClientConnectorError|ClientResponseError|ClientTimeout|ServerTimeoutError|ClientError)\b", re.I), "fix_error"),
