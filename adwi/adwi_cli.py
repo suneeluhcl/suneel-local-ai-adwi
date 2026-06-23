@@ -687,6 +687,9 @@ _REGEX_INTENTS = [
     # ── Old files ────────────────────────────────────────────────────────────────
     (re.compile(r"(old|haven.t (used|opened|touched)|stale|unused|not (used|opened|accessed)).{0,30}(file|folder|doc)", re.I), "old_files"),
     (re.compile(r"files?.{0,20}(not|never).{0,20}(used|opened).{0,20}(year|month|day)", re.I), "old_files"),
+    # FIX-OF-002: "files older than a month", "older than 30 days" → old_files
+    (re.compile(r"\bfiles?\b.{0,20}\bolder\s+than\b", re.I), "old_files"),
+    (re.compile(r"\bolder\s+than\b.{0,30}\b(?:days?|weeks?|months?|years?)\b.{0,20}\bfiles?\b", re.I), "old_files"),
     # File-first ordering: "files I haven't opened/used in a year"
     (re.compile(r"\bfiles?\b.{0,30}(haven.t|not).{0,5}(opened|used|accessed|touched)\b", re.I), "old_files"),
     # FIX-OLD-001: archaic/abandoned/leftover synonyms
@@ -1624,6 +1627,8 @@ _REGEX_INTENTS = [
     (re.compile(r"\bwhat\b.{0,10}\bi\b.{0,10}\b(?:said|say|mentioned|mention|noted|note|wrote|recorded)\b.{0,10}\babout\b", re.I), "memory_recall"),
     (re.compile(r"(what do you (remember|know|recall)|do you remember|tell me what you know).{0,40}(about|regarding)\b", re.I), "memory_recall"),
     (re.compile(r"(remember|recall|what do you know about|memory).{0,30}\?", re.I), "memory_recall"),
+    # FIX-MR-002: "what do you have in memory" → memory_recall (have-in-memory form)
+    (re.compile(r"\bwhat\b.{0,10}\bdo\s+you\b.{0,15}\bhave\b.{0,20}\bin\s+(?:your\s+)?memory\b", re.I), "memory_recall"),
     (re.compile(r"memory (stats|status|ledger|database|db)\b", re.I), "memory_stats"),
     # NHR-009: additional synonyms — "memory statistics/metrics/entries"
     (re.compile(r"memory\s+(statistics|metrics|size|count|entries|records)\b", re.I), "memory_stats"),
@@ -1631,6 +1636,10 @@ _REGEX_INTENTS = [
     (re.compile(r"\bhow\s+many\b.{0,20}\b(things?|entries?|items?|records?)\b.{0,20}\bin\s+(your\s+|adwi.s\s+)?memory\b", re.I), "memory_stats"),
     (re.compile(r"\b(entries?|items?|records?)\s+in\s+(your\s+|my\s+|adwi.s\s+)?memory\b", re.I), "memory_stats"),
     (re.compile(r"\bmemry\s+(stats?|status|count|size)\b", re.I), "memory_stats"),
+    # FIX-MS-002: "memory usage stats/statistics/metrics" → memory_stats ("usage" separates memory+stats)
+    (re.compile(r"\bmemory\b.{0,20}\busage\b.{0,15}\b(?:stats?|statistics|metrics|data|info)\b", re.I), "memory_stats"),
+    # FIX-MSCAN-002: "list/show my memories" → memory_scan
+    (re.compile(r"\b(?:list|show|display)\b.{0,15}\bmy\s+(?:memories|memory\s+entries)\b", re.I), "memory_scan"),
     # CYCLE-3: "what context do you have about me/my system" → memory_recall (not memory_context)
     # Must precede memory_context's broad "what context" pattern
     (re.compile(r"\bwhat\s+context\b.{0,30}\b(?:do\s+you\s+have|have\s+you\s+stored|you\s+(?:have|know))\b.{0,30}\b(?:about|on|regarding)\b.{0,30}\b(?:me|my|I|adwi|the\s+project|us)\b", re.I), "memory_recall"),

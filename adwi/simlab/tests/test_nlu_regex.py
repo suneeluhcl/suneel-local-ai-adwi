@@ -3316,5 +3316,60 @@ class TestFIXNR003RunMaintenance(unittest.TestCase):
         self.assertEqual(_classify("start maintenance"), "nightly_run")
 
 
+class TestFIXOF002FilesOlderThan(unittest.TestCase):
+    """FIX-OF-002: 'files older than X', 'older than N days files' → old_files."""
+
+    def test_files_older_than_a_month(self):
+        self.assertEqual(_classify("files older than a month"), "old_files")
+
+    def test_files_older_than_a_year(self):
+        self.assertEqual(_classify("files older than a year"), "old_files")
+
+    def test_older_than_30_days_files(self):
+        self.assertEqual(_classify("older than 30 days files"), "old_files")
+
+    def test_files_older_than_90_days(self):
+        self.assertEqual(_classify("files older than 90 days"), "old_files")
+
+
+class TestFIXMR002WhatDoYouHaveInMemory(unittest.TestCase):
+    """FIX-MR-002: 'what do you have in memory' → memory_recall."""
+
+    def test_what_do_you_have_in_memory(self):
+        self.assertEqual(_classify("what do you have in memory"), "memory_recall")
+
+    def test_what_do_you_have_in_your_memory(self):
+        self.assertEqual(_classify("what do you have in your memory"), "memory_recall")
+
+
+class TestFIXMS002MemoryUsageStats(unittest.TestCase):
+    """FIX-MS-002: 'memory usage stats/statistics/metrics' → memory_stats."""
+
+    def test_memory_usage_stats(self):
+        self.assertEqual(_classify("memory usage stats"), "memory_stats")
+
+    def test_memory_usage_statistics(self):
+        self.assertEqual(_classify("memory usage statistics"), "memory_stats")
+
+    def test_memory_usage_metrics(self):
+        self.assertEqual(_classify("memory usage metrics"), "memory_stats")
+
+    def test_memory_usage_info(self):
+        self.assertEqual(_classify("memory usage info"), "memory_stats")
+
+
+class TestFIXMSCAN002ListMyMemories(unittest.TestCase):
+    """FIX-MSCAN-002: 'list/show my memories' → memory_scan."""
+
+    def test_list_my_memories(self):
+        self.assertEqual(_classify("list my memories"), "memory_scan")
+
+    def test_show_my_memories(self):
+        self.assertEqual(_classify("show my memories"), "memory_scan")
+
+    def test_display_my_memories(self):
+        self.assertEqual(_classify("display my memories"), "memory_scan")
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
