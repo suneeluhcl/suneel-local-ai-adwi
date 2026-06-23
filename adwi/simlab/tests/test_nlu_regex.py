@@ -2192,5 +2192,43 @@ class TestComparisonQuestionsChat(unittest.TestCase):
         self.assertEqual(_classify("what is the difference between llama2 and llama3"), "chat")
 
 
+class TestComparisonQuestionsChatExtra(unittest.TestCase):
+    """FIX-CHAT-005: what's-the-difference contraction + compare-for-my pattern."""
+
+    def test_whats_difference_between_merge_rebase(self):
+        self.assertEqual(_classify("what's the difference between merge and rebase"), "chat")
+
+    def test_compare_qwen_llama_for_my_use_case(self):
+        self.assertEqual(_classify("compare qwen and llama for my use case"), "chat")
+
+    def test_compare_models_for_my_workflow(self):
+        self.assertEqual(_classify("compare these models for my workflow"), "chat")
+
+
+class TestChatContinuations2(unittest.TestCase):
+    """FIX-CHAT-005: additional bare conversational continuation anchors."""
+
+    def test_go_on(self):
+        self.assertEqual(_classify("go on"), "chat")
+
+    def test_go_on_with_period(self):
+        self.assertEqual(_classify("go on."), "chat")
+
+    def test_what_else_bare(self):
+        self.assertEqual(_classify("what else"), "chat")
+
+    def test_why_is_that(self):
+        self.assertEqual(_classify("why is that?"), "chat")
+
+    def test_give_me_an_example(self):
+        self.assertEqual(_classify("give me an example"), "chat")
+
+    def test_hmm_tell_me_more(self):
+        self.assertEqual(_classify("hmm, tell me more"), "chat")
+
+    def test_what_else_can_you_do_still_capabilities(self):
+        self.assertEqual(_classify("what else can you do?"), "capabilities")
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
