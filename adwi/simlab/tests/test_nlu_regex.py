@@ -3436,5 +3436,65 @@ class TestFIXGHC002GithubConnectedExtra(unittest.TestCase):
         self.assertEqual(_classify("is github working"), "github_connected")
 
 
+class TestEvalAdwiCoverage(unittest.TestCase):
+    """Additional coverage for eval_adwi patterns."""
+
+    def test_run_eval_adwi(self):
+        self.assertEqual(_classify("run eval adwi"), "eval_adwi")
+
+    def test_evaluate_adwi(self):
+        self.assertEqual(_classify("evaluate adwi"), "eval_adwi")
+
+    def test_bare_eval(self):
+        self.assertEqual(_classify("eval"), "eval_adwi")
+
+    def test_generate_eval_scenarios(self):
+        self.assertEqual(_classify("generate eval scenarios for adwi"), "eval_adwi")
+
+    def test_start_adwi_eval(self):
+        self.assertEqual(_classify("start adwi eval"), "eval_adwi")
+
+
+class TestTestAdwiCoverage(unittest.TestCase):
+    """Additional coverage for test_adwi patterns."""
+
+    def test_test_adwi(self):
+        self.assertEqual(_classify("test adwi"), "test_adwi")
+
+    def test_run_adwi_tests(self):
+        self.assertEqual(_classify("run adwi tests"), "test_adwi")
+
+    def test_adwi_test_suite(self):
+        self.assertEqual(_classify("adwi test suite"), "test_adwi")
+
+    def test_run_unit_tests(self):
+        self.assertEqual(_classify("run unit tests"), "test_adwi")
+
+    def test_adwi_run_tests(self):
+        self.assertEqual(_classify("adwi run my tests"), "test_adwi")
+
+    def test_test_the_system(self):
+        self.assertEqual(_classify("test the system"), "test_adwi")
+
+
+class TestNightlyStatusCoverage(unittest.TestCase):
+    """Additional coverage for nightly_status patterns."""
+
+    def test_nightly_status(self):
+        self.assertEqual(_classify("nightly status"), "nightly_status")
+
+    def test_what_ran_last(self):
+        self.assertEqual(_classify("what last ran nightly"), "nightly_status")
+
+    def test_show_nightly_log(self):
+        self.assertEqual(_classify("show nightly log"), "nightly_status")
+
+    def test_last_nightly_run(self):
+        self.assertEqual(_classify("last nightly run"), "nightly_status")
+
+    def test_nightly_report(self):
+        self.assertEqual(_classify("show nightly report"), "nightly_status")
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
