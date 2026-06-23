@@ -13,3 +13,4 @@ fb2901c	493	493	25	25	17	17	keep	FIX-GTI-001: guard broad action-items pattern �
 a21e9c6	499	499	25	25	17	17	keep	add regression tests for FIX-GTI-001 and FIX-STATUS-003 (499 total NLU tests)
 6cbc076	506	506	25	25	17	17	keep	FIX-META-001/WEB-003/PLAN-001: capabilities typo 'cpaabilities', tavily web_search, learn_from_error regex; export_training security guard documented
 e48af95	512	512	25	25	17	17	keep	FIX-OBS-003/META-002/CHAT-002: bare notes→obsidian_search, what else can adwi do→capabilities, remember this for me→chat
+dd6dc1e	515	515	25	25	17	17	keep	FIX-BENCH-002: benchmark patterns for 'test speed of adwi', 'perf test ollama'
