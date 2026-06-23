@@ -23,3 +23,4 @@ ae504c6	545	545	25	25	17	17	keep	FIX-CHAT-005: what's-difference, compare-for-my
 bc0b245	554	554	25	25	17	17	keep	FIX-EVAL-LABEL-001: relabel 'what else can adwi do' chat→capabilities in P1 harness
 c6bd063	573	573	25	25	17	17	keep	CYCLE-7 test coverage (19 tests) + FIX-TR-001 tech_radar bare trending pattern (573 total)
 8c1120e	591	591	25	25	17	17	keep	Coverage for 7 uncovered intents: cleanup/duplicates/daily_improve/what_next/youtube/memory_scan/memory_stats (591 total)
+3df3d6a	612	612	25	25	17	17	keep	All remaining 10 zero-coverage intents now have tests (612 total — full coverage)
