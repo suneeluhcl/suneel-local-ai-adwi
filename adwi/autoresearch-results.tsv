@@ -46,3 +46,4 @@ eb5669c	801	801	25	25	17	17	keep	FIX-FE-003: debug/troubleshoot/diagnose this-er
 e4e4b71	815	815	25	25	17	17	keep	FIX-RES-002/BU-002/NR-003: investigate-this research, push-to-github backup_now, run-maintenance nightly_run (815 tests)
 fa3e2dd	815	815	25	25	17	17	keep	FIX-RES-002/BU-002/NR-003: investigate-this research, push-to-github backup_now, run-maintenance nightly_run (815 tests)
 bb2dc8d	828	828	25	25	17	17	keep	FIX-OF-002/MR-002/MS-002/MSCAN-002: files-older-than old_files, what-in-memory memory_recall, memory-usage-stats memory_stats, list-my-memories memory_scan (828 tests)
+223772b	843	843	25	25	17	17	keep	FIX-YT-001/SYNC-001: youtube verb-first forms (search/find/watch/play), sync notes/update-knowledge (843 tests)
