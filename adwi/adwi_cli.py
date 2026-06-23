@@ -1901,6 +1901,8 @@ _INTENT_SYSTEM = (
     "                      'summarize my notes on X', 'find in my knowledge base', 'search stored info'.\n"
     "                      NOT obsidian_search (vault files). NOT web_search (internet).\n"
     "                      NOT chat — does NOT include general questions like 'what do you know about X'.\n"
+    "                      NOT for comparison/explanatory questions: 'what is the difference between X and Y',\n"
+    "                      'what is qdrant', 'how does pinecone work' → those are 'chat'.\n"
     "   'status'         : asks if services/systems are running or healthy (shallow check).\n"
     "                      Includes: 'is everything online' (means RUNNING, NOT internet search),\n"
     "                      'what's wrong' (vague, no error text pasted), 'are services up', 'is X running'.\n"

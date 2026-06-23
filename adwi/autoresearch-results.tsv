@@ -4,3 +4,4 @@ abb5220	481	481	25	25	17	17	keep	fix test isolation: reason_engine_paths sys.mod
 afff777	481	481	25	25	17	17	keep	FIX-006: benchmark regex — how do i benchmark it/my model + local ai model + benchmark patterns (verb-form gap from master report)
 513a474	481	481	25	25	17	17	keep	FIX-003: memory_recall INTENT_SYSTEM — NEVER for notes/vault queries, always obsidian_search
 56bed69	481	481	25	25	17	17	keep	FIX-DU-001..004: disk_usage regex — running out of space, disk uzage/stoarge typos, ssd almost full (targets 10 master report failures)
+0993baa	481	481	25	25	17	17	keep	FIX-CHAT-001: rag_search INTENT_SYSTEM — NOT for 'what is the difference between X and Y' comparison questions (targets chat misrouting to rag_search)
