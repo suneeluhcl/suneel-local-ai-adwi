@@ -256,6 +256,12 @@ REGEX_INTENTS = [
     (re.compile(r"^\s*why\s+is\s+that\s*[?.]?\s*$", re.I), "chat"),
     (re.compile(r"^\s*give\s+me\s+an?\s+example\s*[.!?]?\s*$", re.I), "chat"),
     (re.compile(r"^\s*hmm[,.]?\s+tell\s+me\s+more\s*[.!?]?\s*$", re.I), "chat"),
+    # FIX-CHAT-006: ok-but, explain-differently, interesting-continue, rephrase
+    (re.compile(r"^\s*(?:ok[,.]?\s+but|okay[,.]?\s+but)\s*[.!?]?\s*$", re.I), "chat"),
+    (re.compile(r"\bexplain\s+that\s+differently\b", re.I), "chat"),
+    (re.compile(r"\bexplain\s+(?:it|this)\s+in\s+a?\s*(?:different|simpler|easier)\s+way\b", re.I), "chat"),
+    (re.compile(r"^\s*interesting[,.]\s+(?:continue|go\s+on|tell\s+me\s+more)\s*[.!?]?\s*$", re.I), "chat"),
+    (re.compile(r"^\s*(?:can\s+you\s+)?re(?:phrase|state)\s+that\s*[?.]?\s*$", re.I), "chat"),
     (re.compile(r"\bwhen\s+does\b.{0,30}\b(?:error|exception|ValueError|TypeError|KeyError|occur|happen|trigger)\b", re.I), "chat"),
     (re.compile(r"\bwhat\s+causes?\b.{0,25}\bfiles?\b.{0,20}\bto\s+be\s+(?:large|big|huge)\b", re.I), "chat"),
     (re.compile(r"\bwhy\s+do\s+I\b.{0,25}\b(?:accumulate|build\s+up|end\s+up\s+with|have\s+so\s+many)\b", re.I), "chat"),

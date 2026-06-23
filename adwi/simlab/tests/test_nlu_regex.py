@@ -2230,5 +2230,36 @@ class TestChatContinuations2(unittest.TestCase):
         self.assertEqual(_classify("what else can you do?"), "capabilities")
 
 
+class TestChatFinalBoundary(unittest.TestCase):
+    """FIX-CHAT-006: ok-but, explain-differently, interesting-continue, rephrase."""
+
+    def test_ok_but_bare(self):
+        self.assertEqual(_classify("ok but"), "chat")
+
+    def test_okay_but_with_comma(self):
+        self.assertEqual(_classify("okay, but"), "chat")
+
+    def test_explain_that_differently(self):
+        self.assertEqual(_classify("can you explain that differently?"), "chat")
+
+    def test_explain_it_in_simpler_way(self):
+        self.assertEqual(_classify("explain it in a simpler way"), "chat")
+
+    def test_explain_this_in_different_way(self):
+        self.assertEqual(_classify("explain this in a different way"), "chat")
+
+    def test_interesting_continue(self):
+        self.assertEqual(_classify("interesting, continue"), "chat")
+
+    def test_interesting_go_on(self):
+        self.assertEqual(_classify("interesting, go on"), "chat")
+
+    def test_rephrase_that(self):
+        self.assertEqual(_classify("rephrase that"), "chat")
+
+    def test_can_you_rephrase_that(self):
+        self.assertEqual(_classify("can you rephrase that?"), "chat")
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
