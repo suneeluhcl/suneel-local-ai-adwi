@@ -2008,5 +2008,32 @@ class TestGmailTasksSavePronoun(unittest.TestCase):
         self.assertEqual(_classify("add them to the daily note"), "gmail_tasks_save")
 
 
+class TestGmailThreadIntelActionItemsGuard(unittest.TestCase):
+    """FIX-GTI-001: 'check email...action items' → gmail, not gmail_thread_intel."""
+
+    def test_check_email_then_action_items(self):
+        self.assertEqual(_classify("check my email and find action items"), "gmail")
+
+    def test_check_inbox_action_items(self):
+        self.assertEqual(_classify("check inbox for action items"), "gmail")
+
+    def test_extract_action_items_from_thread(self):
+        # "extract action items from this thread" routes to gmail_extract_tasks (correct)
+        self.assertEqual(_classify("extract action items from this thread"), "gmail_extract_tasks")
+
+
+class TestStatusAllOk(unittest.TestCase):
+    """FIX-STATUS-003: brief 'all ok?' probes → status."""
+
+    def test_all_ok_question(self):
+        self.assertEqual(_classify("all ok?"), "status")
+
+    def test_is_all_ok(self):
+        self.assertEqual(_classify("is all ok?"), "status")
+
+    def test_all_ok_no_question_mark(self):
+        self.assertEqual(_classify("all ok"), "status")
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
