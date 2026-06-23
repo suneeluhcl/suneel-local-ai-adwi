@@ -198,6 +198,11 @@ cd '$WORKTREE' && exec script -q -F '$LOG_FILE' claude --dangerously-skip-permis
 
     screen -S "$SESSION" -p 0 -X stuff "${KICKOFF}$(printf '\r')"
 
+    # Belt-and-suspenders: if the \r above was consumed during TUI init, a
+    # second Enter after a short pause ensures the kickoff is always submitted.
+    sleep 3
+    screen -S "$SESSION" -p 0 -X stuff "$(printf '\r')"
+
     echo "  [✓] Session '$SESSION' launched"
     echo "      Worktree: $WORKTREE"
     echo "      Branch:   $BRANCH"
