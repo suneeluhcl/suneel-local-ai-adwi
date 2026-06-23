@@ -847,6 +847,8 @@ _REGEX_INTENTS = [
 
     # ── Gmail Phase 17 early guard — "save tasks to daily note" must precede obsidian_daily ──
     (re.compile(r"\b(?:save|add|put|write|export)\b.{0,30}\b(?:tasks?|items?|checklist|action\s+items?|todos?)\b.{0,50}\bdaily\s+note\b", re.I), "gmail_tasks_save"),
+    # FIX-GTS-001: "add those/them to my daily note" — plural pronoun implies previously extracted tasks
+    (re.compile(r"\badd\s+(?:those|them|these)\b.{0,30}\b(?:my\s+)?daily\s+note\b", re.I), "gmail_tasks_save"),
 
     # ── Browser delegate (safe agent browse, BEFORE bare browse) ─────────────────
     (re.compile(r"\b(browser.?delegate|delegate.{0,15}browser|safe.?browse|browser.?agent|browser.?task)\b", re.I), "browser_delegate"),

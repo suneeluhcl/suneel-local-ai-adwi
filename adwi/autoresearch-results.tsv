@@ -6,3 +6,4 @@ afff777	481	481	25	25	17	17	keep	FIX-006: benchmark regex — how do i benchmark
 56bed69	481	481	25	25	17	17	keep	FIX-DU-001..004: disk_usage regex — running out of space, disk uzage/stoarge typos, ssd almost full (targets 10 master report failures)
 0993baa	481	481	25	25	17	17	keep	FIX-CHAT-001: rag_search INTENT_SYSTEM — NOT for 'what is the difference between X and Y' comparison questions (targets chat misrouting to rag_search)
 ada40b5	481	481	25	25	17	17	keep	FIX-NR-001: nightly_run regex — 'rn nightly' casual abbrev pattern (master report failure)
+00b1ef6	481	481	25	25	17	17	keep	FIX-GTS-001: gmail_tasks_save early guard — 'add those/them/these to daily note' plural-pronoun pattern
