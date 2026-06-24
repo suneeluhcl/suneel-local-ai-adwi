@@ -386,16 +386,50 @@ def snapshot(name=None):
     return snap
 
 
+def _safe_restore_path(root: Path, item: str, label: str) -> Path:
+    """Resolve root/item and assert it stays within root. Raises ValueError otherwise."""
+    if not isinstance(item, str):
+        raise ValueError(f"manifest path is not a string: {item!r}")
+    # Reject obvious traversal indicators before resolution
+    parts = Path(item).parts
+    if any(p in ("..", "") for p in parts) or Path(item).is_absolute():
+        raise ValueError(f"unsafe manifest {label}: {item!r}")
+    resolved = (root / item).resolve()
+    root_resolved = root.resolve()
+    if not str(resolved).startswith(str(root_resolved) + os.sep) and resolved != root_resolved:
+        raise ValueError(f"manifest {label} {item!r} escapes root ({resolved})")
+    # Must also be in the known-safe SNAPSHOT_PATHS set
+    if item not in SNAPSHOT_PATHS:
+        raise ValueError(f"manifest {label} {item!r} not in allowed SNAPSHOT_PATHS")
+    return resolved
+
+
 def restore(snap):
     snap = Path(snap)
+    # Validate snap itself is within SNAPSHOTS dir
+    try:
+        snap_resolved = snap.resolve()
+        snapshots_resolved = SNAPSHOTS.resolve()
+        if not str(snap_resolved).startswith(str(snapshots_resolved) + os.sep):
+            raise ValueError(f"snapshot path {snap} is outside SNAPSHOTS dir")
+    except ValueError:
+        raise
     manifest = read_json(snap / "manifest.json", {"paths": []})
     current_backup = QUARANTINE / f"pre-restore-{short_stamp()}"
     current_backup.mkdir(parents=True, exist_ok=True)
     for item in manifest.get("paths", []):
+        try:
+            dst = _safe_restore_path(ROOT, item, "dst")
+        except ValueError as exc:
+            print(f"[restore] SKIPPED unsafe manifest entry: {exc}", file=sys.stderr)
+            continue
         src = snap / item
-        dst = ROOT / item
         if dst.exists() or dst.is_symlink():
-            backup_dst = current_backup / item
+            try:
+                backup_dst = _safe_restore_path(current_backup, item, "backup_dst")
+            except ValueError as exc:
+                print(f"[restore] SKIPPED backup for unsafe entry: {exc}", file=sys.stderr)
+                continue
             backup_dst.parent.mkdir(parents=True, exist_ok=True)
             if dst.is_dir() and not dst.is_symlink():
                 shutil.copytree(dst, backup_dst, symlinks=True)
@@ -408,7 +442,12 @@ def restore(snap):
                 dst.unlink()
         dst.parent.mkdir(parents=True, exist_ok=True)
         if src.is_symlink():
-            os.symlink(os.readlink(src), dst)
+            # Validate symlink target is relative (not absolute) before copying
+            link_target = os.readlink(src)
+            if os.path.isabs(link_target):
+                print(f"[restore] SKIPPED {item!r}: symlink target is absolute ({link_target!r})", file=sys.stderr)
+                continue
+            os.symlink(link_target, dst)
         elif src.is_dir():
             shutil.copytree(src, dst, symlinks=True)
         else:

@@ -51,13 +51,28 @@ def _tokenize(text: str) -> list[str]:
     return re.findall(r"\b\w+\b", text.lower())
 
 
+# Hard-coded minimum set — never shrinkable by a missing/corrupt scoring.json.
+_SAFETY_FLOOR = [
+    "rm -rf", "delete all", "drop table", "format disk", "wipe",
+    "purge everything", "force push main", "destroy", "force-push",
+    "git push --force", "truncate table", "shred", ":(){:|:&};:",
+]
+
 def _check_safety(task: str, scoring: dict) -> bool:
-    """Return True if task should be flagged for manual review."""
+    """Return True if task should be flagged for manual review.
+
+    Uses _SAFETY_FLOOR as a guaranteed minimum regardless of scoring.json state.
+    Additional keywords from scoring.json are merged in; missing/empty config
+    never degrades the check to a no-op.
+    """
     task_lower = task.lower()
-    for danger in scoring.get("safety_penalty_keywords", []):
-        if danger in task_lower:
-            return True
-    return False
+    configured = scoring.get("safety_penalty_keywords")
+    # Treat absent, non-list, or empty configured list as a config fault —
+    # fall back to floor only and do NOT silently skip the check.
+    if not isinstance(configured, list) or not configured:
+        configured = []
+    keywords = set(_SAFETY_FLOOR) | set(configured)
+    return any(danger in task_lower for danger in keywords)
 
 
 def _classify(task: str, task_types: dict) -> list[tuple[str, int, float]]:
