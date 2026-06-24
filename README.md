@@ -265,7 +265,6 @@ All managed at `~/Library/LaunchAgents/com.suneel.*.plist`.
 | `adwi-git-backup` | every 30min |
 | `adwi-nightly` | 2:00 AM |
 | `adwi-scheduled-send` | every 2min |
-| `autoresearch-night` | 23:00 AM |
 | `caffeinate` | KeepAlive |
 | `command-api` | KeepAlive |
 | `obsidian-bridge` | KeepAlive |
