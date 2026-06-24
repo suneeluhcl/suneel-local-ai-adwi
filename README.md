@@ -1,3 +1,112 @@
+# SuneelWorkSpace
+
+**Operator:** Suneel Bikkasani · **Hardware:** Apple M4 Max 64 GB · **OS:** macOS 15
+
+Personal AI engineering workspace. Three active projects live here as independent git repos:
+Adwi (local AI OS, running), iHelper (interview prep assistant, in design), and Tailor (resume editor, in design).
+All new projects use the Claude API — not local models.
+
+---
+
+## Workspace Map
+
+| Directory | Repo | Status | Purpose |
+|-----------|------|--------|---------|
+| `adwi/` | private | **Active** | Local AI operating system — terminal REPL, 115 NLU intents, 193 commands, overnight self-improvement loop |
+| `iHelper/` | private | **In design** | AI interview prep assistant — practice sessions, question banks, real-time feedback |
+| `tailor/` | private | **In design** | AI resume editor — tailors resume to a job posting, keyword optimization, formatting |
+| `local-ai-stack/` | — | infra | Docker compose for Ollama, n8n, and local services |
+| `obsidian-vault/` | — | personal | Personal knowledge base (Obsidian) |
+
+---
+
+## iHelper — Interview Preparation Assistant
+
+**One-line pitch:** A Claude-powered AI coach that runs mock interviews, scores your answers, and adapts to the specific company and role you're targeting.
+
+**Core capabilities (planned):**
+- Load a job description → generate a tailored question bank (behavioral + technical)
+- Run a mock interview session: ask → record answer → score → give structured feedback
+- Track performance across sessions (confidence, clarity, completeness)
+- Company-specific prep: surface known interview styles for FAANG, startups, consulting
+- Export a prep report: what to study, what to practice, what you're strong in
+
+**Tech stack:**
+- Backend: Python, Claude API (`claude-sonnet-4-6` for coaching, `claude-haiku-4-5` for scoring)
+- Storage: SQLite (sessions, scores, question banks)
+- Interface: Terminal CLI first, web UI later
+- No local models — Claude API only
+
+**Key design constraints:**
+- Sessions must be resumable (save progress mid-prep)
+- Scoring must be explainable (not just a number — tell the user why)
+- Question bank must be regeneratable per job posting (not static)
+
+---
+
+## Tailor — AI Resume Editor
+
+**One-line pitch:** Paste a job description, paste your resume — Tailor rewrites and scores every bullet point to maximize relevance and ATS keyword coverage.
+
+**Core capabilities (planned):**
+- Parse resume (PDF or plain text) + job description
+- Score each resume section against the job posting (0–100 relevance)
+- Rewrite weak bullets using strong action verbs and job-specific keywords
+- Identify missing skills/keywords from the posting that could be added honestly
+- Output clean, formatted resume (Markdown → PDF)
+- Diff view: show original vs. tailored so the user stays in control
+
+**Tech stack:**
+- Backend: Python, Claude API (`claude-sonnet-4-6` for rewrites, `claude-haiku-4-5` for scoring)
+- Storage: SQLite (resume versions, job postings, edit history)
+- Interface: Terminal CLI first, web UI later
+- PDF parsing: `pypdf` or `pdfminer`; PDF output: `weasyprint` or `reportlab`
+- No local models — Claude API only
+
+**Key design constraints:**
+- Never fabricate experience — rewrites must stay truthful to the original
+- Version everything — user can roll back any edit
+- Diff view is mandatory, not optional
+
+---
+
+## Instructions for Copilot (Prompt Engineer Mode)
+
+> You are acting as a prompt engineer for Suneel. Your job is to write prompts that Suneel pastes into **Claude Code** (the Claude CLI, `claude` in terminal) to make progress on `iHelper` or `tailor`. Claude Code has full filesystem access, can run shell commands, read/write files, and call the Claude API.
+
+**When asked for a "starter prompt" for either project:**
+1. Write the prompt as if you are briefing a senior engineer (Claude) who is starting cold on the project
+2. Include: the project goal, the first file/module to create, the exact tech stack, and what "done" looks like for this session
+3. Reference the project brief above for constraints (especially: no local models, no fabrication in Tailor, explainable scoring in iHelper)
+4. Suggest a first concrete deliverable (e.g. "by end of this session, `cli.py` runs a 5-question mock interview loop and saves the session to SQLite")
+5. Keep prompts under 400 words — Claude Code works better with focused scope
+
+**When asked for a "next step prompt"** (continuing from a prior session):
+1. Start with "Read the current state of [file] to orient yourself"
+2. State what was built last session and what the next milestone is
+3. End with a clear acceptance criterion
+
+**Prompt format to use:**
+```
+[Project]: [iHelper | Tailor]
+[Session goal]: one sentence
+[Context]: what exists, what was built last time (if any)
+[Task]: what to build this session, in priority order
+[Done when]: the specific output / behavior that signals session success
+[Constraints]: any hard rules (from the project brief above)
+```
+
+---
+
+## Claude Code Tips (for Suneel)
+
+- Start every project session: `cd ~/SuneelWorkSpace/iHelper` or `cd ~/SuneelWorkSpace/tailor`, then `claude`
+- Claude Code reads `CLAUDE.md` in the current directory automatically — keep one per project
+- Set `ANTHROPIC_API_KEY` in each project's `.env` (gitignored)
+- Prefer `claude-sonnet-4-6` for heavy reasoning, `claude-haiku-4-5-20251001` for fast scoring loops
+
+---
+
 # Adwi — Local AI Operating System · LLM System Blueprint
 
 > **PRIMING CONTEXT FOR EXTERNAL MODELS:** This document is the primary architectural blueprint.
