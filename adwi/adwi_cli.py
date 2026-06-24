@@ -619,6 +619,8 @@ _REGEX_INTENTS = [
     # ══ CYCLE-2b: CLEANUP ADVISORY GUARDS — before large_files steals "throw away" ═
     # "what should I throw away/delete" — advisory phrasing that falls to large_files via LLM
     (re.compile(r"\bwhat\s+should\s+(?:I|we)\b.{0,30}\b(?:throw\s+away|get\s+rid\s+of|toss|delete|remove)\b", re.I), "cleanup"),
+    (re.compile(r"\b(?:empty|clear|clean)\b.{0,15}\b(?:my\s+|the\s+)?(?:downloads?|desktop|trash|cache|temp)\b", re.I), "cleanup"),
+    (re.compile(r"\b(?:delete|remove|trash)\b.{0,20}\b(?:junk|old\s+screenshots?|screenshots?|old\s+files?)\b.{0,20}\b(?:from|on)\b.{0,10}\b(?:desktop|downloads?)\b", re.I), "cleanup"),
     (re.compile(r"\bcleanup\s+suggestions?\b", re.I), "cleanup"),
     (re.compile(r"\bfind\s+stuff\b.{0,25}\b(?:(?:I|that)\s+can\s+)?remove\s+safely\b", re.I), "cleanup"),
     (re.compile(r"\bwhat\b.{0,15}\bfiles?\b.{0,25}\bjust\s+taking\s+up\b", re.I), "cleanup"),
@@ -780,6 +782,8 @@ _REGEX_INTENTS = [
     (re.compile(r"\blook\s+through\b.{0,20}\b(?:my\s+)?vault\b.{0,20}\b(?:for|about|on|regarding)\b", re.I), "obsidian_search"),
     (re.compile(r"\b(look|search|find)\b.{0,10}\bin\s+my\s+notes?\b.{0,5}\b(for|about|on)\b", re.I), "obsidian_search"),
     (re.compile(r"\b(?:look|search|find)\b.{0,15}\b(?:in|through)\s+my\s+notes?\b.{0,40}\b(?:for|about|on|regarding)\b", re.I), "obsidian_search"),
+    (re.compile(r"\b(?:find|search|look)\b.{0,15}\bnotes?\b.{0,15}\bmention(?:ing|s|ed)?\b", re.I), "obsidian_search"),
+    (re.compile(r"\b(?:(?:obsidian|vault)\s+)?notes?\b.{0,15}\bmention(?:ing|s|ed)?\b", re.I), "obsidian_search"),
     (re.compile(r"\b(?:find|search\s+for|look\s+for)\b.{0,40}\bin\s+my\s+notes?\b", re.I), "obsidian_search"),
     # FIX-OBS-006: "find notes from last week", "find my notes on python" → obsidian_search
     (re.compile(r"\b(?:find|search\s+for|look\s+for)\b.{0,10}\bnotes?\b.{0,10}\b(?:from|about|on|regarding)\b", re.I), "obsidian_search"),
@@ -975,6 +979,7 @@ _REGEX_INTENTS = [
     (re.compile(r"\b(give me|show me|run|start)\b.{0,15}\b(my\s+)?(daily|morning|today.{0,5})\s+(brief|summary|digest|rundown)\b", re.I), "daily_brief"),
     (re.compile(r"\b(?:what(?:'?s|\s+is)|show|tell\s+me)\b.{0,20}\b(?:on|in)\b.{0,10}\b(?:my\s+)?(?:calendar|schedule|agenda)\b.{0,15}\b(?:today|tomorrow)\b", re.I), "daily_brief"),
     (re.compile(r"\b(?:show|what(?:'?s|\s+is))\b.{0,15}\b(?:today|tomorrow)\b.{0,10}\b(?:agenda|calendar|schedule|meetings?)\b", re.I), "daily_brief"),
+    (re.compile(r"\b(?:show|open|display|review)\b.{0,10}\btoday'?s\b.{0,10}\b(?:agenda|schedule|calendar|meetings?)\b", re.I), "daily_brief"),
     (re.compile(r"\b(?:meetings?|calls?)\b.{0,10}\b(?:today|tomorrow)\b", re.I), "daily_brief"),
     (re.compile(r"\bwhat.{0,10}(my|today.{0,5})\s+(day|agenda|priorities|focus|schedule)\b", re.I), "daily_brief"),
     # FIX-DAILY-001: "what do i need to know today", "what should i focus on today"
@@ -986,6 +991,7 @@ _REGEX_INTENTS = [
     (re.compile(r"\bwhat.{0,5}(?:on|in)\s+my\s+(?:plate|calendar|schedule|agenda)\b.{0,15}\btoday\b", re.I), "daily_brief"),
     # FIX-DB-004: "plan my day/today" → daily_brief
     (re.compile(r"\bplan\b.{0,10}\b(?:my|the|your)\s+day\b", re.I), "daily_brief"),
+    (re.compile(r"\b(?:help\s+me\s+)?(?:schedule|organize|map\s+out)\s+my\s+day\b", re.I), "daily_brief"),
     # FIX-DB-005: object-first calendar: "show me my calendar for today" (calendar before today)
     (re.compile(r"\b(?:show|check|see|view|pull\s+up)\b.{0,20}\b(?:my\s+)?(?:calendar|schedule|agenda)\b.{0,15}\b(?:for\s+)?(?:today|this\s+week|tomorrow)\b", re.I), "daily_brief"),
     # ── Daily improve — NHR-006: no regex existed; LLM was routing to status/chat ─
@@ -1103,6 +1109,9 @@ _REGEX_INTENTS = [
     (re.compile(r"\byoutube\b.{0,40}(summar|transcri|watch|clip|video|channel|tutorial)\b", re.I), "youtube"),
     (re.compile(r"(summar|transcri|explain).{0,20}\byoutube\b", re.I), "youtube"),
     (re.compile(r"\b(yt\s+video|youtu\.be|youtube\.com)\b", re.I), "youtube"),
+    (re.compile(r"\b(?:youtube|yt)\b.{0,20}\b(?:summary|summar\w*|transcript|transcri\w*|explanation|explain\w*)\b", re.I), "youtube"),
+    (re.compile(r"\byt\s+(?:vid|clip)\b.{0,20}\b(?:summar|transcri|explain|watch)\w*\b", re.I), "youtube"),
+    (re.compile(r"\b(?:summar|transcri|explain|watch)\w*\b.{0,20}\byt\s+(?:vid|clip)\b", re.I), "youtube"),
     # FIX-YT-001: verb-before-youtube forms not covered by existing patterns
     (re.compile(r"\b(?:search|look\s+up|find)\b.{0,20}\byoutube\b", re.I), "youtube"),
     # FIX-YT-002: "play some lofi on youtube" — increased gap to .{0,30}
@@ -1506,6 +1515,8 @@ _REGEX_INTENTS = [
     # ── Gmail Phase 17: extract tasks / save / remind — MUST precede Phase 11 ──────────────
     # gmail_tasks_remind — "create/set reminders for those action items" — BEFORE followup_reminder
     (re.compile(r"\bcreate\b.{0,15}\breminders?\b.{0,40}\b(?:for\s+(?:those|these|the|them|each|all)\b|for\s+(?:the\s+)?(?:action\s+items?|deadlines?|tasks?))\b", re.I), "gmail_tasks_remind"),
+    (re.compile(r"\b(?:make|create|set)\b.{0,15}\b(?:a\s+)?reminders?\b.{0,25}\bfrom\b.{0,25}\b(?:emails?|gmail|messages?)\b", re.I), "gmail_tasks_remind"),
+    (re.compile(r"\bturn\b.{0,20}\b(?:emails?|gmail|messages?)\b.{0,20}\binto\b.{0,10}\b(?:a\s+)?reminders?\b", re.I), "gmail_tasks_remind"),
     (re.compile(r"\bset\b.{0,15}\breminders?\b.{0,40}\b(?:for\s+(?:those|these|the|them|each|all)\b|for\s+(?:the\s+)?(?:action\s+items?|deadlines?|tasks?))\b", re.I), "gmail_tasks_remind"),
     (re.compile(r"\bremind\s+me\b.{0,40}\b(?:about\s+(?:those|these|each)\b|about\s+(?:the\s+)?(?:action\s+items?|deadlines?|tasks?))\b", re.I), "gmail_tasks_remind"),
     # gmail_tasks_save — "save those tasks to Obsidian", "export checklist", "add tasks to my notes"
@@ -1569,6 +1580,8 @@ _REGEX_INTENTS = [
     # ── Gmail Phase 16: filter / rule builder — MUST precede Phase 3 ─────────
     # gmail_filter_cancel — "cancel rule creation", "discard the filter"
     (re.compile(r"\b(?:cancel|discard|abort|stop)\b.{0,20}\b(?:rule|filter)\b", re.I), "gmail_filter_cancel"),
+    (re.compile(r"\b(?:disable|deactivate|turn\s+off)\b.{0,20}\b(?:my\s+)?(?:gmail\s+)?(?:rule|filter)\b", re.I), "gmail_filter_cancel"),
+    (re.compile(r"\b(?:apply|run|use)\b.{0,15}\b(?:my\s+)?(?:gmail\s+)?(?:rule|filter)\b", re.I), "gmail_filter_apply"),
     # gmail_filter_apply — "create that rule", "apply the filter", "save the rule" — before filter_build
     (re.compile(r"\bcreate\b.{0,15}\b(?:that|the)\b.{0,10}\b(?:rule|filter)\b", re.I), "gmail_filter_apply"),
     (re.compile(r"\b(?:apply|confirm|save)\b.{0,20}\b(?:the|that)\b.{0,15}\b(?:rule|filter)\b", re.I), "gmail_filter_apply"),
@@ -1819,6 +1832,7 @@ _REGEX_INTENTS = [
     (re.compile(r"\bmemry\s+(stats?|status|count|size)\b", re.I), "memory_stats"),
     # FIX-MS-002: "memory usage stats/statistics/metrics" → memory_stats ("usage" separates memory+stats)
     (re.compile(r"\b(?:audit|check|review|scan|inspect)\b.{0,20}\b(?:my\s+|the\s+)?(?:memories|memory\s+(?:entries|records|items|store|database|db))\b", re.I), "memory_scan"),
+    (re.compile(r"\b(?:how\s+many|count)\b.{0,15}\b(?:my\s+)?memories\b", re.I), "memory_stats"),
     (re.compile(r"\bmemory\b.{0,20}\busage\b.{0,15}\b(?:stats?|statistics|metrics|data|info)\b", re.I), "memory_stats"),
     # FIX-MS-003: "memory usage" bare anchor and "adwi memory usage" → memory_stats
     (re.compile(r"^memory\s+usage\s*$", re.I), "memory_stats"),

@@ -66,3 +66,12 @@ a7f6efb	1045	1046	25	25	17	17	keep	FIX-AUS-002/FL-002/SH-003/RES-005/BU-004/FS-0
 acd38a4	921	921	24	25	17	17	keep	FIX-P1-ONR-001: document lookup, web release lookup, overnight improve, research/memory variants (921 tests; docs drift 24/25)
 9fdc873	925	925	24	25	17	17	keep	FIX-P1-ONR-002: old-file, large-file, and Gmail receipt search variants (925 tests; docs drift 24/25)
 9b581bd	927	927	24	25	17	17	keep	FIX-P1-ONR-003: inspect-code codebase and route-definition variants (927 tests; docs drift 24/25)
+d75715c	1074	1074	25	25	17	17	keep	FIX-OBS-MENTION-001: route notes mentioning topic to obsidian_search
+2ca8e47	1075	1075	25	25	17	17	keep	FIX-DB-TODAYS-001: route todays agenda phrasing to daily_brief
+eae76c1	1077	1077	25	25	17	17	keep	FIX-MEM-COUNT-001: route plural memories count requests to memory_stats
+688cc50	1079	1079	25	25	17	17	keep	FIX-GMAIL-FILTER-001: route apply and disable Gmail filter variants
+7f21582	1081	1081	25	25	17	17	keep	FIX-GMAIL-REMIND-001: route email reminder variants to gmail_tasks_remind
+405fd7e	1083	1083	25	25	17	17	keep	FIX-DB-PLAN-001: route schedule and map-out my day variants to daily_brief
+b354017	1087	1087	25	25	17	17	keep	FIX-YT-ABBR-001: route yt vid clip and youtube summary variants
+1c2747f	1090	1090	25	25	17	17	keep	FIX-CLEANUP-VERB-001: route empty and desktop junk cleanup variants
+66bbd10	1092	1092	25	25	17	17	keep	FIX-OBS-MENTION-002: route bare notes mentioning variants to obsidian_search

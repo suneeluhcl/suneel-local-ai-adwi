@@ -4414,5 +4414,98 @@ class TestFIXObsidianNotesSearchWordOrder(unittest.TestCase):
         self.assertEqual(_classify("find in my notes project alpha"), "obsidian_search")
 
 
+class TestObsidianMentioningSearch(unittest.TestCase):
+    """Mentioning-based note lookup should route to Obsidian search."""
+
+    def test_find_notes_mentioning_topic(self):
+        self.assertEqual(_classify("find notes mentioning docker"), "obsidian_search")
+
+
+class TestDailyBriefPossessiveToday(unittest.TestCase):
+    """Possessive today agenda phrasing should route to daily brief."""
+
+    def test_show_todays_agenda(self):
+        self.assertEqual(_classify("show todays agenda"), "daily_brief")
+
+
+class TestMemoryStatsPluralMemories(unittest.TestCase):
+    """Plural memories count requests should route to memory stats."""
+
+    def test_how_many_memories(self):
+        self.assertEqual(_classify("how many memories do you have"), "memory_stats")
+
+    def test_count_my_memories(self):
+        self.assertEqual(_classify("count my memories"), "memory_stats")
+
+
+class TestGmailFilterApplyDisableVariants(unittest.TestCase):
+    """Gmail rule/filter operations should not fall back to generic Gmail."""
+
+    def test_apply_my_gmail_filter(self):
+        self.assertEqual(_classify("apply my gmail filter for receipts"), "gmail_filter_apply")
+
+    def test_disable_my_gmail_rule(self):
+        self.assertEqual(_classify("disable my gmail rule for newsletters"), "gmail_filter_cancel")
+
+
+class TestGmailTaskReminderEmailVariants(unittest.TestCase):
+    """Email-source reminder wording should route to Gmail task reminders."""
+
+    def test_make_reminder_from_latest_email(self):
+        self.assertEqual(_classify("make a reminder from the latest email from Sam"), "gmail_tasks_remind")
+
+    def test_turn_this_email_into_reminder(self):
+        self.assertEqual(_classify("turn this email into a reminder"), "gmail_tasks_remind")
+
+
+class TestDailyBriefPlanningVerbVariants(unittest.TestCase):
+    """Planning-adjacent day setup verbs should route to daily brief."""
+
+    def test_help_me_schedule_my_day(self):
+        self.assertEqual(_classify("help me schedule my day"), "daily_brief")
+
+    def test_map_out_my_day(self):
+        self.assertEqual(_classify("map out my day"), "daily_brief")
+
+
+class TestYouTubeAbbreviationVariants(unittest.TestCase):
+    """Short yt vid/clip wording should route to the YouTube helper."""
+
+    def test_yt_vid_summary(self):
+        self.assertEqual(_classify("yt vid summary"), "youtube")
+
+    def test_summarize_yt_vid(self):
+        self.assertEqual(_classify("summarize yt vid"), "youtube")
+
+    def test_explain_this_yt_clip(self):
+        self.assertEqual(_classify("explain this yt clip"), "youtube")
+
+    def test_youtube_summary_for_link(self):
+        self.assertEqual(_classify("youtube summary for this link"), "youtube")
+
+
+class TestCleanupDirectVerbVariants(unittest.TestCase):
+    """Direct cleanup verbs for common folders should route to cleanup."""
+
+    def test_empty_my_downloads(self):
+        self.assertEqual(_classify("empty my downloads"), "cleanup")
+
+    def test_empty_the_trash(self):
+        self.assertEqual(_classify("empty the trash"), "cleanup")
+
+    def test_delete_junk_from_desktop(self):
+        self.assertEqual(_classify("delete junk from desktop"), "cleanup")
+
+
+class TestObsidianBareMentioningSearch(unittest.TestCase):
+    """Bare note-mentioning phrasing should route to Obsidian search."""
+
+    def test_notes_mentioning_topic(self):
+        self.assertEqual(_classify("notes mentioning docker"), "obsidian_search")
+
+    def test_vault_notes_mentioning_topic(self):
+        self.assertEqual(_classify("vault notes mentioning docker"), "obsidian_search")
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

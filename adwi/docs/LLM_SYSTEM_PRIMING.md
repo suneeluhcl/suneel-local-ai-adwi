@@ -183,7 +183,7 @@ Quick-reference for AI models and new contributors.
 - **Syntax-check first:** `python3 -m py_compile adwi/adwi_cli.py && echo OK` before any NLU work
 - **Sync all 3 files** for every `_REGEX_INTENTS` change: `adwi_cli.py` + `run_large_eval.py` + `run_large_eval_p2.py`
 - **Insert regex patterns before the intent they must beat** — first match wins; wrong position breaks routing
-- **Run `test_nlu_regex.py` after every regex change** — 1046 tests, should be 0 failures, runs in < 1 s
+- **Run `test_nlu_regex.py` after every regex change** — 1093 tests, should be 0 failures, runs in < 1 s
 - **Prefer narrow, targeted patches** — change one intent's patterns at a time, not the whole block
 - **Use 3 workers for eval runs** (`--workers 3`) — 5 workers causes 50–70 LLM timeouts
 - **Run P1 and P2 evals sequentially** — parallel runs overload Ollama by 3–8pp
@@ -325,7 +325,7 @@ Before making any change to NLU, commands, or infrastructure:
 - [ ] Read `adwi/adwi_cli.py` lines ~865–1020 (`_INTENT_SYSTEM`) — LLM classification prompt
 - [ ] Read `adwi/path_validator.py` — never weaken the gate
 - [ ] Run `python3 -m py_compile adwi/adwi_cli.py && echo OK` — syntax check first
-- [ ] Run `python3 -m unittest adwi/simlab/tests/test_nlu_regex.py` — **1046 tests**, should be 0 failures, runs in < 1 s
+- [ ] Run `python3 -m unittest adwi/simlab/tests/test_nlu_regex.py` — **1093 tests**, should be 0 failures, runs in < 1 s
 - [ ] Run `python3 -m unittest adwi/tests/test_command_registry.py` — **320 tests**, 0 failures
 - [ ] Run `python3 bin/validate-docs` — 0 FAIL before and after your change
 - [ ] Sync NLU changes to all 3 files: `adwi/adwi_cli.py`, `adwi/logs/simeval/run_large_eval.py`, `adwi/logs/simeval/run_large_eval_p2.py`
