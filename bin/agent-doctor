@@ -155,6 +155,28 @@ if not launchd_user_plist.exists() and not launchd_user_plist.is_symlink():
 loaded = os.environ.get("LAUNCHD_LOADED") == "true"
 if launchd_user_plist.exists() and not loaded:
     issue("warning", "launchd_not_loaded", "launchd maintenance plist exists but is not loaded", launchd_user_plist)
+# 5. Check GStack integrity
+gverify = root / "bin" / "gstack-verify"
+if gverify.exists():
+    try:
+        import subprocess
+        gv_res = subprocess.run([sys.executable, str(gverify), "--json"], capture_output=True, text=True, timeout=10)
+        gv_data = json.loads(gv_res.stdout)
+        if gv_data.get("status") != "ok":
+            for i_msg in gv_data.get("issues", ["unknown drift"]):
+                issue("warning", "gstack_drift", f"GStack: {i_msg}", gverify)
+    except Exception as exc:
+        issue("warning", "gstack_check_failed", f"Failed to run gstack-verify: {exc}", gverify)
+
+# 6. Check Headroom proxy status
+import socket
+s_headroom = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+s_headroom.settimeout(2)
+try:
+    s_headroom.connect(("127.0.0.1", 8787))
+    s_headroom.close()
+except Exception:
+    issue("warning", "headroom_down", "Headroom proxy is not running on port 8787 — context compression is inactive")
 if not shutil.which("codex"):
     issue("info", "codex_not_on_path", "codex CLI is not on PATH")
 if not shutil.which("claude"):

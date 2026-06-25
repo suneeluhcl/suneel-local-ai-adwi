@@ -52,6 +52,24 @@ You can still force a human-written closeout when useful:
 ~/SuneelWorkSpace/bin/agent-finish "Short summary of what changed"
 ```
 
+## Check Optimization Savings
+
+The workspace uses both **Headroom** (API context compression) and **RTK** (CLI command output filtering) to keep token consumption low:
+
+- **View active savings**: Run the shell alias `savings` to print statistics for both layers at once:
+  ```sh
+  savings
+  ```
+- **Inspect Headroom status**: Run `headroom doctor` during an active agent session to verify proxy routing, or run `headroom perf` to see lifetime token/cost savings:
+  ```sh
+  headroom doctor
+  headroom perf
+  ```
+- **Verify GStack integrity**: Run `gstack-verify` to ensure cognitive modes are aligned, or `gstack-repair` to fix drift:
+  ```sh
+  gstack-verify
+  ```
+
 ## What To Remember
 
 - The main workspace is `~/SuneelWorkSpace`.

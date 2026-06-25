@@ -132,6 +132,21 @@ GSTACKPY
   fi
 fi
 
+# headroom proxy running check
+if ! nc -z 127.0.0.1 8787 >/dev/null 2>&1; then
+  python3 - "$ROOT/agent-system/logs/MAINTENANCE_LOG.md" "Headroom proxy is not running on port 8787 — context compression is inactive" <<'HEADROOMWARPY'
+import sys, pathlib
+from datetime import datetime, timezone
+log = pathlib.Path(sys.argv[1])
+msg = sys.argv[2]
+stamp = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+log.parent.mkdir(parents=True, exist_ok=True)
+with open(log, "a") as f:
+    f.write(f"\n## {stamp} agent-maintain\nWARNING: {msg}\n")
+HEADROOMWARPY
+fi
+
+
 # Communications subsystem: lightweight health check
 if [ -f "$ROOT/comms/imessage/scripts/imessage-status" ]; then
   IMSG_STATUS="$(python3 "$ROOT/comms/imessage/scripts/imessage-status" 2>/dev/null | grep "Full Disk Access" | head -1 || echo "")"

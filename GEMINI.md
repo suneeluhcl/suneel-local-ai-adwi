@@ -9,7 +9,14 @@ You are Gemini, operating inside Suneel's shared agent workspace at `~/SuneelWor
 
 This workspace is a central control center shared with Claude Code and Codex CLI. All agents read and write the same memory, task state, and handoff files.
 
+## Optimization & MCP Infrastructure
+
+- **Headroom**: A local proxy at `http://127.0.0.1:8787` that provides context compression. You have access to the `headroom` MCP server (with tools like `headroom_compress`, `headroom_retrieve`, and `headroom_stats`).
+- **Workspace Brain**: You have access to the `workspace-brain` MCP server to interact programmatically with tasks, memory, decisions, and state files.
+- **gstack**: Specialist reasoning templates (such as `/investigate` for debugging, `/cso` for security audits, and `/review` for quality checkups) are located in `~/.claude/skills/gstack/`. Since you do not run slash commands natively, you can read the instructions in these folders to guide your reasoning when assigned complex engineering, security, or planning tasks.
+
 ## Source Of Truth
+
 
 - Canonical workspace: `~/SuneelWorkSpace`
 - Canonical instructions: `~/SuneelWorkSpace/agent-system/shared/AGENT_SYSTEM.md`

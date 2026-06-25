@@ -61,11 +61,22 @@ The maintenance system is intentionally small:
 
 All maintenance remains local and file-based.
 
-## Why Files
+## Local Optimization & Specialist Modes
 
-Markdown and JSON files are easy to inspect, back up, sync, and repair. They also work across agents without a database, server, or vendor-specific memory feature.
+To optimize session longevity and task execution quality, the workspace incorporates local context compression and cognitive frameworks:
+
+### Headroom Proxy
+- **Base URL**: `http://127.0.0.1:8787`
+- **Mechanism**: Headroom intercepts API calls from Claude Code and Codex, compressing the token stream (saving ~22-30% of input context) while retaining semantic value. It stores the uncompressed originals in a local cache, allowing agents to fetch them via the `headroom_retrieve` tool if necessary.
+- **Monitoring**: Both `agent-doctor` and the hourly `agent-maintain` loop verify that port `8787` is listening, raising alerts in the health logs if the proxy is offline.
+
+### GStack Specialist Modes
+- **Location**: Installed at `~/.claude/skills/gstack/`
+- **Methodology**: GStack provides specialized cognitive templates (such as `/investigate` for multi-phase debugging, `/cso` for OWASP/STRIDE security audits, and `/review` for code quality checks) as Claude Code slash commands.
+- **Integrity**: `gstack-verify` checks the repository commit and file clean status against the pinned version in `mcp/config/gstack_version.json`, while `gstack-repair` restores files or handles upgrades.
 
 ## Autolab Learning Flow
+
 
 Autolab is the workspace autoresearch system in `~/SuneelWorkSpace/autolab`.
 

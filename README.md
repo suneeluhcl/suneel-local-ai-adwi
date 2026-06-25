@@ -95,6 +95,17 @@ To guard against silent updates, the workspace pins and verifies gstack files:
 
 ---
 
+## 🔌 Headroom Context Compression
+
+To optimize LLM token usage, all primary reasoning agents (Claude Code, Codex CLI, and Antigravity) are integrated with **Headroom**, a local context compression proxy:
+- **Local Proxy URL**: Running at `http://127.0.0.1:8787` (intercepts and processes Anthropic/OpenAI API requests).
+- **Token Savings**: Compresses prose and code contexts semantically, saving **~22-30% of input tokens** per session.
+- **MCP Tool Integration**: The headroom MCP server is configured globally (exposing `headroom_compress`, `headroom_retrieve`, and `headroom_stats` tools to agents).
+- **Downtime Monitoring**: The automated hourly maintenance loop and `agent-doctor` verify that the proxy is actively running on port `8787` and log warnings if it becomes inactive.
+
+---
+
+
 ## 📄 Key Entrypoints & Guidance
 
 - **Main Agent system Guidelines**: [agent-system/shared/AGENT_SYSTEM.md](file:///Users/MAC/SuneelWorkSpace/agent-system/shared/AGENT_SYSTEM.md) (Symlinked from root [AGENTS.md](file:///Users/MAC/SuneelWorkSpace/AGENTS.md) and [CLAUDE.md](file:///Users/MAC/SuneelWorkSpace/CLAUDE.md)).
