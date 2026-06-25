@@ -2,7 +2,7 @@
   "_meta": {
     "description": "Routing decision history. Each entry records a task, its classification, the agent chosen, and outcome.",
     "created_at": null,
-    "entry_count": 9
+    "entry_count": 10
   },
   "entries": [
     {
@@ -224,6 +224,33 @@
           "base_conf": 0.9
         }
       ],
+      "status": "ok"
+    },
+    {
+      "timestamp": "2026-06-24T18:45:27.721526-05:00",
+      "task": "debug why the NLU intent routing is failing for web_search",
+      "task_type": "debugging",
+      "task_type_label": "Debugging / Error Analysis",
+      "agent": "claude",
+      "secondary_agent": "codex",
+      "confidence": 0.78,
+      "confidence_label": "MEDIUM",
+      "hybrid_suggestion": null,
+      "reasoning": "Matched task_type='debugging' (2 keywords: ['debug', 'bug', 'failing']). Preferred agent: claude.",
+      "all_matched_types": [
+        {
+          "type": "debugging",
+          "hits": 2,
+          "base_conf": 0.78
+        },
+        {
+          "type": "reasoning",
+          "hits": 1,
+          "base_conf": 0.85
+        }
+      ],
+      "gstack_skill": "/investigate",
+      "gstack_hint": "5-phase systematic root-cause analysis before attempting a fix",
       "status": "ok"
     }
   ]

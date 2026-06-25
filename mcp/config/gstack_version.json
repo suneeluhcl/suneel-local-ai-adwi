@@ -3,7 +3,7 @@
   "pinned_commit": "9fd03fae9e74f5daa7a138366aca8f86c7367c5c",
   "pinned_version": "1.58.4.0",
   "installed_path": "~/.claude/skills/gstack",
-  "last_verified": "2026-06-25T00:19:03+00:00",
+  "last_verified": "2026-06-25T01:09:07+00:00",
   "mode": "pinned",
   "upgrade_policy": "manual \u2014 run gstack-repair --upgrade after reviewing garrytan/gstack changelog",
   "integrity_check": "bin/gstack-verify",

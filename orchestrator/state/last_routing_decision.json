@@ -1,25 +1,27 @@
 {
-  "timestamp": "2026-06-24T16:12:49.337355-05:00",
-  "task": "design the architecture for a multi-agent orchestration system",
-  "task_type": "planning",
-  "task_type_label": "Planning / Architecture",
+  "timestamp": "2026-06-24T18:45:27.721526-05:00",
+  "task": "debug why the NLU intent routing is failing for web_search",
+  "task_type": "debugging",
+  "task_type_label": "Debugging / Error Analysis",
   "agent": "claude",
   "secondary_agent": "codex",
-  "confidence": 0.9,
-  "confidence_label": "HIGH",
+  "confidence": 0.78,
+  "confidence_label": "MEDIUM",
   "hybrid_suggestion": null,
-  "reasoning": "Matched task_type='planning' (1 keywords: ['design', 'architect']). Preferred agent: claude.",
+  "reasoning": "Matched task_type='debugging' (2 keywords: ['debug', 'bug', 'failing']). Preferred agent: claude.",
   "all_matched_types": [
     {
-      "type": "planning",
-      "hits": 1,
-      "base_conf": 0.9
+      "type": "debugging",
+      "hits": 2,
+      "base_conf": 0.78
     },
     {
-      "type": "system_design",
+      "type": "reasoning",
       "hits": 1,
-      "base_conf": 0.9
+      "base_conf": 0.85
     }
   ],
+  "gstack_skill": "/investigate",
+  "gstack_hint": "5-phase systematic root-cause analysis before attempting a fix",
   "status": "ok"
 }

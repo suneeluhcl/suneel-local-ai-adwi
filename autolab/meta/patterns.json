@@ -12,7 +12,7 @@
     }
   },
   "confidence_score": 0.6,
-  "generated_at": "2026-06-24T18:09:02-0500",
+  "generated_at": "2026-06-24T20:09:06-0500",
   "mutation_types": {
     "docs": {
       "avg_score_delta": 0.0,
@@ -28,16 +28,6 @@
       "success_count": 1,
       "success_rate": 1.0
     }
-  },
-  "cognitive_modes": {
-    "_comment": "Tracks gstack skill usage per experiment. Updated by route-learn when gstack skill data is logged.",
-    "/investigate": { "count": 0, "avg_score_delta": 0.0, "notes": "5-phase debugging — expect fewer regression reopens" },
-    "/cso":         { "count": 0, "avg_score_delta": 0.0, "notes": "Security audit — expect fewer post-ship vulns" },
-    "/review":      { "count": 0, "avg_score_delta": 0.0, "notes": "Pre-commit review — expect cleaner diffs" },
-    "/office-hours":{ "count": 0, "avg_score_delta": 0.0, "notes": "Goal framing — expect tighter scope" },
-    "/plan-eng-review":{ "count": 0, "avg_score_delta": 0.0, "notes": "Architecture lock-in — expect fewer mid-build pivots" },
-    "/ship":        { "count": 0, "avg_score_delta": 0.0, "notes": "Release workflow — expect cleaner PRs" },
-    "/careful":     { "count": 0, "avg_score_delta": 0.0, "notes": "Safety guardrails — expect fewer destructive accidents" }
   },
   "recommendations": [
     "Prefer `strategy` when it targets a real score gap."

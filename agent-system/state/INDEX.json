@@ -1,7 +1,7 @@
 {
   "entrypoints": [
     {
-      "modified_epoch": 1782333974,
+      "modified_epoch": 1782349687,
       "path": "/Users/MAC/SuneelWorkSpace/AGENTS.md",
       "relative_path": "AGENTS.md",
       "size": 62,
@@ -9,7 +9,7 @@
       "type": "symlink"
     },
     {
-      "modified_epoch": 1782333974,
+      "modified_epoch": 1782349687,
       "path": "/Users/MAC/SuneelWorkSpace/CLAUDE.md",
       "relative_path": "CLAUDE.md",
       "size": 62,
@@ -17,7 +17,7 @@
       "type": "symlink"
     },
     {
-      "modified_epoch": 1782333974,
+      "modified_epoch": 1782349687,
       "path": "/Users/MAC/.codex/AGENTS.md",
       "relative_path": null,
       "size": 62,
@@ -25,7 +25,7 @@
       "type": "symlink"
     },
     {
-      "modified_epoch": 1782333974,
+      "modified_epoch": 1782349687,
       "path": "/Users/MAC/.claude/CLAUDE.md",
       "relative_path": null,
       "size": 62,
@@ -33,7 +33,7 @@
       "type": "symlink"
     }
   ],
-  "generated_at": "2026-06-24T17:09:01-0500",
+  "generated_at": "2026-06-24T20:09:06-0500",
   "groups": {
     "automation": [
       {
@@ -77,18 +77,18 @@
         "type": "file"
       },
       {
-        "modified_epoch": 1782335340,
+        "modified_epoch": 1782346145,
         "path": "/Users/MAC/SuneelWorkSpace/automation/reports/launchd-maintenance.out.log",
         "relative_path": "automation/reports/launchd-maintenance.out.log",
-        "size": 46,
+        "size": 115,
         "target": null,
         "type": "file"
       },
       {
-        "modified_epoch": 1782335340,
+        "modified_epoch": 1782349688,
         "path": "/Users/MAC/SuneelWorkSpace/automation/reports/status-latest.md",
         "relative_path": "automation/reports/status-latest.md",
-        "size": 1177,
+        "size": 1604,
         "target": null,
         "type": "file"
       }
@@ -145,18 +145,18 @@
         "type": "file"
       },
       {
-        "modified_epoch": 1782338941,
+        "modified_epoch": 1782349746,
         "path": "/Users/MAC/SuneelWorkSpace/agent-system/logs/MAINTENANCE_LOG.md",
         "relative_path": "agent-system/logs/MAINTENANCE_LOG.md",
-        "size": 2956,
+        "size": 4498,
         "target": null,
         "type": "file"
       },
       {
-        "modified_epoch": 1782333975,
+        "modified_epoch": 1782349688,
         "path": "/Users/MAC/SuneelWorkSpace/agent-system/logs/SESSION_LOG.md",
         "relative_path": "agent-system/logs/SESSION_LOG.md",
-        "size": 1546,
+        "size": 4482,
         "target": null,
         "type": "file"
       }
@@ -187,15 +187,31 @@
         "type": "file"
       },
       {
-        "modified_epoch": 1782333975,
+        "modified_epoch": 1782349688,
         "path": "/Users/MAC/SuneelWorkSpace/agent-system/memory/SESSION_HANDOFF.md",
         "relative_path": "agent-system/memory/SESSION_HANDOFF.md",
-        "size": 601,
+        "size": 1588,
         "target": null,
         "type": "file"
       }
     ],
     "scripts": [
+      {
+        "modified_epoch": 1782346743,
+        "path": "/Users/MAC/SuneelWorkSpace/bin/__pycache__/gstack-repaircpython-314.pyc",
+        "relative_path": "bin/__pycache__/gstack-repaircpython-314.pyc",
+        "size": 11679,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782346743,
+        "path": "/Users/MAC/SuneelWorkSpace/bin/__pycache__/gstack-verifycpython-314.pyc",
+        "relative_path": "bin/__pycache__/gstack-verifycpython-314.pyc",
+        "size": 6303,
+        "target": null,
+        "type": "file"
+      },
       {
         "modified_epoch": 1782332152,
         "path": "/Users/MAC/SuneelWorkSpace/bin/agent-autoclose",
@@ -221,10 +237,10 @@
         "type": "file"
       },
       {
-        "modified_epoch": 1782336329,
+        "modified_epoch": 1782349197,
         "path": "/Users/MAC/SuneelWorkSpace/bin/agent-maintain",
         "relative_path": "bin/agent-maintain",
-        "size": 4598,
+        "size": 6285,
         "target": null,
         "type": "file"
       },
@@ -249,6 +265,38 @@
         "path": "/Users/MAC/SuneelWorkSpace/bin/agent-status",
         "relative_path": "bin/agent-status",
         "size": 5834,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782348915,
+        "path": "/Users/MAC/SuneelWorkSpace/bin/comms-doctor",
+        "relative_path": "bin/comms-doctor",
+        "size": 1157,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782348966,
+        "path": "/Users/MAC/SuneelWorkSpace/bin/comms-permissions-check",
+        "relative_path": "bin/comms-permissions-check",
+        "size": 243,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782348928,
+        "path": "/Users/MAC/SuneelWorkSpace/bin/comms-report",
+        "relative_path": "bin/comms-report",
+        "size": 2924,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782348909,
+        "path": "/Users/MAC/SuneelWorkSpace/bin/comms-status",
+        "relative_path": "bin/comms-status",
+        "size": 684,
         "target": null,
         "type": "file"
       },
@@ -315,6 +363,126 @@
         "size": 58,
         "target": "/Users/MAC/SuneelWorkSpace/goal-engine/scripts/goal-status",
         "type": "symlink"
+      },
+      {
+        "modified_epoch": 1782346451,
+        "path": "/Users/MAC/SuneelWorkSpace/bin/gstack-repair",
+        "relative_path": "bin/gstack-repair",
+        "size": 6398,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782346421,
+        "path": "/Users/MAC/SuneelWorkSpace/bin/gstack-verify",
+        "relative_path": "bin/gstack-verify",
+        "size": 4123,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782348959,
+        "path": "/Users/MAC/SuneelWorkSpace/bin/imessage-recent",
+        "relative_path": "bin/imessage-recent",
+        "size": 125,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782348960,
+        "path": "/Users/MAC/SuneelWorkSpace/bin/imessage-search",
+        "relative_path": "bin/imessage-search",
+        "size": 125,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782348961,
+        "path": "/Users/MAC/SuneelWorkSpace/bin/imessage-send-draft",
+        "relative_path": "bin/imessage-send-draft",
+        "size": 129,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782348958,
+        "path": "/Users/MAC/SuneelWorkSpace/bin/imessage-status",
+        "relative_path": "bin/imessage-status",
+        "size": 125,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782348955,
+        "path": "/Users/MAC/SuneelWorkSpace/bin/imsg-draft",
+        "relative_path": "bin/imsg-draft",
+        "size": 215,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782348953,
+        "path": "/Users/MAC/SuneelWorkSpace/bin/imsg-recent",
+        "relative_path": "bin/imsg-recent",
+        "size": 125,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782348953,
+        "path": "/Users/MAC/SuneelWorkSpace/bin/imsg-search",
+        "relative_path": "bin/imsg-search",
+        "size": 125,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782348957,
+        "path": "/Users/MAC/SuneelWorkSpace/bin/imsg-send-confirmed",
+        "relative_path": "bin/imsg-send-confirmed",
+        "size": 217,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782348942,
+        "path": "/Users/MAC/SuneelWorkSpace/bin/install-imessage-plugin",
+        "relative_path": "bin/install-imessage-plugin",
+        "size": 2132,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782348965,
+        "path": "/Users/MAC/SuneelWorkSpace/bin/mail-draft-reply",
+        "relative_path": "bin/mail-draft-reply",
+        "size": 122,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782348963,
+        "path": "/Users/MAC/SuneelWorkSpace/bin/mail-recent",
+        "relative_path": "bin/mail-recent",
+        "size": 117,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782348964,
+        "path": "/Users/MAC/SuneelWorkSpace/bin/mail-search",
+        "relative_path": "bin/mail-search",
+        "size": 117,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782348962,
+        "path": "/Users/MAC/SuneelWorkSpace/bin/mail-status",
+        "relative_path": "bin/mail-status",
+        "size": 117,
+        "target": null,
+        "type": "file"
       },
       {
         "modified_epoch": 1782334769,
@@ -421,6 +589,14 @@
         "type": "file"
       },
       {
+        "modified_epoch": 1782348948,
+        "path": "/Users/MAC/SuneelWorkSpace/bin/use-claude-imessage",
+        "relative_path": "bin/use-claude-imessage",
+        "size": 1210,
+        "target": null,
+        "type": "file"
+      },
+      {
         "modified_epoch": 1782332243,
         "path": "/Users/MAC/SuneelWorkSpace/bin/use-codex",
         "relative_path": "bin/use-codex",
@@ -471,10 +647,10 @@
     ],
     "shared": [
       {
-        "modified_epoch": 1782332903,
+        "modified_epoch": 1782349231,
         "path": "/Users/MAC/SuneelWorkSpace/agent-system/shared/AGENT_SYSTEM.md",
         "relative_path": "agent-system/shared/AGENT_SYSTEM.md",
-        "size": 6355,
+        "size": 12688,
         "target": null,
         "type": "file"
       },
@@ -521,7 +697,7 @@
     ],
     "state": [
       {
-        "modified_epoch": 1782333975,
+        "modified_epoch": 1782349688,
         "path": "/Users/MAC/SuneelWorkSpace/agent-system/state/ACTIVE_SESSION.json",
         "relative_path": "agent-system/state/ACTIVE_SESSION.json",
         "size": 122,
@@ -529,18 +705,18 @@
         "type": "file"
       },
       {
-        "modified_epoch": 1782335340,
+        "modified_epoch": 1782349688,
         "path": "/Users/MAC/SuneelWorkSpace/agent-system/state/CURRENT_STATE.json",
         "relative_path": "agent-system/state/CURRENT_STATE.json",
-        "size": 1944,
+        "size": 1947,
         "target": null,
         "type": "file"
       },
       {
-        "modified_epoch": 1782335340,
+        "modified_epoch": 1782349688,
         "path": "/Users/MAC/SuneelWorkSpace/agent-system/state/INDEX.json",
         "relative_path": "agent-system/state/INDEX.json",
-        "size": 17096,
+        "size": 25898,
         "target": null,
         "type": "file"
       },
@@ -553,10 +729,10 @@
         "type": "file"
       },
       {
-        "modified_epoch": 1782338941,
+        "modified_epoch": 1782349746,
         "path": "/Users/MAC/SuneelWorkSpace/agent-system/state/WORKSPACE_HEALTH.json",
         "relative_path": "agent-system/state/WORKSPACE_HEALTH.json",
-        "size": 745,
+        "size": 746,
         "target": null,
         "type": "file"
       }

@@ -1,6 +1,6 @@
 {
-  "indexed_at": "2026-06-24T16:27:07.987701-05:00",
-  "total_entries": 133,
+  "indexed_at": "2026-06-24T18:45:39.083943-05:00",
+  "total_entries": 160,
   "sources_indexed": [
     "workspace-overview",
     "identity",
@@ -39,6 +39,8 @@
     "execution-log",
     "goal-state",
     "current-goal",
-    "goal-report"
+    "goal-report",
+    "gstack-policy",
+    "gstack-skills-doc"
   ]
 }

@@ -30,6 +30,12 @@
       "passed": true,
       "points": 3
     },
+    "gstack_integrity": {
+      "detail": "ok",
+      "earned": 0,
+      "passed": true,
+      "points": 0
+    },
     "json_validity": {
       "detail": "",
       "earned": 12,
@@ -67,7 +73,7 @@
       "points": 10
     }
   },
-  "created_at": "2026-06-24T17:09:01-0500",
+  "created_at": "2026-06-24T20:09:06-0500",
   "failed_gates": [],
   "gates_passed": true,
   "max_score": 100,

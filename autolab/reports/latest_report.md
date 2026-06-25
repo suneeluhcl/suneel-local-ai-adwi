@@ -1,6 +1,6 @@
 # Autolab Latest Report
 
-Generated: 2026-06-24T17:09:01-0500
+Generated: 2026-06-24T20:09:06-0500
 Score: 100.0 / 100
 Safety gates: passed
 
@@ -13,6 +13,7 @@ Safety gates: passed
 - doctor_health: 12 / 12 - Workspace health: healthy (2 issues)
 - info: codex CLI is not on PATH
 - info: claude CLI is not on PATH
+- gstack_integrity: 0 / 0 - ok
 - startup_closeout_readiness: 10 / 10 - agent-start and agent-autoclose available
 - launchd_maintenance: 8 / 8 - loaded
 - duplicate_instruction_drift: 8 / 8 - 
