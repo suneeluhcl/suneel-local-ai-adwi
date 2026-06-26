@@ -1,0 +1,22 @@
+{
+  "events": [
+    {
+      "command": "system-gaps",
+      "context": "system",
+      "exit_code": 0,
+      "notes": "",
+      "outcome": "success",
+      "timestamp": "2026-06-26T00:37:16.613335-05:00"
+    }
+  ],
+  "preferred_workflows": [],
+  "sequence_patterns": [],
+  "success_failure_patterns": [
+    {
+      "command": "system-gaps",
+      "failure_count": 0,
+      "success_count": 1
+    }
+  ],
+  "version": "1.0"
+}

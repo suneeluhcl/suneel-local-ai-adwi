@@ -1,0 +1,21 @@
+{
+  "confidence": 0.9,
+  "intent": "system_improvement",
+  "last_command": "system-gaps",
+  "recent_actions": [
+    {
+      "command": "mail-draft-reply",
+      "context": "general",
+      "intent": "email",
+      "timestamp": "2026-06-26T00:47:46.078582-05:00"
+    },
+    {
+      "command": "system-gaps",
+      "context": "general",
+      "intent": "system_improvement",
+      "timestamp": "2026-06-26T00:51:39.067046-05:00"
+    }
+  ],
+  "updated_at": "2026-06-26T00:51:39.067164-05:00",
+  "version": "1.0"
+}

@@ -1,0 +1,3 @@
+#!/bin/sh
+ROOT="${SUNEEL_WORKSPACE:-$HOME/SuneelWorkSpace}"
+exec python3 "$ROOT/anticipation/prediction_engine.py" "$@"

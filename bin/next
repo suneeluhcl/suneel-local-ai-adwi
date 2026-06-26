@@ -1,0 +1,121 @@
+#!/usr/bin/env python3
+"""Smart next-step execution selector."""
+
+import sys
+import os
+from pathlib import Path
+
+ROOT = Path(os.environ.get("SUNEEL_WORKSPACE", Path.home() / "SuneelWorkSpace")).resolve()
+sys.path.append(str(ROOT))
+sys.path.append(str(ROOT / "anticipation"))
+
+try:
+    import execution_engine
+except ImportError:
+    execution_engine = None
+
+def run():
+    if not execution_engine:
+        print("Error: execution_engine.py not found or failed to load.")
+        sys.exit(1)
+        
+    # Fetch suggestions
+    suggestions = execution_engine.get_enriched_suggestions()
+    if not suggestions:
+        print("No recommendations or next actions detected.")
+        return
+        
+    # Load and print active context
+    active_context_path = ROOT / "agent-system" / "state" / "ACTIVE_CONTEXT.json"
+    if active_context_path.exists():
+        try:
+            import json
+            ctx = json.loads(active_context_path.read_text())
+            print("\nCurrent context:")
+            print(f"  - Intent     : {ctx.get('current_intent', 'unknown')}")
+            print(f"  - Active goal: {ctx.get('current_goal', 'None')}")
+            print(f"  - Workflow   : {ctx.get('active_workflow', 'unknown')}")
+            conf = ctx.get('confidence', 0.0)
+            if conf > 0.7:
+                strength = f"Strong ({conf})"
+            elif conf >= 0.4:
+                strength = f"Weak ({conf})"
+            else:
+                strength = f"Fading ({conf})"
+            print(f"  - Strength   : {strength}")
+        except Exception:
+            pass
+
+    print("\nSuggested next actions:")
+    top_3 = suggestions[:3]
+    for idx, item in enumerate(top_3, 1):
+        status_line = f"[{item['rank']} | {item['execution_level']} | {item['confidence_score']}]"
+        print(f"{idx}. {status_line}")
+        print(f"   {item['text']}")
+        if item['readiness_flag']:
+            if item['execution_level'] == 'SAFE':
+                print("   → Ready to run")
+            elif item['execution_level'] == 'CONTROLLED':
+                print("   → Run now? (y/n)")
+            else:
+                print("   → Approval required")
+        else:
+            print("   → Prerequisites missing or manual action required")
+        print("")
+        
+    try:
+        val = input("Select action to execute (1-3) or 'q' to quit: ").strip().lower()
+        if val in ['q', 'quit', 'exit', '']:
+            print("Goodbye.")
+            return
+            
+        if val not in ['1', '2', '3']:
+            print("Invalid selection.")
+            return
+            
+        choice = int(val)
+        if choice > len(top_3):
+            print("Selection out of bounds.")
+            return
+            
+        action = top_3[choice - 1]
+        
+        if not action.get("readiness_flag", False):
+            print("This action is not ready to execute automatically. Please complete prerequisites manually.")
+            return
+            
+        level = action["execution_level"]
+        
+        if level == "SAFE":
+            print("Action is SAFE. Auto-executing...")
+            success, msg = execution_engine.execute_action(action)
+            print(msg)
+            
+        elif level == "CONTROLLED":
+            confirm = input("Run this now? (y/n): ").strip().lower()
+            if confirm in ['y', 'yes']:
+                success, msg = execution_engine.execute_action(action)
+                print(msg)
+            else:
+                print("Execution cancelled.")
+                
+        elif level == "RESTRICTED":
+            print("\n⚠️ WARNING: This is a RESTRICTED action.")
+            confirm = input("Are you absolutely sure you want to run this? (y/n): ").strip().lower()
+            if confirm in ['y', 'yes']:
+                reason = input("Enter confirmation reason / justification: ").strip()
+                if not reason:
+                    print("ERROR: A reason is required for RESTRICTED actions. Cancelled.")
+                    return
+                success, msg = execution_engine.execute_action(action, reason=reason)
+                print(msg)
+            else:
+                print("Execution cancelled.")
+                
+    except KeyboardInterrupt:
+        print("\nCancelled.")
+    except Exception as e:
+        print(f"\nError: {e}")
+
+if __name__ == "__main__":
+    run()

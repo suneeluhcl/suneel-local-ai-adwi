@@ -1,0 +1,86 @@
+#!/usr/bin/env python3
+"""context-reset — Reset or switch the active context."""
+
+from __future__ import annotations
+
+import argparse
+import json
+import os
+import sys
+from datetime import datetime, timezone
+from pathlib import Path
+
+ROOT = Path(os.environ.get("SUNEEL_WORKSPACE", Path.home() / "SuneelWorkSpace")).resolve()
+ACTIVE_CONTEXT_PATH = ROOT / "agent-system" / "state" / "ACTIVE_CONTEXT.json"
+SESSION_LOG_PATH = ROOT / "agent-system" / "logs" / "SESSION_LOG.md"
+
+def now() -> str:
+    return datetime.now(timezone.utc).astimezone().isoformat()
+
+def log_session(message: str) -> None:
+    try:
+        today = datetime.now().strftime("%Y-%m-%d")
+        log_entry = f"\n## {today}\n\n- {message}\n"
+        with open(SESSION_LOG_PATH, "a") as f:
+            f.write(log_entry)
+    except Exception:
+        pass
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description="Reset or switch the active context")
+    parser.add_argument("--soft", action="store_true", help="Soft reset: keep goal, reset intent and history")
+    parser.add_argument("--workflow", help="Switch workflow (e.g. messaging, research, development)")
+    args = parser.parse_args()
+    
+    try:
+        if ACTIVE_CONTEXT_PATH.exists():
+            ctx = json.loads(ACTIVE_CONTEXT_PATH.read_text())
+        else:
+            ctx = {}
+    except Exception:
+        ctx = {}
+        
+    if args.workflow:
+        old_workflow = ctx.get("active_workflow", "unknown")
+        ctx["active_workflow"] = args.workflow
+        ctx["current_intent"] = args.workflow
+        ctx["confidence"] = 0.5
+        ctx["last_updated"] = now()
+        ACTIVE_CONTEXT_PATH.write_text(json.dumps(ctx, indent=2) + "\n")
+        log_msg = f"Active context workflow switched from '{old_workflow}' to '{args.workflow}'"
+        log_session(log_msg)
+        print(log_msg)
+        return 0
+        
+    if args.soft:
+        ctx.update({
+            "current_intent": "unknown",
+            "last_actions": [],
+            "next_recommended_actions": [],
+            "confidence": 0.2,
+            "last_updated": now()
+        })
+        ACTIVE_CONTEXT_PATH.write_text(json.dumps(ctx, indent=2) + "\n")
+        log_msg = "Active context soft reset completed (kept goal, reset intent history)"
+        log_session(log_msg)
+        print(log_msg)
+        return 0
+        
+    ctx = {
+        "current_goal": None,
+        "current_intent": "unknown",
+        "active_workflow": "unknown",
+        "last_actions": [],
+        "next_recommended_actions": [],
+        "confidence": 0.0,
+        "status": "active",
+        "last_updated": now()
+    }
+    ACTIVE_CONTEXT_PATH.write_text(json.dumps(ctx, indent=2) + "\n")
+    log_msg = "Active context fully reset"
+    log_session(log_msg)
+    print(log_msg)
+    return 0
+
+if __name__ == "__main__":
+    raise SystemExit(main())

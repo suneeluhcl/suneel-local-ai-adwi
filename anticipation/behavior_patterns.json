@@ -1,0 +1,49 @@
+{
+  "built_in_patterns": [
+    {
+      "after": "imsg-recent",
+      "suggest": [
+        "Review recent messages",
+        "Draft replies with imessage-send-draft"
+      ]
+    },
+    {
+      "after": "imessage-send-draft",
+      "suggest": [
+        "Review draft carefully",
+        "Send only after explicit approval"
+      ]
+    },
+    {
+      "after": "mail-draft-reply",
+      "suggest": [
+        "Review draft tone against identity/profile/tone_profile.md",
+        "Send only after explicit approval"
+      ]
+    },
+    {
+      "after": "goal-create",
+      "suggest": [
+        "Run goal-plan",
+        "Route tasks through route-task"
+      ]
+    },
+    {
+      "after": "idea-run",
+      "suggest": [
+        "Review the generated analysis",
+        "Convert accepted work into a goal",
+        "Check tools/recommendations.md if new tooling is needed"
+      ]
+    },
+    {
+      "after": "system-gaps",
+      "suggest": [
+        "Open audit/improvement_plan.md",
+        "Run improve-system",
+        "Turn a P0/P1 gap into a goal"
+      ]
+    }
+  ],
+  "version": "1.0"
+}
