@@ -21,4 +21,6 @@
 
 - 2026-06-26: Completed zero-gap README, intent layer, ranked suggestion contract, and strict session boot upgrade. Added intent storage in `anticipation/current_context.json`, ranked suggestion contract, README session boot, capability contract, full folder/command coverage validation, and MCP README/current-context resources.
 - 2026-06-26: Completed full workspace deduplication, consolidation, and structure cleanup. Reduced workspace file count from 5,424 to 799 (85% reduction), consolidated 51 backup snapshots to 3 + archived others, replaced 20 bin/ copy scripts with relative symlinks to subsystem originals, archived autolab experiment history, removed empty directories, updated workspace map, and documented resolved clusters in audit/duplication_clusters.json.
+- 2026-06-26: Completed Canonical Integrity Guard implementation. Created scripts/integrity_guard.py (aliased as bin/integrity-guard) to check for duplicate function declarations or logic bodies inside Python/Shell scripts, updated WORKFLOW_RULES.md, integrated validations into bin/agent-doctor health check, and documented integrity policies in README.md.
+
 
