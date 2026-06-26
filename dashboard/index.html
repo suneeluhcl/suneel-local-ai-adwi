@@ -1,72 +1,188 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SuneelWorkSpace Live Control Center</title>
-    <!-- HTMX CDN -->
-    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
-    <link rel="stylesheet" href="/static/style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SuneelWorkSpace — Control Center</title>
+  <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-    <header hx-get="/widgets/header" hx-trigger="load, every 30s" hx-swap="innerHTML">
-        <!-- Loaded dynamically -->
-    </header>
+  <!-- ── Header ───────────────────────────────────────────────────────── -->
+  <header class="cc-header">
+    <div class="cc-header-left">
+      <span class="cc-logo">⚡ SuneelWorkSpace</span>
+      <span class="cc-tagline">Control Center</span>
+    </div>
+    <div class="cc-header-right">
+      <span class="status-pill" id="pill-mcp">MCP</span>
+      <span class="status-pill" id="pill-ws">WS</span>
+      <span class="status-pill" id="pill-ai">AI</span>
+      <span class="cc-clock" id="cc-clock">--:--:--</span>
+    </div>
+  </header>
 
-    <main class="dashboard-grid">
-        <!-- Panel 1: Active Goals -->
-        <section class="panel">
-            <h2>Active Goals</h2>
-            <div id="goals-widget" hx-get="/widgets/goals" hx-trigger="load, every 30s" hx-swap="innerHTML">
-                <div class="loader">Loading goals...</div>
-            </div>
-        </section>
+  <!-- ── Stage Progress Bar ───────────────────────────────────────────── -->
+  <div class="stage-bar">
+    <div class="stage-step" id="stage-brainstorm" data-stage="brainstorm">
+      <div class="stage-icon">🧠</div>
+      <div class="stage-label">Brainstorm</div>
+      <div class="stage-connector"></div>
+    </div>
+    <div class="stage-step" id="stage-plan" data-stage="plan">
+      <div class="stage-icon">📋</div>
+      <div class="stage-label">Plan</div>
+      <div class="stage-connector"></div>
+    </div>
+    <div class="stage-step" id="stage-confirm" data-stage="confirm">
+      <div class="stage-icon">✋</div>
+      <div class="stage-label">Confirm</div>
+      <div class="stage-connector"></div>
+    </div>
+    <div class="stage-step" id="stage-implement" data-stage="implement">
+      <div class="stage-icon">⚙️</div>
+      <div class="stage-label">Implement</div>
+      <div class="stage-connector"></div>
+    </div>
+    <div class="stage-step" id="stage-test" data-stage="test">
+      <div class="stage-icon">🧪</div>
+      <div class="stage-label">Test</div>
+      <div class="stage-connector"></div>
+    </div>
+    <div class="stage-step" id="stage-wire" data-stage="wire">
+      <div class="stage-icon">🔗</div>
+      <div class="stage-label">Wire</div>
+    </div>
+  </div>
 
-        <!-- Panel 2: Agent Activity -->
-        <section class="panel">
-            <h2>Agent Activity</h2>
-            <div id="agent-widget" hx-get="/widgets/agent" hx-trigger="load, every 30s" hx-swap="innerHTML">
-                <div class="loader">Loading agent status...</div>
-            </div>
-        </section>
+  <!-- ── Main Layout ──────────────────────────────────────────────────── -->
+  <div class="cc-layout">
 
-        <!-- Panel 3: Memory Health -->
-        <section class="panel">
-            <h2>Memory Health</h2>
-            <div id="memory-widget" hx-get="/widgets/memory" hx-trigger="load, every 30s" hx-swap="innerHTML">
-                <div class="loader">Loading memory stats...</div>
-            </div>
-        </section>
+    <!-- Left Sidebar -->
+    <aside class="cc-sidebar-left">
 
-        <!-- Panel 4: MCP Status -->
-        <section class="panel">
-            <h2>MCP & Infrastructure</h2>
-            <div id="mcp-widget" hx-get="/widgets/mcp" hx-trigger="load, every 30s" hx-swap="innerHTML">
-                <div class="loader">Loading MCP status...</div>
-            </div>
-        </section>
+      <!-- Command Input -->
+      <div class="cc-panel" id="panel-input">
+        <div class="panel-title">Command</div>
+        <textarea
+          id="prompt-input"
+          placeholder="What do you want to build or run?"
+          rows="4"
+          autofocus
+        ></textarea>
+        <div class="input-actions">
+          <button class="btn btn-secondary" id="btn-brainstorm" onclick="submitPrompt('brainstorm')">
+            🧠 Brainstorm
+          </button>
+          <button class="btn btn-primary" id="btn-execute" onclick="submitPrompt('full')">
+            ⚡ Execute
+          </button>
+        </div>
+      </div>
 
-        <!-- Panel 5: Anticipation Suggestions -->
-        <section class="panel">
-            <h2>Anticipation suggestions</h2>
-            <div id="anticipation-widget" hx-get="/widgets/anticipation" hx-trigger="load, every 30s" hx-swap="innerHTML">
-                <div class="loader">Loading suggestions...</div>
-            </div>
-        </section>
+      <!-- Smart Suggestions -->
+      <div class="cc-panel" id="panel-suggestions">
+        <div class="panel-title">Smart Suggestions</div>
+        <div id="suggestions-list" class="suggestions-list">
+          <div class="loading-dots">Loading…</div>
+        </div>
+      </div>
 
-        <!-- Panel 6: System Health Score -->
-        <section class="panel flex-center">
-            <h2>Overall System Health</h2>
-            <div id="health-widget" hx-get="/widgets/health" hx-trigger="load, every 30s" hx-swap="innerHTML">
-                <div class="loader">Loading health score...</div>
-            </div>
-        </section>
+      <!-- Agent Map -->
+      <div class="cc-panel" id="panel-agents">
+        <div class="panel-title">Agent Activity</div>
+        <div id="agent-map" class="agent-map"></div>
+      </div>
+
+    </aside>
+
+    <!-- Main Area -->
+    <main class="cc-main">
+
+      <!-- Execution Feed -->
+      <div class="cc-panel panel-feed" id="panel-feed">
+        <div class="panel-header">
+          <div class="panel-title">Execution Feed</div>
+          <div class="feed-controls">
+            <button class="btn-icon" onclick="clearFeed()" title="Clear">🗑</button>
+            <button class="btn-icon" onclick="togglePause()" id="btn-pause" title="Pause">⏸</button>
+          </div>
+        </div>
+        <div id="execution-feed" class="execution-feed">
+          <div class="feed-empty">Waiting for command…</div>
+        </div>
+      </div>
+
+      <!-- Confirm Panel (shown during confirm stage) -->
+      <div class="cc-panel panel-confirm hidden" id="panel-confirm">
+        <div class="panel-title">📋 Action Plan — Review Required</div>
+        <div id="plan-content" class="plan-content"></div>
+        <div class="confirm-actions">
+          <button class="btn btn-danger" onclick="confirmPlan(false)">✗ Reject</button>
+          <button class="btn btn-success" onclick="confirmPlan(true)">✓ Approve &amp; Execute</button>
+        </div>
+      </div>
+
+      <!-- Result Panel (shown after wire stage) -->
+      <div class="cc-panel panel-result hidden" id="panel-result">
+        <div class="panel-title">Result</div>
+        <div id="result-content" class="result-content"></div>
+      </div>
+
     </main>
 
-    <footer>
-        SuneelWorkSpace Live Control Center &copy; 2026. Bounded machine intelligence.
-    </footer>
+    <!-- Right Sidebar -->
+    <aside class="cc-sidebar-right">
 
-    <script src="/static/dashboard.js"></script>
+      <!-- System Health -->
+      <div class="cc-panel" id="panel-health">
+        <div class="panel-title">System Health</div>
+        <div class="health-score">
+          <div id="health-ring" class="health-ring">
+            <svg viewBox="0 0 100 100">
+              <circle class="ring-bg" cx="50" cy="50" r="40"/>
+              <circle class="ring-fill" id="ring-fill" cx="50" cy="50" r="40"
+                stroke-dasharray="251.2" stroke-dashoffset="251.2"/>
+            </svg>
+            <div class="ring-label" id="health-score-label">--</div>
+          </div>
+        </div>
+        <div id="health-details" class="health-details"></div>
+      </div>
+
+      <!-- Goals -->
+      <div class="cc-panel" id="panel-goals">
+        <div class="panel-title">Active Goals</div>
+        <div id="goals-list" class="goals-list">
+          <div class="loading-dots">Loading…</div>
+        </div>
+      </div>
+
+      <!-- History -->
+      <div class="cc-panel" id="panel-history">
+        <div class="panel-header">
+          <div class="panel-title">History</div>
+          <button class="btn-icon" onclick="toggleHistory()">≡</button>
+        </div>
+        <div id="history-search-wrap" class="hidden">
+          <input id="history-search" type="text" placeholder="Search…"
+                 oninput="filterHistory(this.value)">
+        </div>
+        <div id="history-list" class="history-list">
+          <div class="loading-dots">Loading…</div>
+        </div>
+      </div>
+
+      <!-- Autolab Status -->
+      <div class="cc-panel" id="panel-autolab">
+        <div class="panel-title">Autolab</div>
+        <div id="autolab-content" class="autolab-content">
+          <div class="loading-dots">Loading…</div>
+        </div>
+      </div>
+
+    </aside>
+  </div>
+
+  <script src="/static/dashboard.js"></script>
 </body>
 </html>

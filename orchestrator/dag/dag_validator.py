@@ -8,8 +8,7 @@ from pathlib import Path
 try:
     import yaml  # type: ignore
 except ImportError:
-    print("ERROR: pyyaml not installed. Run: pip install pyyaml", file=sys.stderr)
-    sys.exit(1)
+    yaml = None  # type: ignore
 
 BIN_DIR = Path(__file__).parent.parent.parent / "bin"
 SCRIPTS_DIR = Path(__file__).parent.parent.parent / "scripts"
@@ -24,6 +23,8 @@ def _command_exists(cmd: str) -> bool:
 
 
 def validate(path: str) -> tuple[bool, list[str]]:
+    if yaml is None:
+        return False, ["pyyaml not installed — run: pip install pyyaml"]
     errors: list[str] = []
 
     try:

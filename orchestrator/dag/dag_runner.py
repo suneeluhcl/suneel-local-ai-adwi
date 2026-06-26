@@ -12,8 +12,7 @@ from pathlib import Path
 try:
     import yaml  # type: ignore
 except ImportError:
-    print("ERROR: pyyaml not installed. Run: pip install pyyaml", file=sys.stderr)
-    sys.exit(1)
+    yaml = None  # type: ignore
 
 from dag_validator import validate
 

@@ -1,13 +1,20 @@
 #!/usr/bin/env python3
+"""SuneelWorkSpace Control Center — FastAPI server with WebSocket execution streaming."""
+
+import asyncio
+import json
+import logging
 import os
 import sys
-import logging
+import uuid
 from datetime import datetime
-from fastapi import FastAPI, Request
-from fastapi.responses import HTMLResponse, FileResponse
+from typing import Any
+
+from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect
+from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
-# Ensure widgets are importable
+# Importable widgets
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from widgets.goal_status import get_active_goals
 from widgets.agent_activity import get_agent_activity
@@ -16,212 +23,241 @@ from widgets.mcp_status import get_mcp_status
 from widgets.anticipation import get_suggestions
 from widgets.autolab_status import get_autolab_status
 
-app = FastAPI(title="SuneelWorkSpace Live Dashboard")
+WORKSPACE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+LOG_DIR = os.path.join(WORKSPACE, "agent-system", "logs")
+HISTORY_FILE = os.path.join(LOG_DIR, "execution_history.jsonl")
+os.makedirs(LOG_DIR, exist_ok=True)
 
-# Mount static folder
-app.mount("/static", StaticFiles(directory=os.path.join(os.path.dirname(os.path.abspath(__file__)), "static")), name="static")
-
-# Ensure logs dir exists
-log_dir = "/Users/MAC/SuneelWorkSpace/agent-system/logs"
-os.makedirs(log_dir, exist_ok=True)
-
-# Configure logging
 logging.basicConfig(
-    filename=os.path.join(log_dir, "dashboard.log"),
+    filename=os.path.join(LOG_DIR, "dashboard.log"),
     level=logging.INFO,
-    format="%(asctime)s [%(levelname)s] %(message)s"
+    format="%(asctime)s [%(levelname)s] %(message)s",
 )
 
-# Serve index.html
+app = FastAPI(title="SuneelWorkSpace Control Center")
+app.mount(
+    "/static",
+    StaticFiles(directory=os.path.join(os.path.dirname(os.path.abspath(__file__)), "static")),
+    name="static",
+)
+
+# ── WebSocket connection manager ──────────────────────────────────────────────
+
+class ConnectionManager:
+    def __init__(self) -> None:
+        self.active: dict[str, WebSocket] = {}
+
+    async def connect(self, client_id: str, ws: WebSocket) -> None:
+        await ws.accept()
+        self.active[client_id] = ws
+        logging.info(f"WS connected: {client_id}")
+
+    def disconnect(self, client_id: str) -> None:
+        self.active.pop(client_id, None)
+        logging.info(f"WS disconnected: {client_id}")
+
+    async def send(self, client_id: str, msg: dict) -> None:
+        ws = self.active.get(client_id)
+        if ws:
+            try:
+                await ws.send_text(json.dumps(msg))
+            except Exception as e:
+                logging.warning(f"WS send error [{client_id}]: {e}")
+                self.disconnect(client_id)
+
+    async def broadcast(self, msg: dict) -> None:
+        for cid in list(self.active):
+            await self.send(cid, msg)
+
+
+manager = ConnectionManager()
+
+# Pending confirm responses: client_id → asyncio.Future
+_confirm_futures: dict[str, asyncio.Future] = {}
+
+
+# ── WebSocket endpoint ─────────────────────────────────────────────────────────
+
+@app.websocket("/ws/{client_id}")
+async def websocket_endpoint(ws: WebSocket, client_id: str) -> None:
+    await manager.connect(client_id, ws)
+    # Send welcome
+    await manager.send(client_id, {
+        "type": "system",
+        "message": "Control Center connected",
+        "ts": datetime.now().isoformat(),
+    })
+    try:
+        while True:
+            raw = await ws.receive_text()
+            try:
+                msg = json.loads(raw)
+            except json.JSONDecodeError:
+                continue
+
+            msg_type = msg.get("type", "")
+
+            if msg_type == "execute":
+                prompt = msg.get("prompt", "").strip()
+                mode = msg.get("mode", "full")  # full | brainstorm
+                if prompt:
+                    asyncio.create_task(_run_pipeline(client_id, prompt, mode))
+
+            elif msg_type == "confirm_response":
+                fut = _confirm_futures.get(client_id)
+                if fut and not fut.done():
+                    fut.set_result(msg.get("approved", False))
+
+            elif msg_type == "ping":
+                await manager.send(client_id, {"type": "pong", "ts": datetime.now().isoformat()})
+
+    except WebSocketDisconnect:
+        manager.disconnect(client_id)
+
+
+# ── Pipeline runner ─────────────────────────────────────────────────────────
+
+async def _run_pipeline(client_id: str, prompt: str, mode: str) -> None:
+    """Run the 6-stage pipeline with live WebSocket streaming."""
+    sys.path.insert(0, WORKSPACE)
+    try:
+        from dashboard.pipeline.pipeline import Pipeline
+        pipeline = Pipeline(
+            client_id=client_id,
+            prompt=prompt,
+            mode=mode,
+            send_fn=lambda msg: manager.send(client_id, msg),
+            confirm_fn=lambda plan: _request_confirm(client_id, plan),
+        )
+        result = await pipeline.run()
+        _save_history(prompt, result)
+    except Exception as e:
+        logging.exception(f"Pipeline error for {client_id}")
+        await manager.send(client_id, {
+            "type": "error",
+            "message": f"Pipeline error: {e}",
+            "ts": datetime.now().isoformat(),
+        })
+
+
+async def _request_confirm(client_id: str, plan: dict) -> bool:
+    """Send confirm_request, wait for user response via WebSocket."""
+    fut: asyncio.Future = asyncio.get_event_loop().create_future()
+    _confirm_futures[client_id] = fut
+    await manager.send(client_id, {
+        "type": "confirm_request",
+        "plan": plan,
+        "ts": datetime.now().isoformat(),
+    })
+    try:
+        approved = await asyncio.wait_for(fut, timeout=300)
+    except asyncio.TimeoutError:
+        approved = False
+    _confirm_futures.pop(client_id, None)
+    return approved
+
+
+# ── History ──────────────────────────────────────────────────────────────────
+
+def _save_history(prompt: str, result: dict) -> None:
+    record = {
+        "id": str(uuid.uuid4())[:8],
+        "ts": datetime.now().isoformat(),
+        "prompt": prompt,
+        "outcome": result.get("outcome", "unknown"),
+        "stages_completed": result.get("stages_completed", []),
+        "duration_ms": result.get("duration_ms", 0),
+    }
+    with open(HISTORY_FILE, "a") as f:
+        f.write(json.dumps(record) + "\n")
+
+
+def _load_history(limit: int = 50) -> list[dict]:
+    if not os.path.exists(HISTORY_FILE):
+        return []
+    lines = open(HISTORY_FILE).readlines()
+    records = []
+    for line in reversed(lines[-limit:]):
+        try:
+            records.append(json.loads(line.strip()))
+        except Exception:
+            pass
+    return records
+
+
+# ── REST APIs (kept from original + new) ─────────────────────────────────────
+
 @app.get("/", response_class=HTMLResponse)
-async def get_index(request: Request):
+async def get_index(request: Request) -> HTMLResponse:
     index_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "index.html")
     if os.path.exists(index_path):
-        with open(index_path, 'r', encoding='utf-8') as f:
-            return f.read()
+        return open(index_path, encoding="utf-8").read()
     return "<h1>Dashboard UI Not Found</h1>"
 
-# JSON APIs
+
 @app.get("/api/goals")
-async def api_goals():
+async def api_goals() -> Any:
     return get_active_goals()
 
+
 @app.get("/api/agent")
-async def api_agent():
+async def api_agent() -> Any:
     return get_agent_activity()
 
+
 @app.get("/api/memory")
-async def api_memory():
+async def api_memory() -> Any:
     return get_memory_health()
 
+
 @app.get("/api/mcp")
-async def api_mcp():
+async def api_mcp() -> Any:
     return get_mcp_status()
 
+
 @app.get("/api/anticipation")
-async def api_anticipation():
-    return get_suggestions()[:3]  # Return top 3
+async def api_anticipation() -> Any:
+    return get_suggestions()[:5]
+
 
 @app.get("/api/autolab")
-async def api_autolab():
+async def api_autolab() -> Any:
     return get_autolab_status()
 
+
 @app.get("/api/health")
-async def api_health():
-    health = get_memory_health()
-    # Compute simple score: start at 100, deduct 10 per warning, 30 per error
-    score = 100 - (health.get("total_errors", 0) * 30) - (health.get("total_warnings", 0) * 10)
-    score = max(0, min(100, score))
-    return {"score": score, "status": health.get("status", "healthy")}
-
-# HTMX HTML Widgets
-@app.get("/widgets/goals", response_class=HTMLResponse)
-async def widget_goals():
-    goals = get_active_goals()
-    if not goals:
-        return "<div class='no-data'>No active goals in progress.</div>"
-    
-    html = "<ul class='goals-list'>"
-    for g in goals:
-        priority_class = f"priority-{g['priority'].lower()}"
-        html += f"""
-        <li class="goal-item">
-            <div class="goal-header">
-                <span class="goal-title">{g['title']}</span>
-                <span class="badge {priority_class}">{g['priority']}</span>
-            </div>
-            <div class="goal-desc">{g['description']}</div>
-            <div class="goal-meta">ID: {g['id']} | Created: {g['created_at'][:10] if g['created_at'] else 'N/A'}</div>
-        </li>
-        """
-    html += "</ul>"
-    return html
-
-@app.get("/widgets/agent", response_class=HTMLResponse)
-async def widget_agent():
-    activity = get_agent_activity()
-    status_class = "status-active" if activity["status"] == "active" else "status-idle"
-    return f"""
-    <div class="agent-card">
-        <div class="agent-info">
-            <span class="label">Active Agent:</span>
-            <span class="value">{activity['active_agent']}</span>
-        </div>
-        <div class="agent-info">
-            <span class="label">Session ID:</span>
-            <span class="value font-mono">{activity['session_id']}</span>
-        </div>
-        <div class="agent-info">
-            <span class="label">Status:</span>
-            <span class="value {status_class}">{activity['status'].upper()}</span>
-        </div>
-        <div class="agent-info block">
-            <span class="label">Latest Action Summary:</span>
-            <div class="summary-box">{activity['last_summary']}</div>
-        </div>
-    </div>
-    """
-
-@app.get("/widgets/memory", response_class=HTMLResponse)
-async def widget_memory():
-    health = get_memory_health()
-    return f"""
-    <div class="stats-grid">
-        <div class="stat-card">
-            <div class="stat-num">{health['vector_count']}</div>
-            <div class="stat-lbl">Vector Memory Chunks</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-num">{health['total_errors']}</div>
-            <div class="stat-lbl">Health Errors</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-num">{health['total_warnings']}</div>
-            <div class="stat-lbl">Health Warnings</div>
-        </div>
-    </div>
-    <div class="meta-info">Last Checked: {health['last_checked']}</div>
-    """
-
-@app.get("/widgets/mcp", response_class=HTMLResponse)
-async def widget_mcp():
-    mcp = get_mcp_status()
-    server_class = "status-online" if mcp["server_status"] == "online" else "status-offline"
-    proxy_class = "status-online" if mcp["headroom_proxy"] == "online" else "status-offline"
-    return f"""
-    <div class="mcp-card">
-        <div class="agent-info">
-            <span class="label">MCP Server Status:</span>
-            <span class="value {server_class}">{mcp['server_status'].upper()}</span>
-        </div>
-        <div class="agent-info">
-            <span class="label">Headroom Proxy:</span>
-            <span class="value {proxy_class}">{mcp['headroom_proxy'].upper()}</span>
-        </div>
-        <div class="agent-info">
-            <span class="label">Mapped Resources:</span>
-            <span class="value font-mono">{mcp['total_resources']}</span>
-        </div>
-        <div class="agent-info">
-            <span class="label">Last Re-indexed:</span>
-            <span class="value text-sm">{mcp['last_reindex'][:19] if mcp['last_reindex'] else 'N/A'}</span>
-        </div>
-    </div>
-    """
-
-@app.get("/widgets/anticipation", response_class=HTMLResponse)
-async def widget_anticipation():
-    sugs = get_suggestions()[:3]
-    if not sugs:
-        return "<div class='no-data'>No execution suggestions ready.</div>"
-    
-    html = "<ul class='sug-list'>"
-    for s in sugs:
-        priority_class = f"priority-{s['priority'].lower()}"
-        html += f"""
-        <li class="sug-item">
-            <div class="sug-header">
-                <span class="badge {priority_class}">{s['priority']}</span>
-                <span class="sug-score">Confidence: {s['score']}</span>
-            </div>
-            <div class="sug-desc">{s['description']}</div>
-        </li>
-        """
-    html += "</ul>"
-    return html
-
-@app.get("/widgets/health", response_class=HTMLResponse)
-async def widget_health():
+async def api_health() -> Any:
     health = get_memory_health()
     score = 100 - (health.get("total_errors", 0) * 30) - (health.get("total_warnings", 0) * 10)
-    score = max(0, min(100, score))
-    
-    color_class = "health-green"
-    if score < 70:
-        color_class = "health-red"
-    elif score < 90:
-        color_class = "health-yellow"
-        
-    return f"""
-    <div class="health-container">
-        <div class="health-ring {color_class}">
-            <span class="health-score">{score}</span>
-            <span class="health-percent">%</span>
-        </div>
-        <div class="health-status">System Condition: <strong class="{color_class}">{health['status'].upper()}</strong></div>
-    </div>
-    """
+    return {"score": max(0, min(100, score)), "status": health.get("status", "healthy")}
 
-@app.get("/widgets/header", response_class=HTMLResponse)
-async def widget_header():
-    activity = get_agent_activity()
-    time_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    return f"""
-    <div class="header-left">
-        <h1>SuneelWorkSpace Live Control Center</h1>
-        <span class="header-time">System Time: {time_str}</span>
-    </div>
-    <div class="header-right">
-        <span class="last-agent-badge">Last Agent: {activity['active_agent']}</span>
-    </div>
-    """
+
+@app.get("/api/telemetry")
+async def api_telemetry() -> Any:
+    try:
+        sys.path.insert(0, os.path.join(WORKSPACE, "agent-system", "telemetry"))
+        from telemetry_query import summary
+        return summary(days=7)
+    except Exception as e:
+        return {"error": str(e)}
+
+
+@app.get("/api/history")
+async def api_history(limit: int = 50) -> Any:
+    return _load_history(limit)
+
+
+@app.get("/api/suggestions")
+async def api_suggestions() -> Any:
+    sugs = get_suggestions()[:5]
+    return [{"label": s.get("description", ""), "priority": s.get("priority", "medium")} for s in sugs]
+
+
+@app.get("/api/status")
+async def api_status() -> Any:
+    """Aggregate status for header pills."""
+    return {
+        "mcp": get_mcp_status().get("server_status", "offline"),
+        "ws_clients": len(manager.active),
+        "ts": datetime.now().isoformat(),
+    }

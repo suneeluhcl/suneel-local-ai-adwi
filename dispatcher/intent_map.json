@@ -139,6 +139,20 @@
       "task_type": "session",
       "keywords": ["context", "where are we", "what is the state", "show context", "workspace state"],
       "description": "Show workspace context"
+    },
+    "open_dashboard": {
+      "command": "workspace-dashboard",
+      "args": [],
+      "task_type": "dashboard",
+      "keywords": ["dashboard", "control center", "open dashboard", "show dashboard", "ui", "browser"],
+      "description": "Open the Control Center dashboard"
+    },
+    "run_tests": {
+      "command": "workspace-test",
+      "args": [],
+      "task_type": "test",
+      "keywords": ["run tests", "test suite", "pytest", "unit tests", "test all", "run all tests"],
+      "description": "Run workspace test suite"
     }
   }
 }
