@@ -656,6 +656,159 @@ def brain_link_notes(source_title: str, target_title: str) -> str:
         return f"[Error adding link: {e}]"
 
 # ---------------------------------------------------------------------------
+# APPROVED MCP RESOURCES
+# ---------------------------------------------------------------------------
+
+@mcp.resource("workspace://github/status")
+def res_github_status() -> str:
+    """GitHub MCP integration status and summary"""
+    return _resource_from_map("workspace://github/status")
+
+@mcp.resource("workspace://filesystem/status")
+def res_filesystem_status() -> str:
+    """Filesystem MCP integration status and summary"""
+    return _resource_from_map("workspace://filesystem/status")
+
+@mcp.resource("workspace://shortcuts/status")
+def res_shortcuts_status() -> str:
+    """macOS Shortcuts MCP integration status and summary"""
+    return _resource_from_map("workspace://shortcuts/status")
+
+@mcp.resource("workspace://search/status")
+def res_search_status() -> str:
+    """Brave Search MCP integration status and summary"""
+    return _resource_from_map("workspace://search/status")
+
+# ---------------------------------------------------------------------------
+# APPROVED MCP TOOLS
+# ---------------------------------------------------------------------------
+
+@mcp.tool()
+def github_list_prs(repo: str = "") -> str:
+    """List open pull requests for the repository using the GitHub MCP wrapper.
+    
+    Args:
+        repo: Repository name (e.g. 'owner/repo'). Leave blank for default repository.
+    """
+    _access("github_list_prs", {"repo": repo})
+    script = WORKSPACE / "scripts/mcp_github.py"
+    if not script.exists():
+        return "[Error: github-mcp script not found]"
+    cmd = ["python3", str(script), "pr-list"]
+    if repo:
+        cmd += ["--repo", repo]
+    try:
+        res = subprocess.run(cmd, capture_output=True, text=True, timeout=15)
+        return res.stdout.strip()
+    except Exception as e:
+        return f"[Error running github-mcp: {e}]"
+
+@mcp.tool()
+def github_create_issue(title: str, body: str = "", repo: str = "") -> str:
+    """Create a new issue in the target repository using the GitHub MCP wrapper.
+    
+    Args:
+        title: Title of the issue.
+        body: Markdown description of the issue.
+        repo: Repository name (e.g. 'owner/repo'). Leave blank for default repository.
+    """
+    _access("github_create_issue", {"title": title, "repo": repo})
+    script = WORKSPACE / "scripts/mcp_github.py"
+    if not script.exists():
+        return "[Error: github-mcp script not found]"
+    cmd = ["python3", str(script), "issue-create", title]
+    if body:
+        cmd += ["--body", body]
+    if repo:
+        cmd += ["--repo", repo]
+    try:
+        res = subprocess.run(cmd, capture_output=True, text=True, timeout=15)
+        return res.stdout.strip()
+    except Exception as e:
+        return f"[Error running github-mcp: {e}]"
+
+@mcp.tool()
+def filesystem_list_dir(path: str) -> str:
+    """List directory contents within SuneelWorkSpace using the Filesystem MCP wrapper.
+    
+    Args:
+        path: Path to the folder (relative to workspace or absolute).
+    """
+    _access("filesystem_list_dir", {"path": path})
+    script = WORKSPACE / "scripts/mcp_filesystem.py"
+    if not script.exists():
+        return "[Error: filesystem-mcp script not found]"
+    try:
+        res = subprocess.run(["python3", str(script), "list", path], capture_output=True, text=True, timeout=15)
+        return res.stdout.strip()
+    except Exception as e:
+        return f"[Error running filesystem-mcp: {e}]"
+
+@mcp.tool()
+def filesystem_read_file(path: str) -> str:
+    """Read file content within SuneelWorkSpace using the Filesystem MCP wrapper.
+    
+    Args:
+        path: Path to the file (relative to workspace or absolute).
+    """
+    _access("filesystem_read_file", {"path": path})
+    script = WORKSPACE / "scripts/mcp_filesystem.py"
+    if not script.exists():
+        return "[Error: filesystem-mcp script not found]"
+    try:
+        res = subprocess.run(["python3", str(script), "read", path], capture_output=True, text=True, timeout=15)
+        return res.stdout.strip()
+    except Exception as e:
+        return f"[Error running filesystem-mcp: {e}]"
+
+@mcp.tool()
+def shortcuts_list() -> str:
+    """List all available native macOS Shortcuts using the Shortcuts MCP wrapper."""
+    _access("shortcuts_list")
+    script = WORKSPACE / "scripts/mcp_shortcuts.py"
+    if not script.exists():
+        return "[Error: shortcuts-mcp script not found]"
+    try:
+        res = subprocess.run(["python3", str(script), "list"], capture_output=True, text=True, timeout=15)
+        return res.stdout.strip()
+    except Exception as e:
+        return f"[Error running shortcuts-mcp: {e}]"
+
+@mcp.tool()
+def shortcuts_run(name: str) -> str:
+    """Trigger a native macOS Shortcut by name using the Shortcuts MCP wrapper.
+    
+    Args:
+        name: Name of the Shortcut to run (e.g. 'Workspace Clean')
+    """
+    _access("shortcuts_run", {"name": name})
+    script = WORKSPACE / "scripts/mcp_shortcuts.py"
+    if not script.exists():
+        return "[Error: shortcuts-mcp script not found]"
+    try:
+        res = subprocess.run(["python3", str(script), "run", name], capture_output=True, text=True, timeout=15)
+        return res.stdout.strip()
+    except Exception as e:
+        return f"[Error running shortcuts-mcp: {e}]"
+
+@mcp.tool()
+def search_web_brave(query: str) -> str:
+    """Search the web for information using the Brave Search MCP wrapper.
+    
+    Args:
+        query: Search term (e.g. 'Model Context Protocol servers')
+    """
+    _access("search_web_brave", {"query": query})
+    script = WORKSPACE / "scripts/mcp_brave_search.py"
+    if not script.exists():
+        return "[Error: brave-search-mcp script not found]"
+    try:
+        res = subprocess.run(["python3", str(script), query], capture_output=True, text=True, timeout=15)
+        return res.stdout.strip()
+    except Exception as e:
+        return f"[Error running brave-search-mcp: {e}]"
+
+# ---------------------------------------------------------------------------
 # TOOLS — READ
 # ---------------------------------------------------------------------------
 

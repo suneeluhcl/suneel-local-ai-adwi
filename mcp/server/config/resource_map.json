@@ -253,6 +253,22 @@
     "workspace://workflow-rules": {
       "file": "agent-system/shared/WORKFLOW_RULES.md",
       "label": "Workflow rules"
+    },
+    "workspace://github/status": {
+      "file": "tools/mcp_github_status.md",
+      "label": "GitHub MCP integration status and summary"
+    },
+    "workspace://filesystem/status": {
+      "file": "tools/mcp_filesystem_status.md",
+      "label": "Filesystem MCP integration status and summary"
+    },
+    "workspace://shortcuts/status": {
+      "file": "tools/mcp_shortcuts_status.md",
+      "label": "macOS Shortcuts MCP integration status and summary"
+    },
+    "workspace://search/status": {
+      "file": "tools/mcp_search_status.md",
+      "label": "Brave Search MCP integration status and summary"
     }
   },
   "workspace://comms/imessage/recent": "comms/imessage/logs/imessage_access.log",

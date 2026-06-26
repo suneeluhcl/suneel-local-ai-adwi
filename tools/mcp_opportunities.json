@@ -1,0 +1,91 @@
+{
+  "opportunities": {
+    "communication": [
+      {
+        "name": "mac-comms-mcp",
+        "detected_triggers": [
+          "mail-status",
+          "imessage-recent"
+        ],
+        "purpose": " macOS iMessage and Mail integration",
+        "connector_source": "builtin/custom",
+        "status": "partially_integrated"
+      }
+    ],
+    "development": [
+      {
+        "name": "github-mcp",
+        "detected_triggers": [
+          "git",
+          "gh"
+        ],
+        "purpose": "GitHub PR, issue, and repository management",
+        "connector_source": "github.com/modelcontextprotocol/servers/tree/main/src/github",
+        "status": "available"
+      },
+      {
+        "name": "sqlite-mcp",
+        "detected_triggers": [
+          "sqlite3"
+        ],
+        "purpose": "SQLite database queries and schema inspection",
+        "connector_source": "github.com/modelcontextprotocol/servers/tree/main/src/sqlite",
+        "status": "available"
+      },
+      {
+        "name": "docker-mcp",
+        "detected_triggers": [
+          "docker"
+        ],
+        "purpose": "Docker container and image inspection",
+        "connector_source": "github.com/modelcontextprotocol/servers/tree/main/src/docker",
+        "status": "available"
+      }
+    ],
+    "research": [
+      {
+        "name": "obsidian-mcp",
+        "detected_triggers": [
+          "obsidian"
+        ],
+        "purpose": "Expose Obsidian vault notes as direct resources",
+        "connector_source": "builtin/custom-bridge",
+        "status": "fully_integrated"
+      },
+      {
+        "name": "brave-search-mcp",
+        "detected_triggers": [
+          "brew"
+        ],
+        "purpose": "Web search capabilities for fresh research",
+        "connector_source": "github.com/modelcontextprotocol/servers/tree/main/src/brave-search",
+        "status": "available"
+      }
+    ],
+    "automation": [
+      {
+        "name": "macos-shortcuts-mcp",
+        "detected_triggers": [
+          "shortcuts",
+          "osascript"
+        ],
+        "purpose": "Trigger native macOS Shortcuts app workflows",
+        "connector_source": "builtin/custom-shortcuts",
+        "status": "available"
+      }
+    ],
+    "system_control": [
+      {
+        "name": "filesystem-mcp",
+        "detected_triggers": [
+          "mdfind",
+          "rg"
+        ],
+        "purpose": "Safe, read-only file listing, reading, and searching",
+        "connector_source": "github.com/modelcontextprotocol/servers/tree/main/src/filesystem",
+        "status": "available"
+      }
+    ]
+  },
+  "generated_at": "2026-06-26T08:52:03.654344-05:00"
+}

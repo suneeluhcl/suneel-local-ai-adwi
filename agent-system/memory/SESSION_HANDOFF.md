@@ -4,7 +4,7 @@
 
 Date: 2026-06-26
 
-Summary: fix relative symlinks and run real-time end-to-end testing
+Summary: integrated Obsidian core brain, daily-evolve loop, tool discovery, and life automation layer
 
 Changed:
 

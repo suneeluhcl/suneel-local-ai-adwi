@@ -944,6 +944,14 @@ When a user provides triggers such as:
 
 Workflows execute safe status actions and write reusable plans to `brain/workflows/` for continuous optimization.
 
+## APPROVED SYSTEM MCP CONNECTORS
+
+The workspace integrates native Model Context Protocol (MCP) server connectors to interact safely with macOS applications, external research directories, and development tools:
+- **GitHub Connector (`bin/github-mcp`)**: Connects to the GitHub API via the local `gh` utility to query PR lists, issues, and repositories. Outbound mutations require explicit user confirmation. Mapped as `workspace://github/status`.
+- **Filesystem Connector (`bin/filesystem-mcp`)**: Exposes safe, boundary-checked read-only file reading and listing tools. Access attempts outside SuneelWorkSpace are blocked. Mapped as `workspace://filesystem/status`.
+- **macOS Shortcuts Connector (`bin/macos-shortcuts-mcp`)**: Queries the native macOS Shortcuts list and executes authorized system automation scripts. Running individual Shortcuts requires explicit user confirmation. Mapped as `workspace://shortcuts/status`.
+- **Brave Search Connector (`bin/brave-search-mcp`)**: Searches the web for fresh development research and packages the top titles, URLs, and snippets. Mapped as `workspace://search/status`.
+
 ## 10. For AI Agents
 
 

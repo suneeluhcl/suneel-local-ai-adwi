@@ -105,6 +105,33 @@ ideas_res = main.res_brain_ideas()
 assert 'test_note_mcp' in ideas_res, f'Resource listing failed: {ideas_res}'
 # Cleanup
 pathlib.Path('$WORKSPACE/brain/ideas/test_note_mcp.md').unlink()
+\""# 12. Approved MCP Connectors E2E Verification
+run_test "System MCP connectors (github, filesystem, shortcuts, search)" "uv run --with-requirements '$MCP_ROOT/server/requirements.txt' python3 -c \"
+import sys, pathlib, json
+sys.path.append('$MCP_ROOT/server')
+import main
+
+# Test GitHub tool
+prs = main.github_list_prs()
+assert prs is not None, 'github_list_prs failed'
+
+# Test Filesystem tool
+files = json.loads(main.filesystem_list_dir('.'))
+assert len(files) > 0, 'filesystem_list_dir failed'
+
+# Test Shortcuts tool
+shortcuts = json.loads(main.shortcuts_list())
+assert len(shortcuts) > 0, 'shortcuts_list failed'
+
+# Test Brave Search tool
+search = json.loads(main.search_web_brave('model context protocol'))
+assert len(search) > 0, 'search_web_brave failed'
+
+# Test new resources
+assert 'GitHub' in main.res_github_status(), 'res_github_status failed'
+assert 'Filesystem' in main.res_filesystem_status(), 'res_filesystem_status failed'
+assert 'Shortcuts' in main.res_shortcuts_status(), 'res_shortcuts_status failed'
+assert 'Search' in main.res_search_status(), 'res_search_status failed'
 \""
 
 echo ""
