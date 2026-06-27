@@ -1,8 +1,8 @@
 {
-  "auto_fixes_applied": 58,
-  "checked_at": "2026-06-26T23:50:45-0500",
-  "error_count": 0,
-  "issue_count": 4,
+  "auto_fixes_applied": 60,
+  "checked_at": "2026-06-27T00:42:55-0500",
+  "error_count": 1,
+  "issue_count": 3,
   "issues": [
     {
       "code": "gstack_drift",
@@ -11,23 +11,18 @@
       "severity": "warning"
     },
     {
-      "code": "codex_not_on_path",
-      "message": "codex CLI is not on PATH",
-      "severity": "info"
-    },
-    {
-      "code": "claude_not_on_path",
-      "message": "claude CLI is not on PATH",
-      "severity": "info"
-    },
-    {
       "code": "non_symlink_bin_file",
       "message": "Regular files found in bin/ (expected symlinks only): README.md",
       "severity": "warning"
+    },
+    {
+      "code": "misplaced_config",
+      "message": "Configuration files found outside config/ directories: readme_policy.json",
+      "severity": "error"
     }
   ],
-  "last_doctor_run": "2026-06-26T23:50:45-0500",
-  "last_repair_run": "2026-06-26T23:50:45-0500",
+  "last_doctor_run": "2026-06-27T00:42:55-0500",
+  "last_repair_run": "2026-06-27T00:42:55-0500",
   "launchd": {
     "configured": true,
     "label": "com.suneelworkspace.maintenance",
@@ -40,9 +35,15 @@
       "paths": [
         "/Users/MAC/SuneelWorkSpace/bin/README.md"
       ]
+    },
+    {
+      "code": "move_misplaced_configs",
+      "paths": [
+        "/Users/MAC/SuneelWorkSpace/spine/readme_policy.json"
+      ]
     }
   ],
-  "state_updated_at": "2026-06-26T23:50:45.619514-05:00",
+  "state_updated_at": "2026-06-27T00:42:55.275427-05:00",
   "status": "repairable",
   "system_intelligence": {
     "checks": {
@@ -56,11 +57,14 @@
       "tool_recommendations": true
     },
     "ready": false,
-    "updated_at": "2026-06-26T23:50:45.619514-05:00"
+    "updated_at": "2026-06-27T00:42:55.275427-05:00"
   },
   "tools": {
-    "claude": null,
-    "codex": null
+    "claude": "/opt/homebrew/bin/claude",
+    "codex": "/Users/MAC/bin/codex"
   },
-  "warning_count": 2
+  "warning_count": 2,
+  "health_score": 98,
+  "last_repair": "2026-06-27T05:42:55.385589+00:00",
+  "last_repair_job": "repair_eb3fe2b8"
 }

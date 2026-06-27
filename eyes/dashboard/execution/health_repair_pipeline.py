@@ -62,12 +62,25 @@ def _run_cmd(cmd: str, timeout: int = 30) -> tuple[int, str]:
 
 
 def _read_health_score() -> int:
+    # Primary: README health cache (the authoritative system health metric)
+    try:
+        cache_path = Path(os.path.join(WORKSPACE_ROOT, "spine/readme_health_cache.json"))
+        cache = json.loads(cache_path.read_text())
+        scores = [v["health_score"] for v in cache.values() if isinstance(v, dict) and "health_score" in v]
+        if scores:
+            return round(sum(scores) / len(scores))
+    except Exception:
+        pass
+    # Fallback: last known score from WORKSPACE_HEALTH.json
     try:
         path = os.path.join(WORKSPACE_ROOT, "spine/state/WORKSPACE_HEALTH.json")
         data = json.loads(Path(path).read_text())
-        return int(data.get("health_score", 50))
+        score = int(data.get("health_score", 0))
+        if score > 0:
+            return score
     except Exception:
-        return 50
+        pass
+    return 50
 
 
 async def run_health_repair(broadcast: Broadcaster, job_id: str) -> dict:
