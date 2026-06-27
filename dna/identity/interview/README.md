@@ -62,7 +62,7 @@ None — folder is healthy ✅
 **Ghost references (in README, not on disk):**
 - `README.md` *(referenced but missing)*
 
-*Last reconciled: 2026-06-27T02:54:23*
+*Last reconciled: 2026-06-27T03:24:31*
 
 ## 🎯 Intent Alignment
 
@@ -71,7 +71,7 @@ None — folder is healthy ✅
 **Supported by decisions:**
 - 2026-06-26 - adaptive identity loop
 
-*Last checked: 2026-06-27T02:54:23*
+*Last checked: 2026-06-27T03:24:31*
 
 ## 🌐 Failure Impact Map
 
@@ -79,7 +79,7 @@ None — folder is healthy ✅
 
 No downstream dependents. Failure is isolated.
 
-*Computed: 2026-06-27T02:54:23*
+*Computed: 2026-06-27T03:24:31*
 
 ## 📈 Trends
 
