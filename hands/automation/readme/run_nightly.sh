@@ -106,8 +106,31 @@ else
   log "  ⚠️  Self-reflection failed (non-fatal)"
 fi
 
+# Step 11: Auto-commit README + state changes
+log "Step 11/12: Auto-committing changes..."
+if "$VENV_PY" "$WORKSPACE/hands/automation/git/auto_commit.py" >> "$LOG" 2>&1; then
+  log "  ✅ Auto-commit complete"
+else
+  log "  ⚠️  Auto-commit failed (non-fatal — changes preserved locally)"
+fi
+
+# Step 12: Auto-push (only if auto_push=true in spine/readme_policy.json)
+AUTO_PUSH=$(python3 -c \
+  "import json; d=json.load(open('$WORKSPACE/spine/readme_policy.json')); print(str(d.get('auto_push',False)).lower())" \
+  2>/dev/null || echo "false")
+log "Step 12/12: Auto-push check (enabled=$AUTO_PUSH)..."
+if [[ "$AUTO_PUSH" == "true" ]]; then
+  if "$WORKSPACE/hands/bin/git-safe-push" >> "$LOG" 2>&1; then
+    log "  ✅ Auto-push succeeded"
+  else
+    log "  ⚠️  Auto-push failed (commit preserved — check pre-push guard log)"
+  fi
+else
+  log "  ℹ️  Auto-push disabled (set auto_push=true in spine/readme_policy.json to enable)"
+fi
+
 # Notify nervous system
 "$VENV_PY" "$WORKSPACE/nervous/nerve_propagator.py" notify spine "nightly_readme_refresh" \
   >> /dev/null 2>&1 || true
 
-log "=== Nightly README refresh complete (10 steps) ==="
+log "=== Nightly README refresh complete (12 steps) ==="

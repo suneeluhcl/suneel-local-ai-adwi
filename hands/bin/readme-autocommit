@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+# readme-autocommit [--dry-run] [--push] — auto-commit README/state changes after pipeline runs
+WORKSPACE="$(cd "$(dirname "$0")/../.." && pwd)"
+exec "$WORKSPACE/.venv/bin/python3" "$WORKSPACE/hands/automation/git/auto_commit.py" "$@"

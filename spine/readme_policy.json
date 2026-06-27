@@ -60,6 +60,7 @@
       "message": "BLOCKED: Validation failed. Run: readme-validate to see issues."
     }
   ],
+  "auto_push": false,
   "safe_mode": {
     "enabled": false,
     "description": "When true: disable Claude, use rule-based only, never block push (warn only)",
