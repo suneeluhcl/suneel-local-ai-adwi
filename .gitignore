@@ -70,3 +70,10 @@ spine/backups/
 
 # Auto-generated README in root bin/ (not a workspace organ)
 /bin/README.md
+
+# README pipeline runtime logs (overwritten nightly)
+blood/logs/readme-nightly.out.log
+blood/logs/readme-nightly.err.log
+
+# Auto-repair state (regenerated on every readme-repair run)
+spine/readme_repair_report.json

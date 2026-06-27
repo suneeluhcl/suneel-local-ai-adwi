@@ -17,6 +17,10 @@ Part of the **spine** organ in the 12-organ SuneelWorkSpace architecture.
 - `nerve.json`
 - `readme_dependency_map.json`
 - `readme_health_cache.json`
+- `readme_metrics_history.json`
+- `readme_policy.json`
+- `readme_priority_queue.json`
+- `readme_self_reflection.json`
 - `audit/` *(directory)*
 - `backups/` *(directory)*
 - `docs/` *(directory)*
@@ -62,4 +66,43 @@ Emits `readme_updated` events to nervous system on change.
 - Tests detected: ❌
 
 ## 📝 Change Log (Auto)
+- 2026-06-27: README auto-updated by README Intelligence System
 - 2026-06-26: README auto-updated by README Intelligence System
+
+## 🧬 State Alignment
+
+**Status:** ❌ CRITICAL
+
+**Undocumented files on disk:**
+- `readme_metrics_history.json` *(not in README Contents)*
+- `readme_policy.json` *(not in README Contents)*
+- `readme_priority_queue.json` *(not in README Contents)*
+- `readme_self_reflection.json` *(not in README Contents)*
+
+**Ghost references (in README, not on disk):**
+- `README.md` *(referenced but missing)*
+
+*Last reconciled: 2026-06-27T00:25:49*
+
+## 🎯 Intent Alignment
+
+**Alignment:** ⚠️ PARTIAL (60/100)
+
+*Last checked: 2026-06-27T00:25:49*
+
+## 🌐 Failure Impact Map
+
+**Blast Radius:** 🟢 1 folders affected if this fails
+
+**Direct dependents:**
+- `nervous/`
+
+**Cascade (depth 1-1):**
+- Depth 1: `nervous`
+
+*Computed: 2026-06-27T00:25:49*
+
+## 📈 Trends
+
+**7-day trend:** ❓ INSUFFICIENT_DATA
+*0 day(s) of history | updated daily by nightly automation*

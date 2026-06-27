@@ -50,4 +50,33 @@ None — folder is healthy ✅
 - Tests detected: ❌
 
 ## 📝 Change Log (Auto)
+- 2026-06-27: README auto-updated by README Intelligence System
 - 2026-06-26: README auto-updated by README Intelligence System
+
+## 🧬 State Alignment
+
+**Status:** ⚠️ DRIFTED
+
+**Ghost references (in README, not on disk):**
+- `README.md` *(referenced but missing)*
+
+*Last reconciled: 2026-06-27T00:25:48*
+
+## 🎯 Intent Alignment
+
+**Alignment:** ⚠️ PARTIAL (60/100)
+
+*Last checked: 2026-06-27T00:25:48*
+
+## 🌐 Failure Impact Map
+
+**Blast Radius:** 🟢 0 folders affected if this fails
+
+No downstream dependents. Failure is isolated.
+
+*Computed: 2026-06-27T00:25:48*
+
+## 📈 Trends
+
+**7-day trend:** ❓ INSUFFICIENT_DATA
+*0 day(s) of history | updated daily by nightly automation*

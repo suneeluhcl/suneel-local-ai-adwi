@@ -1,6 +1,6 @@
 {
-  "generated": "2026-06-26T23:28:01.358229",
-  "folder_count": 267,
+  "generated": "2026-06-27T00:25:50.114396",
+  "folder_count": 269,
   "folders": {
     ".agent-backups": {
       "dependencies": [],
@@ -293,6 +293,16 @@
       "organ": null
     },
     ".agent-backups/20260626-225042/workspace-core": {
+      "dependencies": [],
+      "reverse_dependencies": [],
+      "organ": null
+    },
+    ".agent-backups/20260626-235046": {
+      "dependencies": [],
+      "reverse_dependencies": [],
+      "organ": null
+    },
+    ".agent-backups/20260626-235046/workspace-core": {
       "dependencies": [],
       "reverse_dependencies": [],
       "organ": null

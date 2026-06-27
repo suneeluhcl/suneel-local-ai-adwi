@@ -51,7 +51,7 @@ git-safe-push              # Validate + push (blocks on stale docs)
 |--------|-------|
 | Active organs | 12 |
 | Documented folders | 267 |
-| Last root rebuild | 2026-06-26 23:54 |
+| Last root rebuild | 2026-06-27 00:25 |
 
 ## 🔗 Key Entrypoints
 
@@ -70,4 +70,4 @@ python3 nervous/nerve_propagator.py notify <organ> "readme_updated"
 
 ## 📝 Change Log (Auto)
 
-- 2026-06-26: Root README rebuilt by README Intelligence System
+- 2026-06-27: Root README rebuilt by README Intelligence System

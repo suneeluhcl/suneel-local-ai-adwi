@@ -124,9 +124,15 @@ Part of the **hands** organ in the 12-organ SuneelWorkSpace architecture.
 - `prompt-new`
 - `prompt-promote`
 - `prompt-rollback`
+- `readme-impact`
 - `readme-index`
+- `readme-priority`
+- `readme-reconcile`
+- `readme-reflect`
+- `readme-repair`
 - `readme-root-build`
 - `readme-score`
+- `readme-trends`
 - `readme-update`
 - `readme-update-all`
 - `readme-validate`
@@ -211,4 +217,40 @@ Emits `readme_updated` events to nervous system on change.
 - Tests detected: ❌
 
 ## 📝 Change Log (Auto)
+- 2026-06-27: README auto-updated by README Intelligence System
 - 2026-06-26: README auto-updated by README Intelligence System
+
+## 🧬 State Alignment
+
+**Status:** ❌ CRITICAL
+
+**Undocumented files on disk:**
+- `agent-autoclose` *(not in README Contents)*
+- `agent-compare` *(not in README Contents)*
+- `agent-doctor` *(not in README Contents)*
+- `agent-finish` *(not in README Contents)*
+- `agent-maintain` *(not in README Contents)*
+
+**Ghost references (in README, not on disk):**
+- `README.md` *(referenced but missing)*
+
+*Last reconciled: 2026-06-27T00:25:49*
+
+## 🎯 Intent Alignment
+
+**Alignment:** ⚠️ PARTIAL (60/100)
+
+*Last checked: 2026-06-27T00:25:49*
+
+## 🌐 Failure Impact Map
+
+**Blast Radius:** 🟢 0 folders affected if this fails
+
+No downstream dependents. Failure is isolated.
+
+*Computed: 2026-06-27T00:25:49*
+
+## 📈 Trends
+
+**7-day trend:** ❓ INSUFFICIENT_DATA
+*0 day(s) of history | updated daily by nightly automation*

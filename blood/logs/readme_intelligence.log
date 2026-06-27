@@ -22,3 +22,58 @@ FileNotFoundError: [Errno 2] No such file or directory: '$WORKSPACE/spine/readme
 
 [2026-06-26 23:32:01]   ❌ Validation failed — check /Users/MAC/SuneelWorkSpace/blood/logs/readme_intelligence.log
 [2026-06-26 23:32:01] === Nightly README refresh complete ===
+[2026-06-27 00:25:48] === Nightly README refresh started ===
+[2026-06-27 00:25:48] Step 1/10: Updating all folder READMEs...
+
+✅ 269 updated, 0 failed
+[2026-06-27 00:25:48]   ✅ All READMEs updated
+[2026-06-27 00:25:48] Step 2/10: Rebuilding root README...
+✅ Root README rebuilt (3078 chars, 12 organs, 267 folders)
+[2026-06-27 00:25:48]   ✅ Root README rebuilt
+[2026-06-27 00:25:48] Step 3/10: Rebuilding dependency map...
+Wrote 269 entries to dependency map
+[2026-06-27 00:25:48]   ✅ Dependency map rebuilt
+[2026-06-27 00:25:48] Step 4/10: Running validation...
+✅ README validation passed (1 folder checked)
+[2026-06-27 00:25:48]   ✅ Validation passed
+[2026-06-27 00:25:48] Step 5/10: Building knowledge index...
+✅ Knowledge index: 269 folders (269 with README) → brain/system/readme_knowledge_index.json
+[2026-06-27 00:25:48]   ✅ Knowledge index built
+[2026-06-27 00:25:48] Step 6/10: Checking for low-health folders (threshold=60)...
+{
+  "triggered": [],
+  "skipped": [],
+  "threshold": 60,
+  "dry_run": false
+}
+[2026-06-27 00:25:48]   ✅ Lab bridge check complete
+[2026-06-27 00:25:48] Step 7/10: Computing priority queue...
+Built priority queue: 269 folders
+
+Priority   Score  Health  Blast  Folder
+-----------------------------------------------------------------
+P0             80      60      0   hands/scripts/workflows
+P3             29      90      3   heart
+P3             29      90      3   heart/goals
+P3             29      90      3   heart/model_router
+P3             29      90      3   heart/orchestrator
+P3             29      90      3   heart/orchestrator/dag
+P3             29      90      3   heart/orchestrator/mesh
+P3             29      90      3   heart/orchestrator/router
+P3             29      90      3   heart/tasks
+P3             23      90      1   spine
+P3             23      90      1   spine/audit
+P3             23      90      1   spine/state
+P3             23      90      1   spine/tools
+[2026-06-27 00:25:48]   ✅ Priority queue updated
+[2026-06-27 00:25:48] Step 8/10: Recording health trend snapshot...
+Recorded snapshot: 2026-06-27 | overall=97.7 | healthy=268 | critical=0
+[2026-06-27 00:25:48]   ✅ Trend snapshot recorded
+[2026-06-27 00:25:48] Step 9/10: Auto-repairing SAFE issues...
+[2026-06-27 00:25:48]   ⚠️  Auto-repair failed (non-fatal)
+[2026-06-27 00:25:48] Step 10/10: Running self-reflection...
+Accuracy: 100.0%
+Missed: 0 folders
+Trend: +2.2% vs last run
+[2026-06-27 00:25:48]   ✅ Self-reflection complete
+[2026-06-27 00:25:48] === Nightly README refresh complete (10 steps) ===
