@@ -72,6 +72,7 @@ spine/backups/
 /bin/README.md
 
 # Runtime logs (overwritten continuously)
+blood/logs/overnight_loop.log
 blood/logs/readme-nightly.out.log
 blood/logs/readme-nightly.err.log
 blood/logs/auto_commit.log

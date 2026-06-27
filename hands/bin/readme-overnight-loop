@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+# readme-overnight-loop — autonomous test+repair loop until morning
+# Usage: readme-overnight-loop [STOP_HOUR=7] [INTERVAL=1800]
+WORKSPACE="$(cd "$(dirname "$0")/../.." && pwd)"
+exec bash "$WORKSPACE/hands/automation/readme/overnight_loop.sh" "$@"
