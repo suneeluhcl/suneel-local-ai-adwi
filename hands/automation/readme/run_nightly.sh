@@ -92,7 +92,7 @@ fi
 
 # Step 9: Auto-repair SAFE issues
 log "Step 9/10: Auto-repairing SAFE issues..."
-if "$VENV_PY" "$WORKSPACE/hands/automation/readme/auto_repair_engine.py" --quiet >> "$LOG" 2>&1 2>/dev/null; then
+if "$VENV_PY" "$WORKSPACE/hands/automation/readme/auto_repair_engine.py" >> "$LOG" 2>&1; then
   log "  ✅ Auto-repair complete"
 else
   log "  ⚠️  Auto-repair failed (non-fatal)"
