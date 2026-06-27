@@ -62,7 +62,7 @@ Emits `readme_updated` events to nervous system on change.
 **Ghost references (in README, not on disk):**
 - `README.md` *(referenced but missing)*
 
-*Last reconciled: 2026-06-27T01:54:08*
+*Last reconciled: 2026-06-27T02:24:16*
 
 ## 🎯 Intent Alignment
 
@@ -71,7 +71,7 @@ Emits `readme_updated` events to nervous system on change.
 **Supported by decisions:**
 - 2026-06-24 - use a file-based shared agent workspace
 
-*Last checked: 2026-06-27T01:54:08*
+*Last checked: 2026-06-27T02:24:16*
 
 ## 🌐 Failure Impact Map
 
@@ -79,7 +79,7 @@ Emits `readme_updated` events to nervous system on change.
 
 No downstream dependents. Failure is isolated.
 
-*Computed: 2026-06-27T01:54:08*
+*Computed: 2026-06-27T02:24:16*
 
 ## 📈 Trends
 

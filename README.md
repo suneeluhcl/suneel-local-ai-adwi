@@ -51,7 +51,7 @@ git-safe-push              # Validate + push (blocks on stale docs)
 |--------|-------|
 | Active organs | 12 |
 | Documented folders | 269 |
-| Last root rebuild | 2026-06-27 01:54 |
+| Last root rebuild | 2026-06-27 02:24 |
 
 ## 🔗 Key Entrypoints
 
