@@ -44,5 +44,23 @@ Emits `readme_updated` events to nervous system on change.
 - [`../eyes/README.md`](../eyes/README.md)
 - [`../heart/README.md`](../heart/README.md)
 
+
+## 🏥 Health Score
+🟡 **75/100**
+
+| Category | Deduction |
+|----------|----------|
+| readme_drift | -15 |
+| no_tests | -10 |
+
+## 🔥 Critical Issues
+- README is older than folder contents
+- No test files detected
+
+## ✅ Runtime Status
+- Python files: 2 (2 valid, 0 broken)
+- Shell scripts: 1 (1 valid)
+- Tests detected: ❌
+
 ## 📝 Change Log (Auto)
 - 2026-06-26: README auto-updated by README Intelligence System

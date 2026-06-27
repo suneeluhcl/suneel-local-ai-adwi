@@ -1,8 +1,8 @@
 {
-  "auto_fixes_applied": 57,
-  "checked_at": "2026-06-26T22:50:41-0500",
+  "auto_fixes_applied": 58,
+  "checked_at": "2026-06-26T23:50:45-0500",
   "error_count": 0,
-  "issue_count": 3,
+  "issue_count": 4,
   "issues": [
     {
       "code": "gstack_drift",
@@ -19,18 +19,30 @@
       "code": "claude_not_on_path",
       "message": "claude CLI is not on PATH",
       "severity": "info"
+    },
+    {
+      "code": "non_symlink_bin_file",
+      "message": "Regular files found in bin/ (expected symlinks only): README.md",
+      "severity": "warning"
     }
   ],
-  "last_doctor_run": "2026-06-26T22:50:41-0500",
-  "last_repair_run": "2026-06-26T22:50:41-0500",
+  "last_doctor_run": "2026-06-26T23:50:45-0500",
+  "last_repair_run": "2026-06-26T23:50:45-0500",
   "launchd": {
     "configured": true,
     "label": "com.suneelworkspace.maintenance",
     "loaded": true,
     "plist": "/Users/MAC/Library/LaunchAgents/com.suneelworkspace.maintenance.plist"
   },
-  "repair_suggestions": [],
-  "state_updated_at": "2026-06-26T22:50:41.791914-05:00",
+  "repair_suggestions": [
+    {
+      "code": "convert_bin_to_symlink",
+      "paths": [
+        "/Users/MAC/SuneelWorkSpace/bin/README.md"
+      ]
+    }
+  ],
+  "state_updated_at": "2026-06-26T23:50:45.619514-05:00",
   "status": "repairable",
   "system_intelligence": {
     "checks": {
@@ -44,11 +56,11 @@
       "tool_recommendations": true
     },
     "ready": false,
-    "updated_at": "2026-06-26T22:50:41.791914-05:00"
+    "updated_at": "2026-06-26T23:50:45.619514-05:00"
   },
   "tools": {
     "claude": null,
     "codex": null
   },
-  "warning_count": 1
+  "warning_count": 2
 }

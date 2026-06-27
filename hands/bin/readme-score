@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+# readme-score [folder] — show health score for a folder (or all folders ranked worst first)
+WORKSPACE="$(cd "$(dirname "$0")/../.." && pwd)"
+if [[ -n "${1:-}" ]]; then
+  exec "$WORKSPACE/.venv/bin/python3" "$WORKSPACE/hands/automation/readme/health_scorer.py" "$1"
+else
+  exec "$WORKSPACE/.venv/bin/python3" "$WORKSPACE/hands/automation/readme/health_scorer.py"
+fi

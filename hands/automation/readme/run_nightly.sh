@@ -49,15 +49,31 @@ else
 fi
 
 # Step 4: Validate
-log "Step 4/4: Running validation..."
+log "Step 4/6: Running validation..."
 if "$VENV_PY" "$WORKSPACE/hands/automation/readme/validator.py" >> "$LOG" 2>&1; then
   log "  ✅ Validation passed"
 else
   log "  ❌ Validation failed — check $LOG"
 fi
 
+# Step 5: Build knowledge index
+log "Step 5/6: Building knowledge index..."
+if "$VENV_PY" "$WORKSPACE/hands/automation/readme/knowledge_indexer.py" >> "$LOG" 2>&1; then
+  log "  ✅ Knowledge index built"
+else
+  log "  ⚠️  Knowledge index failed (non-fatal)"
+fi
+
+# Step 6: Trigger lab evolution for low-health folders
+log "Step 6/6: Checking for low-health folders (threshold=60)..."
+if "$VENV_PY" "$WORKSPACE/hands/automation/readme/lab_bridge.py" --threshold 60 >> "$LOG" 2>&1; then
+  log "  ✅ Lab bridge check complete"
+else
+  log "  ⚠️  Lab bridge failed (non-fatal)"
+fi
+
 # Notify nervous system
 "$VENV_PY" "$WORKSPACE/nervous/nerve_propagator.py" notify spine "nightly_readme_refresh" \
   >> /dev/null 2>&1 || true
 
-log "=== Nightly README refresh complete ==="
+log "=== Nightly README refresh complete (6 steps) ==="

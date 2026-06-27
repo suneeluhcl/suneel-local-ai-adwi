@@ -1,0 +1,24 @@
+[2026-06-26 23:32:01] === Nightly README refresh started ===
+[2026-06-26 23:32:01] Step 1/4: Updating all folder READMEs...
+
+✅ 267 updated, 0 failed
+[2026-06-26 23:32:01]   ✅ All READMEs updated
+[2026-06-26 23:32:01] Step 2/4: Rebuilding root README...
+✅ Root README rebuilt (3078 chars, 12 organs, 267 folders)
+[2026-06-26 23:32:01]   ✅ Root README rebuilt
+[2026-06-26 23:32:01] Step 3/4: Rebuilding dependency map...
+Traceback (most recent call last):
+  File "<stdin>", line 7, in <module>
+FileNotFoundError: [Errno 2] No such file or directory: '$WORKSPACE/spine/readme_dependency_map.json'
+[2026-06-26 23:32:01]   ⚠️  Dependency map failed (non-fatal)
+[2026-06-26 23:32:01] Step 4/4: Running validation...
+
+📛 README VALIDATION FAILED
+
+  ❌ blood/logs: Missing README.md
+  ❌ nervous/mcp/server/state: Missing README.md
+
+  Fix: run `readme-update-all && readme-root-build` then push again.
+
+[2026-06-26 23:32:01]   ❌ Validation failed — check /Users/MAC/SuneelWorkSpace/blood/logs/readme_intelligence.log
+[2026-06-26 23:32:01] === Nightly README refresh complete ===

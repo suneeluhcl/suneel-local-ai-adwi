@@ -1,3 +1,5 @@
 {"timestamp": "2026-06-27T00:07:56.675570+00:00", "source_organ": "brain", "event_type": "migration_complete", "detail": "Phase 1", "notified": ["heart", "spine"]}
 {"timestamp": "2026-06-27T00:13:23.536843+00:00", "source_organ": "brain", "event_type": "migration_test", "detail": "Phase 14 propagation test", "notified": ["heart", "spine"]}
 {"timestamp": "2026-06-27T01:02:21.365073+00:00", "source_organ": "spine", "event_type": "file_updated", "detail": "update README.md", "notified": []}
+{"timestamp": "2026-06-27T04:32:02.151638+00:00", "source_organ": "spine", "event_type": "file_updated", "detail": "nightly_readme_refresh", "notified": []}
+{"timestamp": "2026-06-27T04:34:34.272176+00:00", "source_organ": "spine", "event_type": "file_updated", "detail": "readme_updated", "notified": []}

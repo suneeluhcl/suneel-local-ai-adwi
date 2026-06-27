@@ -1,7 +1,7 @@
 {
   "entrypoints": [
     {
-      "modified_epoch": 1782532240,
+      "modified_epoch": 1782535844,
       "path": "/Users/MAC/SuneelWorkSpace/AGENTS.md",
       "relative_path": "AGENTS.md",
       "size": 57,
@@ -9,7 +9,7 @@
       "type": "symlink"
     },
     {
-      "modified_epoch": 1782532240,
+      "modified_epoch": 1782535844,
       "path": "/Users/MAC/SuneelWorkSpace/CLAUDE.md",
       "relative_path": "CLAUDE.md",
       "size": 57,
@@ -17,7 +17,7 @@
       "type": "symlink"
     },
     {
-      "modified_epoch": 1782532240,
+      "modified_epoch": 1782535844,
       "path": "/Users/MAC/.codex/AGENTS.md",
       "relative_path": null,
       "size": 57,
@@ -25,7 +25,7 @@
       "type": "symlink"
     },
     {
-      "modified_epoch": 1782532240,
+      "modified_epoch": 1782535844,
       "path": "/Users/MAC/.claude/CLAUDE.md",
       "relative_path": null,
       "size": 57,
@@ -33,14 +33,14 @@
       "type": "symlink"
     }
   ],
-  "generated_at": "2026-06-26T22:50:41-0500",
+  "generated_at": "2026-06-26T23:50:45-0500",
   "groups": {
     "blood": [
       {
-        "modified_epoch": 1782521956,
+        "modified_epoch": 1782534869,
         "path": "/Users/MAC/SuneelWorkSpace/blood/README.md",
         "relative_path": "blood/README.md",
-        "size": 1077,
+        "size": 863,
         "target": null,
         "type": "file"
       },
@@ -69,10 +69,10 @@
         "type": "file"
       },
       {
-        "modified_epoch": 1782532241,
+        "modified_epoch": 1782535845,
         "path": "/Users/MAC/SuneelWorkSpace/blood/logs/MAINTENANCE_LOG.md",
         "relative_path": "blood/logs/MAINTENANCE_LOG.md",
-        "size": 49985,
+        "size": 50818,
         "target": null,
         "type": "file"
       },
@@ -165,10 +165,18 @@
         "type": "file"
       },
       {
-        "modified_epoch": 1782522141,
+        "modified_epoch": 1782534874,
         "path": "/Users/MAC/SuneelWorkSpace/blood/logs/nerve_events.jsonl",
         "relative_path": "blood/logs/nerve_events.jsonl",
-        "size": 493,
+        "size": 799,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782534722,
+        "path": "/Users/MAC/SuneelWorkSpace/blood/logs/readme_intelligence.log",
+        "relative_path": "blood/logs/readme_intelligence.log",
+        "size": 1091,
         "target": null,
         "type": "file"
       },
@@ -221,10 +229,26 @@
         "type": "file"
       },
       {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/blood/metrics/README.md",
+        "relative_path": "blood/metrics/README.md",
+        "size": 805,
+        "target": null,
+        "type": "file"
+      },
+      {
         "modified_epoch": 1782518560,
         "path": "/Users/MAC/SuneelWorkSpace/blood/nerve.json",
         "relative_path": "blood/nerve.json",
         "size": 215,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/blood/telemetry/README.md",
+        "relative_path": "blood/telemetry/README.md",
+        "size": 963,
         "target": null,
         "type": "file"
       },
@@ -265,6 +289,14 @@
         "path": "/Users/MAC/SuneelWorkSpace/blood/telemetry/anomalies.json",
         "relative_path": "blood/telemetry/anomalies.json",
         "size": 2,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/blood/telemetry/comparison/README.md",
+        "relative_path": "blood/telemetry/comparison/README.md",
+        "size": 815,
         "target": null,
         "type": "file"
       },
@@ -335,10 +367,18 @@
     ],
     "brain": [
       {
-        "modified_epoch": 1782521956,
+        "modified_epoch": 1782535827,
         "path": "/Users/MAC/SuneelWorkSpace/brain/README.md",
         "relative_path": "brain/README.md",
-        "size": 2165,
+        "size": 1329,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/brain/anticipation/README.md",
+        "relative_path": "brain/anticipation/README.md",
+        "size": 1062,
         "target": null,
         "type": "file"
       },
@@ -431,10 +471,26 @@
         "type": "file"
       },
       {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/brain/anticipation/reports/README.md",
+        "relative_path": "brain/anticipation/reports/README.md",
+        "size": 879,
+        "target": null,
+        "type": "file"
+      },
+      {
         "modified_epoch": 1782519600,
         "path": "/Users/MAC/SuneelWorkSpace/brain/anticipation/reports/anticipation_report.md",
         "relative_path": "brain/anticipation/reports/anticipation_report.md",
         "size": 668,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/brain/graph/README.md",
+        "relative_path": "brain/graph/README.md",
+        "size": 913,
         "target": null,
         "type": "file"
       },
@@ -479,10 +535,26 @@
         "type": "file"
       },
       {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/brain/graph/reports/README.md",
+        "relative_path": "brain/graph/reports/README.md",
+        "size": 872,
+        "target": null,
+        "type": "file"
+      },
+      {
         "modified_epoch": 1782521811,
         "path": "/Users/MAC/SuneelWorkSpace/brain/graph/reports/orphan_notes.md",
         "relative_path": "brain/graph/reports/orphan_notes.md",
         "size": 2278,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/brain/injector/README.md",
+        "relative_path": "brain/injector/README.md",
+        "size": 895,
         "target": null,
         "type": "file"
       },
@@ -575,6 +647,14 @@
         "type": "file"
       },
       {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/brain/memory/README.md",
+        "relative_path": "brain/memory/README.md",
+        "size": 1131,
+        "target": null,
+        "type": "file"
+      },
+      {
         "modified_epoch": 1782522154,
         "path": "/Users/MAC/SuneelWorkSpace/brain/memory/SESSION_HANDOFF.md",
         "relative_path": "brain/memory/SESSION_HANDOFF.md",
@@ -583,10 +663,58 @@
         "type": "file"
       },
       {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/brain/memory/docs/README.md",
+        "relative_path": "brain/memory/docs/README.md",
+        "size": 849,
+        "target": null,
+        "type": "file"
+      },
+      {
         "modified_epoch": 1782522168,
         "path": "/Users/MAC/SuneelWorkSpace/brain/memory/logs/vector_embed.log",
         "relative_path": "brain/memory/logs/vector_embed.log",
         "size": 26794,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/brain/memory/memory/README.md",
+        "relative_path": "brain/memory/memory/README.md",
+        "size": 851,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/brain/memory/shared/README.md",
+        "relative_path": "brain/memory/shared/README.md",
+        "size": 851,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/brain/memory/state/README.md",
+        "relative_path": "brain/memory/state/README.md",
+        "size": 850,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/brain/memory/tasks/README.md",
+        "relative_path": "brain/memory/tasks/README.md",
+        "size": 850,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/brain/memory/templates/README.md",
+        "relative_path": "brain/memory/templates/README.md",
+        "size": 854,
         "target": null,
         "type": "file"
       },
@@ -847,6 +975,14 @@
         "type": "file"
       },
       {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/brain/memory/vector/README.md",
+        "relative_path": "brain/memory/vector/README.md",
+        "size": 934,
+        "target": null,
+        "type": "file"
+      },
+      {
         "modified_epoch": 1782519600,
         "path": "/Users/MAC/SuneelWorkSpace/brain/memory/vector/__pycache__/embed_engine.cpython-314.pyc",
         "relative_path": "brain/memory/vector/__pycache__/embed_engine.cpython-314.pyc",
@@ -999,10 +1135,10 @@
         "type": "file"
       },
       {
-        "modified_epoch": 1782519600,
+        "modified_epoch": 1782534869,
         "path": "/Users/MAC/SuneelWorkSpace/brain/research/README.md",
         "relative_path": "brain/research/README.md",
-        "size": 658,
+        "size": 983,
         "target": null,
         "type": "file"
       },
@@ -1023,6 +1159,14 @@
         "type": "file"
       },
       {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/brain/research/analyses/README.md",
+        "relative_path": "brain/research/analyses/README.md",
+        "size": 917,
+        "target": null,
+        "type": "file"
+      },
+      {
         "modified_epoch": 1782519600,
         "path": "/Users/MAC/SuneelWorkSpace/brain/research/decisions/20260625-232344-bounded-self-upgrade-validation-decision-draft.md",
         "relative_path": "brain/research/decisions/20260625-232344-bounded-self-upgrade-validation-decision-draft.md",
@@ -1039,10 +1183,10 @@
         "type": "file"
       },
       {
-        "modified_epoch": 1782519600,
+        "modified_epoch": 1782534869,
         "path": "/Users/MAC/SuneelWorkSpace/brain/research/decisions/README.md",
         "relative_path": "brain/research/decisions/README.md",
-        "size": 107,
+        "size": 988,
         "target": null,
         "type": "file"
       },
@@ -1051,6 +1195,14 @@
         "path": "/Users/MAC/SuneelWorkSpace/brain/research/ideas/20260625-232344-bounded-self-upgrade-validation.md",
         "relative_path": "brain/research/ideas/20260625-232344-bounded-self-upgrade-validation.md",
         "size": 520,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/brain/research/ideas/README.md",
+        "relative_path": "brain/research/ideas/README.md",
+        "size": 920,
         "target": null,
         "type": "file"
       },
@@ -1071,10 +1223,26 @@
         "type": "file"
       },
       {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/brain/research/plans/README.md",
+        "relative_path": "brain/research/plans/README.md",
+        "size": 919,
+        "target": null,
+        "type": "file"
+      },
+      {
         "modified_epoch": 1782520438,
         "path": "/Users/MAC/SuneelWorkSpace/brain/research/research_engine.py",
         "relative_path": "brain/research/research_engine.py",
         "size": 10615,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/brain/research/scripts/README.md",
+        "relative_path": "brain/research/scripts/README.md",
+        "size": 939,
         "target": null,
         "type": "file"
       },
@@ -1119,10 +1287,26 @@
         "type": "file"
       },
       {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/brain/system/README.md",
+        "relative_path": "brain/system/README.md",
+        "size": 804,
+        "target": null,
+        "type": "file"
+      },
+      {
         "modified_epoch": 1782521978,
         "path": "/Users/MAC/SuneelWorkSpace/brain/system/gap_analysis_latest.json",
         "relative_path": "brain/system/gap_analysis_latest.json",
         "size": 496,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/brain/vault/.obsidian/README.md",
+        "relative_path": "brain/vault/.obsidian/README.md",
+        "size": 983,
         "target": null,
         "type": "file"
       },
@@ -1191,6 +1375,14 @@
         "type": "file"
       },
       {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/brain/vault/README.md",
+        "relative_path": "brain/vault/README.md",
+        "size": 1509,
+        "target": null,
+        "type": "file"
+      },
+      {
         "modified_epoch": 1782102015,
         "path": "/Users/MAC/SuneelWorkSpace/brain/vault/System Map.canvas",
         "relative_path": "brain/vault/System Map.canvas",
@@ -1203,6 +1395,14 @@
         "path": "/Users/MAC/SuneelWorkSpace/brain/vault/__init__.py",
         "relative_path": "brain/vault/__init__.py",
         "size": 0,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/brain/vault/anticipation/README.md",
+        "relative_path": "brain/vault/anticipation/README.md",
+        "size": 1078,
         "target": null,
         "type": "file"
       },
@@ -1311,10 +1511,10 @@
         "type": "file"
       },
       {
-        "modified_epoch": 1782140430,
+        "modified_epoch": 1782534869,
         "path": "/Users/MAC/SuneelWorkSpace/brain/vault/archives/README.md",
         "relative_path": "brain/vault/archives/README.md",
-        "size": 193,
+        "size": 853,
         "target": null,
         "type": "file"
       },
@@ -1323,6 +1523,14 @@
         "path": "/Users/MAC/SuneelWorkSpace/brain/vault/automations/Nightly Loop Design.md",
         "relative_path": "brain/vault/automations/Nightly Loop Design.md",
         "size": 1730,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/brain/vault/automations/README.md",
+        "relative_path": "brain/vault/automations/README.md",
+        "size": 883,
         "target": null,
         "type": "file"
       },
@@ -1407,10 +1615,34 @@
         "type": "file"
       },
       {
-        "modified_epoch": 1782140427,
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/brain/vault/daily-notes/README.md",
+        "relative_path": "brain/vault/daily-notes/README.md",
+        "size": 1018,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/brain/vault/decisions/README.md",
+        "relative_path": "brain/vault/decisions/README.md",
+        "size": 854,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782534869,
         "path": "/Users/MAC/SuneelWorkSpace/brain/vault/experiments/README.md",
         "relative_path": "brain/vault/experiments/README.md",
-        "size": 375,
+        "size": 856,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/brain/vault/graph/README.md",
+        "relative_path": "brain/vault/graph/README.md",
+        "size": 913,
         "target": null,
         "type": "file"
       },
@@ -1463,10 +1695,34 @@
         "type": "file"
       },
       {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/brain/vault/ideas/README.md",
+        "relative_path": "brain/vault/ideas/README.md",
+        "size": 850,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/brain/vault/inbox/README.md",
+        "relative_path": "brain/vault/inbox/README.md",
+        "size": 850,
+        "target": null,
+        "type": "file"
+      },
+      {
         "modified_epoch": 1782427719,
         "path": "/Users/MAC/SuneelWorkSpace/brain/vault/index.md",
         "relative_path": "brain/vault/index.md",
         "size": 1650,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/brain/vault/injector/README.md",
+        "relative_path": "brain/vault/injector/README.md",
+        "size": 853,
         "target": null,
         "type": "file"
       },
@@ -1607,6 +1863,14 @@
         "type": "file"
       },
       {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/brain/vault/knowledge/README.md",
+        "relative_path": "brain/vault/knowledge/README.md",
+        "size": 1530,
+        "target": null,
+        "type": "file"
+      },
+      {
         "modified_epoch": 1782137019,
         "path": "/Users/MAC/SuneelWorkSpace/brain/vault/knowledge/Review Workflow.md",
         "relative_path": "brain/vault/knowledge/Review Workflow.md",
@@ -1667,6 +1931,14 @@
         "path": "/Users/MAC/SuneelWorkSpace/brain/vault/knowledge/rollback-and-recovery.md",
         "relative_path": "brain/vault/knowledge/rollback-and-recovery.md",
         "size": 4231,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/brain/vault/learning/README.md",
+        "relative_path": "brain/vault/learning/README.md",
+        "size": 853,
         "target": null,
         "type": "file"
       },
@@ -1771,6 +2043,14 @@
         "path": "/Users/MAC/SuneelWorkSpace/brain/vault/memory/PATTERNS.md",
         "relative_path": "brain/vault/memory/PATTERNS.md",
         "size": 1612,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/brain/vault/memory/README.md",
+        "relative_path": "brain/vault/memory/README.md",
+        "size": 965,
         "target": null,
         "type": "file"
       },
@@ -1911,6 +2191,14 @@
         "type": "file"
       },
       {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/brain/vault/projects/README.md",
+        "relative_path": "brain/vault/projects/README.md",
+        "size": 925,
+        "target": null,
+        "type": "file"
+      },
+      {
         "modified_epoch": 1782101958,
         "path": "/Users/MAC/SuneelWorkSpace/brain/vault/projects/ideas/Article URL Implementation Flow.md",
         "relative_path": "brain/vault/projects/ideas/Article URL Implementation Flow.md",
@@ -1983,10 +2271,18 @@
         "type": "file"
       },
       {
-        "modified_epoch": 1782518588,
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/brain/vault/prompts/README.md",
+        "relative_path": "brain/vault/prompts/README.md",
+        "size": 878,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782534869,
         "path": "/Users/MAC/SuneelWorkSpace/brain/vault/research/README.md",
         "relative_path": "brain/vault/research/README.md",
-        "size": 658,
+        "size": 999,
         "target": null,
         "type": "file"
       },
@@ -2111,6 +2407,14 @@
         "type": "file"
       },
       {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/brain/vault/system/README.md",
+        "relative_path": "brain/vault/system/README.md",
+        "size": 986,
+        "target": null,
+        "type": "file"
+      },
+      {
         "modified_epoch": 1782510024,
         "path": "/Users/MAC/SuneelWorkSpace/brain/vault/system/daily_improvements.md",
         "relative_path": "brain/vault/system/daily_improvements.md",
@@ -2215,6 +2519,14 @@
         "type": "file"
       },
       {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/brain/vault/templates/README.md",
+        "relative_path": "brain/vault/templates/README.md",
+        "size": 1044,
+        "target": null,
+        "type": "file"
+      },
+      {
         "modified_epoch": 1782135692,
         "path": "/Users/MAC/SuneelWorkSpace/brain/vault/templates/Weekly Review.md",
         "relative_path": "brain/vault/templates/Weekly Review.md",
@@ -2283,6 +2595,14 @@
         "path": "/Users/MAC/SuneelWorkSpace/brain/vault/vault/Adwi Home.md",
         "relative_path": "brain/vault/vault/Adwi Home.md",
         "size": 7661,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/brain/vault/vault/README.md",
+        "relative_path": "brain/vault/vault/README.md",
+        "size": 1495,
         "target": null,
         "type": "file"
       },
@@ -3311,6 +3631,14 @@
         "type": "file"
       },
       {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/brain/vault/workflows/README.md",
+        "relative_path": "brain/vault/workflows/README.md",
+        "size": 1008,
+        "target": null,
+        "type": "file"
+      },
+      {
         "modified_epoch": 1782482486,
         "path": "/Users/MAC/SuneelWorkSpace/brain/vault/workflows/code_improvement_workflow.md",
         "relative_path": "brain/vault/workflows/code_improvement_workflow.md",
@@ -3441,10 +3769,10 @@
     ],
     "dna": [
       {
-        "modified_epoch": 1782521956,
+        "modified_epoch": 1782534869,
         "path": "/Users/MAC/SuneelWorkSpace/dna/README.md",
         "relative_path": "dna/README.md",
-        "size": 1193,
+        "size": 812,
         "target": null,
         "type": "file"
       },
@@ -3453,6 +3781,14 @@
         "path": "/Users/MAC/SuneelWorkSpace/dna/__init__.py",
         "relative_path": "dna/__init__.py",
         "size": 0,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/dna/feedback/README.md",
+        "relative_path": "dna/feedback/README.md",
+        "size": 846,
         "target": null,
         "type": "file"
       },
@@ -3481,6 +3817,14 @@
         "type": "file"
       },
       {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/dna/feedback/inbox/README.md",
+        "relative_path": "dna/feedback/inbox/README.md",
+        "size": 763,
+        "target": null,
+        "type": "file"
+      },
+      {
         "modified_epoch": 1782521825,
         "path": "/Users/MAC/SuneelWorkSpace/dna/feedback/loop_controller.py",
         "relative_path": "dna/feedback/loop_controller.py",
@@ -3489,10 +3833,18 @@
         "type": "file"
       },
       {
-        "modified_epoch": 1782518902,
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/dna/feedback/processed/README.md",
+        "relative_path": "dna/feedback/processed/README.md",
+        "size": 767,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782534869,
         "path": "/Users/MAC/SuneelWorkSpace/dna/identity/README.md",
         "relative_path": "dna/identity/README.md",
-        "size": 685,
+        "size": 924,
         "target": null,
         "type": "file"
       },
@@ -3505,10 +3857,10 @@
         "type": "file"
       },
       {
-        "modified_epoch": 1782518902,
+        "modified_epoch": 1782534869,
         "path": "/Users/MAC/SuneelWorkSpace/dna/identity/adaptive/README.md",
         "relative_path": "dna/identity/adaptive/README.md",
-        "size": 1445,
+        "size": 928,
         "target": null,
         "type": "file"
       },
@@ -3585,6 +3937,14 @@
         "type": "file"
       },
       {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/dna/identity/integration/README.md",
+        "relative_path": "dna/identity/integration/README.md",
+        "size": 841,
+        "target": null,
+        "type": "file"
+      },
+      {
         "modified_epoch": 1782520438,
         "path": "/Users/MAC/SuneelWorkSpace/dna/identity/integration/claude_identity.md",
         "relative_path": "dna/identity/integration/claude_identity.md",
@@ -3609,6 +3969,14 @@
         "type": "file"
       },
       {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/dna/identity/interview/README.md",
+        "relative_path": "dna/identity/interview/README.md",
+        "size": 830,
+        "target": null,
+        "type": "file"
+      },
+      {
         "modified_epoch": 1782518902,
         "path": "/Users/MAC/SuneelWorkSpace/dna/identity/interview/extracted_signals.json",
         "relative_path": "dna/identity/interview/extracted_signals.json",
@@ -3629,6 +3997,14 @@
         "path": "/Users/MAC/SuneelWorkSpace/dna/identity/interview/transcripts.md",
         "relative_path": "dna/identity/interview/transcripts.md",
         "size": 3342,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/dna/identity/profile/README.md",
+        "relative_path": "dna/identity/profile/README.md",
+        "size": 883,
         "target": null,
         "type": "file"
       },
@@ -3669,6 +4045,14 @@
         "path": "/Users/MAC/SuneelWorkSpace/dna/identity/profile/tone_profile.md",
         "relative_path": "dna/identity/profile/tone_profile.md",
         "size": 752,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/dna/identity/prompts/README.md",
+        "relative_path": "dna/identity/prompts/README.md",
+        "size": 868,
         "target": null,
         "type": "file"
       },
@@ -3745,6 +4129,14 @@
         "type": "file"
       },
       {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/dna/identity/reports/README.md",
+        "relative_path": "dna/identity/reports/README.md",
+        "size": 807,
+        "target": null,
+        "type": "file"
+      },
+      {
         "modified_epoch": 1782518902,
         "path": "/Users/MAC/SuneelWorkSpace/dna/identity/reports/identity_summary.md",
         "relative_path": "dna/identity/reports/identity_summary.md",
@@ -3771,10 +4163,10 @@
     ],
     "ears": [
       {
-        "modified_epoch": 1782521956,
+        "modified_epoch": 1782534869,
         "path": "/Users/MAC/SuneelWorkSpace/ears/README.md",
         "relative_path": "ears/README.md",
-        "size": 976,
+        "size": 844,
         "target": null,
         "type": "file"
       },
@@ -3787,6 +4179,14 @@
         "type": "file"
       },
       {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/ears/monitor/README.md",
+        "relative_path": "ears/monitor/README.md",
+        "size": 931,
+        "target": null,
+        "type": "file"
+      },
+      {
         "modified_epoch": 1782518691,
         "path": "/Users/MAC/SuneelWorkSpace/ears/monitor/__init__.py",
         "relative_path": "ears/monitor/__init__.py",
@@ -3795,10 +4195,34 @@
         "type": "file"
       },
       {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/ears/monitor/cache/README.md",
+        "relative_path": "ears/monitor/cache/README.md",
+        "size": 814,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/ears/monitor/config/README.md",
+        "relative_path": "ears/monitor/config/README.md",
+        "size": 839,
+        "target": null,
+        "type": "file"
+      },
+      {
         "modified_epoch": 1782520438,
         "path": "/Users/MAC/SuneelWorkSpace/ears/monitor/config/monitor_config.json",
         "relative_path": "ears/monitor/config/monitor_config.json",
         "size": 1018,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/ears/monitor/digest/README.md",
+        "relative_path": "ears/monitor/digest/README.md",
+        "size": 850,
         "target": null,
         "type": "file"
       },
@@ -3839,6 +4263,14 @@
         "path": "/Users/MAC/SuneelWorkSpace/ears/monitor/monitor_runner.py",
         "relative_path": "ears/monitor/monitor_runner.py",
         "size": 1717,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/ears/monitor/sources/README.md",
+        "relative_path": "ears/monitor/sources/README.md",
+        "size": 867,
         "target": null,
         "type": "file"
       },
@@ -3885,10 +4317,10 @@
     ],
     "eyes": [
       {
-        "modified_epoch": 1782521956,
+        "modified_epoch": 1782534869,
         "path": "/Users/MAC/SuneelWorkSpace/eyes/README.md",
         "relative_path": "eyes/README.md",
-        "size": 1622,
+        "size": 926,
         "target": null,
         "type": "file"
       },
@@ -3909,10 +4341,26 @@
         "type": "file"
       },
       {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/eyes/agent-system/README.md",
+        "relative_path": "eyes/agent-system/README.md",
+        "size": 843,
+        "target": null,
+        "type": "file"
+      },
+      {
         "modified_epoch": 1782519636,
         "path": "/Users/MAC/SuneelWorkSpace/eyes/agent-system/logs/dashboard.log",
         "relative_path": "eyes/agent-system/logs/dashboard.log",
         "size": 0,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/eyes/dashboard/README.md",
+        "relative_path": "eyes/dashboard/README.md",
+        "size": 1065,
         "target": null,
         "type": "file"
       },
@@ -3937,6 +4385,14 @@
         "path": "/Users/MAC/SuneelWorkSpace/eyes/dashboard/__pycache__/server.cpython-314.pyc",
         "relative_path": "eyes/dashboard/__pycache__/server.cpython-314.pyc",
         "size": 46828,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/eyes/dashboard/execution/README.md",
+        "relative_path": "eyes/dashboard/execution/README.md",
+        "size": 859,
         "target": null,
         "type": "file"
       },
@@ -3981,6 +4437,14 @@
         "type": "file"
       },
       {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/eyes/dashboard/pipeline/README.md",
+        "relative_path": "eyes/dashboard/pipeline/README.md",
+        "size": 844,
+        "target": null,
+        "type": "file"
+      },
+      {
         "modified_epoch": 1782518691,
         "path": "/Users/MAC/SuneelWorkSpace/eyes/dashboard/pipeline/__init__.py",
         "relative_path": "eyes/dashboard/pipeline/__init__.py",
@@ -4013,6 +4477,14 @@
         "type": "file"
       },
       {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/eyes/dashboard/screenshots/README.md",
+        "relative_path": "eyes/dashboard/screenshots/README.md",
+        "size": 890,
+        "target": null,
+        "type": "file"
+      },
+      {
         "modified_epoch": 1782520044,
         "path": "/Users/MAC/SuneelWorkSpace/eyes/dashboard/screenshots/dashboard-launch.png",
         "relative_path": "eyes/dashboard/screenshots/dashboard-launch.png",
@@ -4037,6 +4509,14 @@
         "type": "file"
       },
       {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/eyes/dashboard/static/README.md",
+        "relative_path": "eyes/dashboard/static/README.md",
+        "size": 868,
+        "target": null,
+        "type": "file"
+      },
+      {
         "modified_epoch": 1782518691,
         "path": "/Users/MAC/SuneelWorkSpace/eyes/dashboard/static/dashboard.js",
         "relative_path": "eyes/dashboard/static/dashboard.js",
@@ -4049,6 +4529,14 @@
         "path": "/Users/MAC/SuneelWorkSpace/eyes/dashboard/static/style.css",
         "relative_path": "eyes/dashboard/static/style.css",
         "size": 23336,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/eyes/dashboard/widgets/README.md",
+        "relative_path": "eyes/dashboard/widgets/README.md",
+        "size": 969,
         "target": null,
         "type": "file"
       },
@@ -4197,6 +4685,14 @@
         "type": "file"
       },
       {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/eyes/visual/README.md",
+        "relative_path": "eyes/visual/README.md",
+        "size": 1147,
+        "target": null,
+        "type": "file"
+      },
+      {
         "modified_epoch": 1782518691,
         "path": "/Users/MAC/SuneelWorkSpace/eyes/visual/__init__.py",
         "relative_path": "eyes/visual/__init__.py",
@@ -4257,6 +4753,14 @@
         "path": "/Users/MAC/SuneelWorkSpace/eyes/visual/screenshot_manager.py",
         "relative_path": "eyes/visual/screenshot_manager.py",
         "size": 6184,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/eyes/visual/screenshots/README.md",
+        "relative_path": "eyes/visual/screenshots/README.md",
+        "size": 930,
         "target": null,
         "type": "file"
       },
@@ -4327,10 +4831,10 @@
     ],
     "hands": [
       {
-        "modified_epoch": 1782521956,
+        "modified_epoch": 1782534869,
         "path": "/Users/MAC/SuneelWorkSpace/hands/README.md",
         "relative_path": "hands/README.md",
-        "size": 1256,
+        "size": 933,
         "target": null,
         "type": "file"
       },
@@ -4343,10 +4847,34 @@
         "type": "file"
       },
       {
+        "modified_epoch": 1782534481,
+        "path": "/Users/MAC/SuneelWorkSpace/hands/__pycache__/__init__.cpython-314.pyc",
+        "relative_path": "hands/__pycache__/__init__.cpython-314.pyc",
+        "size": 143,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/hands/automation/README.md",
+        "relative_path": "hands/automation/README.md",
+        "size": 1063,
+        "target": null,
+        "type": "file"
+      },
+      {
         "modified_epoch": 1782518882,
         "path": "/Users/MAC/SuneelWorkSpace/hands/automation/__pycache__/evolution_scorer.cpython-314.pyc",
         "relative_path": "hands/automation/__pycache__/evolution_scorer.cpython-314.pyc",
         "size": 6501,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/hands/automation/ci/README.md",
+        "relative_path": "hands/automation/ci/README.md",
+        "size": 759,
         "target": null,
         "type": "file"
       },
@@ -4375,10 +4903,26 @@
         "type": "file"
       },
       {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/hands/automation/cron/README.md",
+        "relative_path": "hands/automation/cron/README.md",
+        "size": 797,
+        "target": null,
+        "type": "file"
+      },
+      {
         "modified_epoch": 1782520438,
         "path": "/Users/MAC/SuneelWorkSpace/hands/automation/cron/com.suneel.daily-evolve.plist",
         "relative_path": "hands/automation/cron/com.suneel.daily-evolve.plist",
         "size": 1114,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/hands/automation/doctor/README.md",
+        "relative_path": "hands/automation/doctor/README.md",
+        "size": 770,
         "target": null,
         "type": "file"
       },
@@ -4391,10 +4935,42 @@
         "type": "file"
       },
       {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/hands/automation/git/README.md",
+        "relative_path": "hands/automation/git/README.md",
+        "size": 762,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782534811,
+        "path": "/Users/MAC/SuneelWorkSpace/hands/automation/git/pre_push_guard.sh",
+        "relative_path": "hands/automation/git/pre_push_guard.sh",
+        "size": 3159,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/hands/automation/hooks/README.md",
+        "relative_path": "hands/automation/hooks/README.md",
+        "size": 792,
+        "target": null,
+        "type": "file"
+      },
+      {
         "modified_epoch": 1782518882,
         "path": "/Users/MAC/SuneelWorkSpace/hands/automation/hooks/shell-reminder.zsh",
         "relative_path": "hands/automation/hooks/shell-reminder.zsh",
         "size": 1411,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/hands/automation/launchd/README.md",
+        "relative_path": "hands/automation/launchd/README.md",
+        "size": 883,
         "target": null,
         "type": "file"
       },
@@ -4415,10 +4991,242 @@
         "type": "file"
       },
       {
+        "modified_epoch": 1782534715,
+        "path": "/Users/MAC/SuneelWorkSpace/hands/automation/launchd/com.suneelworkspace.readme.plist",
+        "relative_path": "hands/automation/launchd/com.suneelworkspace.readme.plist",
+        "size": 1074,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/hands/automation/maintenance/README.md",
+        "relative_path": "hands/automation/maintenance/README.md",
+        "size": 762,
+        "target": null,
+        "type": "file"
+      },
+      {
         "modified_epoch": 1782522096,
         "path": "/Users/MAC/SuneelWorkSpace/hands/automation/maintenance/common.sh",
         "relative_path": "hands/automation/maintenance/common.sh",
         "size": 2106,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/hands/automation/readme/README.md",
+        "relative_path": "hands/automation/readme/README.md",
+        "size": 957,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782534411,
+        "path": "/Users/MAC/SuneelWorkSpace/hands/automation/readme/__init__.py",
+        "relative_path": "hands/automation/readme/__init__.py",
+        "size": 0,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782534481,
+        "path": "/Users/MAC/SuneelWorkSpace/hands/automation/readme/__pycache__/__init__.cpython-314.pyc",
+        "relative_path": "hands/automation/readme/__pycache__/__init__.cpython-314.pyc",
+        "size": 161,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782535696,
+        "path": "/Users/MAC/SuneelWorkSpace/hands/automation/readme/__pycache__/cache_manager.cpython-314.pyc",
+        "relative_path": "hands/automation/readme/__pycache__/cache_manager.cpython-314.pyc",
+        "size": 9636,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782535771,
+        "path": "/Users/MAC/SuneelWorkSpace/hands/automation/readme/__pycache__/health_scorer.cpython-314.pyc",
+        "relative_path": "hands/automation/readme/__pycache__/health_scorer.cpython-314.pyc",
+        "size": 10033,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782534481,
+        "path": "/Users/MAC/SuneelWorkSpace/hands/automation/readme/__pycache__/intelligence_engine.cpython-314.pyc",
+        "relative_path": "hands/automation/readme/__pycache__/intelligence_engine.cpython-314.pyc",
+        "size": 19116,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782535827,
+        "path": "/Users/MAC/SuneelWorkSpace/hands/automation/readme/__pycache__/readme_generator.cpython-314.pyc",
+        "relative_path": "hands/automation/readme/__pycache__/readme_generator.cpython-314.pyc",
+        "size": 22962,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782535622,
+        "path": "/Users/MAC/SuneelWorkSpace/hands/automation/readme/__pycache__/runtime_probe.cpython-314.pyc",
+        "relative_path": "hands/automation/readme/__pycache__/runtime_probe.cpython-314.pyc",
+        "size": 5585,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782535827,
+        "path": "/Users/MAC/SuneelWorkSpace/hands/automation/readme/__pycache__/security_filter.cpython-314.pyc",
+        "relative_path": "hands/automation/readme/__pycache__/security_filter.cpython-314.pyc",
+        "size": 5370,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782534747,
+        "path": "/Users/MAC/SuneelWorkSpace/hands/automation/readme/__pycache__/validator.cpython-314.pyc",
+        "relative_path": "hands/automation/readme/__pycache__/validator.cpython-314.pyc",
+        "size": 10588,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782535690,
+        "path": "/Users/MAC/SuneelWorkSpace/hands/automation/readme/cache_manager.py",
+        "relative_path": "hands/automation/readme/cache_manager.py",
+        "size": 4804,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782535728,
+        "path": "/Users/MAC/SuneelWorkSpace/hands/automation/readme/change_impact_engine.py",
+        "relative_path": "hands/automation/readme/change_impact_engine.py",
+        "size": 4925,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782534596,
+        "path": "/Users/MAC/SuneelWorkSpace/hands/automation/readme/consistency_engine.py",
+        "relative_path": "hands/automation/readme/consistency_engine.py",
+        "size": 6264,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782535614,
+        "path": "/Users/MAC/SuneelWorkSpace/hands/automation/readme/health_scorer.py",
+        "relative_path": "hands/automation/readme/health_scorer.py",
+        "size": 6264,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782534464,
+        "path": "/Users/MAC/SuneelWorkSpace/hands/automation/readme/intelligence_engine.py",
+        "relative_path": "hands/automation/readme/intelligence_engine.py",
+        "size": 10543,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782535766,
+        "path": "/Users/MAC/SuneelWorkSpace/hands/automation/readme/lab_bridge.py",
+        "relative_path": "hands/automation/readme/lab_bridge.py",
+        "size": 4590,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782535821,
+        "path": "/Users/MAC/SuneelWorkSpace/hands/automation/readme/readme_generator.py",
+        "relative_path": "hands/automation/readme/readme_generator.py",
+        "size": 13572,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782534411,
+        "path": "/Users/MAC/SuneelWorkSpace/hands/automation/readme/requirements.txt",
+        "relative_path": "hands/automation/readme/requirements.txt",
+        "size": 9,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782534564,
+        "path": "/Users/MAC/SuneelWorkSpace/hands/automation/readme/root_synthesizer.py",
+        "relative_path": "hands/automation/readme/root_synthesizer.py",
+        "size": 5440,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782534709,
+        "path": "/Users/MAC/SuneelWorkSpace/hands/automation/readme/run_nightly.sh",
+        "relative_path": "hands/automation/readme/run_nightly.sh",
+        "size": 2192,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782534697,
+        "path": "/Users/MAC/SuneelWorkSpace/hands/automation/readme/run_update_all.py",
+        "relative_path": "hands/automation/readme/run_update_all.py",
+        "size": 1492,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782535589,
+        "path": "/Users/MAC/SuneelWorkSpace/hands/automation/readme/runtime_probe.py",
+        "relative_path": "hands/automation/readme/runtime_probe.py",
+        "size": 3302,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782535653,
+        "path": "/Users/MAC/SuneelWorkSpace/hands/automation/readme/security_filter.py",
+        "relative_path": "hands/automation/readme/security_filter.py",
+        "size": 3137,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782534780,
+        "path": "/Users/MAC/SuneelWorkSpace/hands/automation/readme/validator.py",
+        "relative_path": "hands/automation/readme/validator.py",
+        "size": 6169,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782534668,
+        "path": "/Users/MAC/SuneelWorkSpace/hands/automation/readme/watcher.py",
+        "relative_path": "hands/automation/readme/watcher.py",
+        "size": 6120,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/hands/automation/repair/README.md",
+        "relative_path": "hands/automation/repair/README.md",
+        "size": 770,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/hands/automation/reports/README.md",
+        "relative_path": "hands/automation/reports/README.md",
+        "size": 789,
         "target": null,
         "type": "file"
       },
@@ -4439,7 +5247,7 @@
         "type": "file"
       },
       {
-        "modified_epoch": 1782528594,
+        "modified_epoch": 1782532242,
         "path": "/Users/MAC/SuneelWorkSpace/hands/automation/reports/status-latest.md",
         "relative_path": "hands/automation/reports/status-latest.md",
         "size": 1262,
@@ -4451,6 +5259,14 @@
         "path": "/Users/MAC/SuneelWorkSpace/hands/automation/reports/test-loop-latest.md",
         "relative_path": "hands/automation/reports/test-loop-latest.md",
         "size": 1060,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/hands/bin/README.md",
+        "relative_path": "hands/bin/README.md",
+        "size": 3868,
         "target": null,
         "type": "file"
       },
@@ -4827,6 +5643,14 @@
         "path": "/Users/MAC/SuneelWorkSpace/hands/bin/gateway-token",
         "relative_path": "hands/bin/gateway-token",
         "size": 206,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782534844,
+        "path": "/Users/MAC/SuneelWorkSpace/hands/bin/git-safe-push",
+        "relative_path": "hands/bin/git-safe-push",
+        "size": 931,
         "target": null,
         "type": "file"
       },
@@ -5351,6 +6175,46 @@
         "type": "file"
       },
       {
+        "modified_epoch": 1782534829,
+        "path": "/Users/MAC/SuneelWorkSpace/hands/bin/readme-root-build",
+        "relative_path": "hands/bin/readme-root-build",
+        "size": 228,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782534826,
+        "path": "/Users/MAC/SuneelWorkSpace/hands/bin/readme-update",
+        "relative_path": "hands/bin/readme-update",
+        "size": 414,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782534823,
+        "path": "/Users/MAC/SuneelWorkSpace/hands/bin/readme-update-all",
+        "relative_path": "hands/bin/readme-update-all",
+        "size": 234,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782534835,
+        "path": "/Users/MAC/SuneelWorkSpace/hands/bin/readme-validate",
+        "relative_path": "hands/bin/readme-validate",
+        "size": 272,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782534838,
+        "path": "/Users/MAC/SuneelWorkSpace/hands/bin/readme-watch-start",
+        "relative_path": "hands/bin/readme-watch-start",
+        "size": 287,
+        "target": null,
+        "type": "file"
+      },
+      {
         "modified_epoch": 1782518882,
         "path": "/Users/MAC/SuneelWorkSpace/hands/bin/route-analyze",
         "relative_path": "hands/bin/route-analyze",
@@ -5679,10 +6543,10 @@
         "type": "symlink"
       },
       {
-        "modified_epoch": 1782520044,
+        "modified_epoch": 1782534869,
         "path": "/Users/MAC/SuneelWorkSpace/hands/codex/README.md",
         "relative_path": "hands/codex/README.md",
-        "size": 525,
+        "size": 810,
         "target": null,
         "type": "file"
       },
@@ -5711,6 +6575,22 @@
         "type": "file"
       },
       {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/hands/projects/README.md",
+        "relative_path": "hands/projects/README.md",
+        "size": 803,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/hands/projects/fine-tuning/README.md",
+        "relative_path": "hands/projects/fine-tuning/README.md",
+        "size": 799,
+        "target": null,
+        "type": "file"
+      },
+      {
         "modified_epoch": 1782518882,
         "path": "/Users/MAC/SuneelWorkSpace/hands/projects/fine-tuning/__pycache__/dataset_builder.cpython-314.pyc",
         "relative_path": "hands/projects/fine-tuning/__pycache__/dataset_builder.cpython-314.pyc",
@@ -5723,6 +6603,22 @@
         "path": "/Users/MAC/SuneelWorkSpace/hands/projects/fine-tuning/dataset_builder.py",
         "relative_path": "hands/projects/fine-tuning/dataset_builder.py",
         "size": 4193,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/hands/prompts/README.md",
+        "relative_path": "hands/prompts/README.md",
+        "size": 771,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/hands/scripts/README.md",
+        "relative_path": "hands/scripts/README.md",
+        "size": 1468,
         "target": null,
         "type": "file"
       },
@@ -6039,6 +6935,14 @@
         "type": "file"
       },
       {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/hands/scripts/workflows/README.md",
+        "relative_path": "hands/scripts/workflows/README.md",
+        "size": 1208,
+        "target": null,
+        "type": "file"
+      },
+      {
         "modified_epoch": 1782519028,
         "path": "/Users/MAC/SuneelWorkSpace/hands/scripts/workflows/workflow_claude_headroom_setup.py",
         "relative_path": "hands/scripts/workflows/workflow_claude_headroom_setup.py",
@@ -6137,10 +7041,10 @@
     ],
     "heart": [
       {
-        "modified_epoch": 1782521956,
+        "modified_epoch": 1782534869,
         "path": "/Users/MAC/SuneelWorkSpace/heart/README.md",
         "relative_path": "heart/README.md",
-        "size": 1803,
+        "size": 958,
         "target": null,
         "type": "file"
       },
@@ -6161,10 +7065,10 @@
         "type": "file"
       },
       {
-        "modified_epoch": 1782518691,
+        "modified_epoch": 1782534869,
         "path": "/Users/MAC/SuneelWorkSpace/heart/goals/README.md",
         "relative_path": "heart/goals/README.md",
-        "size": 3948,
+        "size": 1014,
         "target": null,
         "type": "file"
       },
@@ -6173,6 +7077,14 @@
         "path": "/Users/MAC/SuneelWorkSpace/heart/goals/__init__.py",
         "relative_path": "heart/goals/__init__.py",
         "size": 0,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/heart/goals/execution/README.md",
+        "relative_path": "heart/goals/execution/README.md",
+        "size": 905,
         "target": null,
         "type": "file"
       },
@@ -6201,6 +7113,14 @@
         "type": "file"
       },
       {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/heart/goals/goals/README.md",
+        "relative_path": "heart/goals/goals/README.md",
+        "size": 903,
+        "target": null,
+        "type": "file"
+      },
+      {
         "modified_epoch": 1782518691,
         "path": "/Users/MAC/SuneelWorkSpace/heart/goals/goals/active_goals.md",
         "relative_path": "heart/goals/goals/active_goals.md",
@@ -6225,6 +7145,14 @@
         "type": "file"
       },
       {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/heart/goals/graph/README.md",
+        "relative_path": "heart/goals/graph/README.md",
+        "size": 884,
+        "target": null,
+        "type": "file"
+      },
+      {
         "modified_epoch": 1782518691,
         "path": "/Users/MAC/SuneelWorkSpace/heart/goals/graph/dependency_map.json",
         "relative_path": "heart/goals/graph/dependency_map.json",
@@ -6237,6 +7165,14 @@
         "path": "/Users/MAC/SuneelWorkSpace/heart/goals/graph/task_graph.json",
         "relative_path": "heart/goals/graph/task_graph.json",
         "size": 3238,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/heart/goals/planner/README.md",
+        "relative_path": "heart/goals/planner/README.md",
+        "size": 934,
         "target": null,
         "type": "file"
       },
@@ -6273,6 +7209,14 @@
         "type": "file"
       },
       {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/heart/goals/reports/README.md",
+        "relative_path": "heart/goals/reports/README.md",
+        "size": 884,
+        "target": null,
+        "type": "file"
+      },
+      {
         "modified_epoch": 1782518691,
         "path": "/Users/MAC/SuneelWorkSpace/heart/goals/reports/goal_report.md",
         "relative_path": "heart/goals/reports/goal_report.md",
@@ -6285,6 +7229,14 @@
         "path": "/Users/MAC/SuneelWorkSpace/heart/goals/reports/system_progress.md",
         "relative_path": "heart/goals/reports/system_progress.md",
         "size": 233,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/heart/goals/scripts/README.md",
+        "relative_path": "heart/goals/scripts/README.md",
+        "size": 969,
         "target": null,
         "type": "file"
       },
@@ -6369,6 +7321,14 @@
         "type": "file"
       },
       {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/heart/goals/state/README.md",
+        "relative_path": "heart/goals/state/README.md",
+        "size": 882,
+        "target": null,
+        "type": "file"
+      },
+      {
         "modified_epoch": 1782518691,
         "path": "/Users/MAC/SuneelWorkSpace/heart/goals/state/current_goal.json",
         "relative_path": "heart/goals/state/current_goal.json",
@@ -6381,6 +7341,14 @@
         "path": "/Users/MAC/SuneelWorkSpace/heart/goals/state/goal_state.json",
         "relative_path": "heart/goals/state/goal_state.json",
         "size": 466,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/heart/model_router/README.md",
+        "relative_path": "heart/model_router/README.md",
+        "size": 960,
         "target": null,
         "type": "file"
       },
@@ -6481,10 +7449,10 @@
         "type": "file"
       },
       {
-        "modified_epoch": 1782518691,
+        "modified_epoch": 1782534869,
         "path": "/Users/MAC/SuneelWorkSpace/heart/orchestrator/README.md",
         "relative_path": "heart/orchestrator/README.md",
-        "size": 3333,
+        "size": 1014,
         "target": null,
         "type": "file"
       },
@@ -6493,6 +7461,14 @@
         "path": "/Users/MAC/SuneelWorkSpace/heart/orchestrator/__init__.py",
         "relative_path": "heart/orchestrator/__init__.py",
         "size": 0,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/heart/orchestrator/dag/README.md",
+        "relative_path": "heart/orchestrator/dag/README.md",
+        "size": 945,
         "target": null,
         "type": "file"
       },
@@ -6561,6 +7537,14 @@
         "type": "file"
       },
       {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/heart/orchestrator/mesh/README.md",
+        "relative_path": "heart/orchestrator/mesh/README.md",
+        "size": 900,
+        "target": null,
+        "type": "file"
+      },
+      {
         "modified_epoch": 1782518691,
         "path": "/Users/MAC/SuneelWorkSpace/heart/orchestrator/mesh/agent_registry.json",
         "relative_path": "heart/orchestrator/mesh/agent_registry.json",
@@ -6593,6 +7577,14 @@
         "type": "file"
       },
       {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/heart/orchestrator/models/README.md",
+        "relative_path": "heart/orchestrator/models/README.md",
+        "size": 884,
+        "target": null,
+        "type": "file"
+      },
+      {
         "modified_epoch": 1782518691,
         "path": "/Users/MAC/SuneelWorkSpace/heart/orchestrator/models/routing_patterns.json",
         "relative_path": "heart/orchestrator/models/routing_patterns.json",
@@ -6609,6 +7601,14 @@
         "type": "file"
       },
       {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/heart/orchestrator/reports/README.md",
+        "relative_path": "heart/orchestrator/reports/README.md",
+        "size": 889,
+        "target": null,
+        "type": "file"
+      },
+      {
         "modified_epoch": 1782518691,
         "path": "/Users/MAC/SuneelWorkSpace/heart/orchestrator/reports/agent_performance.md",
         "relative_path": "heart/orchestrator/reports/agent_performance.md",
@@ -6621,6 +7621,14 @@
         "path": "/Users/MAC/SuneelWorkSpace/heart/orchestrator/reports/routing_report.md",
         "relative_path": "heart/orchestrator/reports/routing_report.md",
         "size": 210,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/heart/orchestrator/router/README.md",
+        "relative_path": "heart/orchestrator/router/README.md",
+        "size": 1042,
         "target": null,
         "type": "file"
       },
@@ -6705,6 +7713,14 @@
         "type": "file"
       },
       {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/heart/orchestrator/scripts/README.md",
+        "relative_path": "heart/orchestrator/scripts/README.md",
+        "size": 909,
+        "target": null,
+        "type": "file"
+      },
+      {
         "modified_epoch": 1782518691,
         "path": "/Users/MAC/SuneelWorkSpace/heart/orchestrator/scripts/__pycache__/route-taskcpython-314.pyc",
         "relative_path": "heart/orchestrator/scripts/__pycache__/route-taskcpython-314.pyc",
@@ -6745,6 +7761,14 @@
         "type": "file"
       },
       {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/heart/orchestrator/state/README.md",
+        "relative_path": "heart/orchestrator/state/README.md",
+        "size": 902,
+        "target": null,
+        "type": "file"
+      },
+      {
         "modified_epoch": 1782518691,
         "path": "/Users/MAC/SuneelWorkSpace/heart/orchestrator/state/current_routing_state.json",
         "relative_path": "heart/orchestrator/state/current_routing_state.json",
@@ -6777,6 +7801,14 @@
         "type": "file"
       },
       {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/heart/tasks/README.md",
+        "relative_path": "heart/tasks/README.md",
+        "size": 890,
+        "target": null,
+        "type": "file"
+      },
+      {
         "modified_epoch": 1782518691,
         "path": "/Users/MAC/SuneelWorkSpace/heart/tasks/TASK_QUEUE.md",
         "relative_path": "heart/tasks/TASK_QUEUE.md",
@@ -6795,10 +7827,10 @@
     ],
     "lab": [
       {
-        "modified_epoch": 1782521956,
+        "modified_epoch": 1782534869,
         "path": "/Users/MAC/SuneelWorkSpace/lab/README.md",
         "relative_path": "lab/README.md",
-        "size": 1143,
+        "size": 916,
         "target": null,
         "type": "file"
       },
@@ -6819,10 +7851,10 @@
         "type": "file"
       },
       {
-        "modified_epoch": 1782520438,
+        "modified_epoch": 1782534869,
         "path": "/Users/MAC/SuneelWorkSpace/lab/autolab/README.md",
         "relative_path": "lab/autolab/README.md",
-        "size": 1697,
+        "size": 1382,
         "target": null,
         "type": "file"
       },
@@ -6883,6 +7915,14 @@
         "type": "file"
       },
       {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/lab/autolab/archive/README.md",
+        "relative_path": "lab/autolab/archive/README.md",
+        "size": 875,
+        "target": null,
+        "type": "file"
+      },
+      {
         "modified_epoch": 1782518902,
         "path": "/Users/MAC/SuneelWorkSpace/lab/autolab/archive/quarantine-history.tar.gz",
         "relative_path": "lab/autolab/archive/quarantine-history.tar.gz",
@@ -6931,6 +7971,14 @@
         "type": "file"
       },
       {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/lab/autolab/experiments/README.md",
+        "relative_path": "lab/autolab/experiments/README.md",
+        "size": 903,
+        "target": null,
+        "type": "file"
+      },
+      {
         "modified_epoch": 1782520438,
         "path": "/Users/MAC/SuneelWorkSpace/lab/autolab/experiments/active/exp_001_memory_reindex.json",
         "relative_path": "lab/autolab/experiments/active/exp_001_memory_reindex.json",
@@ -6975,6 +8023,14 @@
         "path": "/Users/MAC/SuneelWorkSpace/lab/autolab/hypothesis_prioritizer.py",
         "relative_path": "lab/autolab/hypothesis_prioritizer.py",
         "size": 1659,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/lab/autolab/meta/README.md",
+        "relative_path": "lab/autolab/meta/README.md",
+        "size": 1059,
         "target": null,
         "type": "file"
       },
@@ -7067,6 +8123,14 @@
         "type": "file"
       },
       {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/lab/autolab/patches/README.md",
+        "relative_path": "lab/autolab/patches/README.md",
+        "size": 960,
+        "target": null,
+        "type": "file"
+      },
+      {
         "modified_epoch": 1782520438,
         "path": "/Users/MAC/SuneelWorkSpace/lab/autolab/patches/exp-20260624-152836-rollback.md",
         "relative_path": "lab/autolab/patches/exp-20260624-152836-rollback.md",
@@ -7111,6 +8175,14 @@
         "path": "/Users/MAC/SuneelWorkSpace/lab/autolab/promotion_gate.py",
         "relative_path": "lab/autolab/promotion_gate.py",
         "size": 6716,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/lab/autolab/quarantine/README.md",
+        "relative_path": "lab/autolab/quarantine/README.md",
+        "size": 866,
         "target": null,
         "type": "file"
       },
@@ -7563,6 +8635,14 @@
         "type": "file"
       },
       {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/lab/autolab/reports/README.md",
+        "relative_path": "lab/autolab/reports/README.md",
+        "size": 901,
+        "target": null,
+        "type": "file"
+      },
+      {
         "modified_epoch": 1782518902,
         "path": "/Users/MAC/SuneelWorkSpace/lab/autolab/reports/experiment_categories.md",
         "relative_path": "lab/autolab/reports/experiment_categories.md",
@@ -7655,6 +8735,22 @@
         "path": "/Users/MAC/SuneelWorkSpace/lab/autolab/safeguards.md",
         "relative_path": "lab/autolab/safeguards.md",
         "size": 1976,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/lab/autolab/sandboxes/README.md",
+        "relative_path": "lab/autolab/sandboxes/README.md",
+        "size": 818,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/lab/autolab/scripts/README.md",
+        "relative_path": "lab/autolab/scripts/README.md",
+        "size": 1177,
         "target": null,
         "type": "file"
       },
@@ -7807,6 +8903,14 @@
         "path": "/Users/MAC/SuneelWorkSpace/lab/autolab/scripts/prompt-rollback",
         "relative_path": "lab/autolab/scripts/prompt-rollback",
         "size": 106,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/lab/autolab/snapshots/README.md",
+        "relative_path": "lab/autolab/snapshots/README.md",
+        "size": 898,
         "target": null,
         "type": "file"
       },
@@ -8291,6 +9395,14 @@
         "type": "file"
       },
       {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/lab/autolab/state/README.md",
+        "relative_path": "lab/autolab/state/README.md",
+        "size": 798,
+        "target": null,
+        "type": "file"
+      },
+      {
         "modified_epoch": 1782520438,
         "path": "/Users/MAC/SuneelWorkSpace/lab/autolab/state/frontier.json",
         "relative_path": "lab/autolab/state/frontier.json",
@@ -8311,6 +9423,14 @@
         "path": "/Users/MAC/SuneelWorkSpace/lab/autolab/state/loop_status.json",
         "relative_path": "lab/autolab/state/loop_status.json",
         "size": 305,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/lab/autolab/templates/README.md",
+        "relative_path": "lab/autolab/templates/README.md",
+        "size": 894,
         "target": null,
         "type": "file"
       },
@@ -8339,10 +9459,42 @@
         "type": "file"
       },
       {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/lab/autolab/training_data/README.md",
+        "relative_path": "lab/autolab/training_data/README.md",
+        "size": 822,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/lab/brain/README.md",
+        "relative_path": "lab/brain/README.md",
+        "size": 840,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/lab/brain/system/README.md",
+        "relative_path": "lab/brain/system/README.md",
+        "size": 768,
+        "target": null,
+        "type": "file"
+      },
+      {
         "modified_epoch": 1782521279,
         "path": "/Users/MAC/SuneelWorkSpace/lab/brain/system/gap_analysis_latest.json",
         "relative_path": "lab/brain/system/gap_analysis_latest.json",
         "size": 2975,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/lab/evolution/README.md",
+        "relative_path": "lab/evolution/README.md",
+        "size": 925,
         "target": null,
         "type": "file"
       },
@@ -8443,6 +9595,22 @@
         "type": "file"
       },
       {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/lab/prompts/README.md",
+        "relative_path": "lab/prompts/README.md",
+        "size": 816,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/lab/testing/README.md",
+        "relative_path": "lab/testing/README.md",
+        "size": 860,
+        "target": null,
+        "type": "file"
+      },
+      {
         "modified_epoch": 1782520044,
         "path": "/Users/MAC/SuneelWorkSpace/lab/testing/failure_log.json",
         "relative_path": "lab/testing/failure_log.json",
@@ -8467,6 +9635,14 @@
         "type": "file"
       },
       {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/lab/testing/reports/README.md",
+        "relative_path": "lab/testing/reports/README.md",
+        "size": 840,
+        "target": null,
+        "type": "file"
+      },
+      {
         "modified_epoch": 1782520044,
         "path": "/Users/MAC/SuneelWorkSpace/lab/testing/reports/overnight_report.md",
         "relative_path": "lab/testing/reports/overnight_report.md",
@@ -8487,6 +9663,14 @@
         "path": "/Users/MAC/SuneelWorkSpace/lab/testing/test_results.json",
         "relative_path": "lab/testing/test_results.json",
         "size": 11888,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/lab/tests/README.md",
+        "relative_path": "lab/tests/README.md",
+        "size": 840,
         "target": null,
         "type": "file"
       },
@@ -8525,10 +9709,10 @@
     ],
     "mouth": [
       {
-        "modified_epoch": 1782521956,
+        "modified_epoch": 1782534869,
         "path": "/Users/MAC/SuneelWorkSpace/mouth/README.md",
         "relative_path": "mouth/README.md",
-        "size": 1077,
+        "size": 825,
         "target": null,
         "type": "file"
       },
@@ -8549,10 +9733,10 @@
         "type": "file"
       },
       {
-        "modified_epoch": 1782520438,
+        "modified_epoch": 1782534869,
         "path": "/Users/MAC/SuneelWorkSpace/mouth/comms/README.md",
         "relative_path": "mouth/comms/README.md",
-        "size": 1997,
+        "size": 924,
         "target": null,
         "type": "file"
       },
@@ -8561,6 +9745,14 @@
         "path": "/Users/MAC/SuneelWorkSpace/mouth/comms/__init__.py",
         "relative_path": "mouth/comms/__init__.py",
         "size": 0,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/mouth/comms/config/README.md",
+        "relative_path": "mouth/comms/config/README.md",
+        "size": 920,
         "target": null,
         "type": "file"
       },
@@ -8629,6 +9821,14 @@
         "type": "file"
       },
       {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/mouth/comms/docs/README.md",
+        "relative_path": "mouth/comms/docs/README.md",
+        "size": 851,
+        "target": null,
+        "type": "file"
+      },
+      {
         "modified_epoch": 1782520438,
         "path": "/Users/MAC/SuneelWorkSpace/mouth/comms/docs/RECOVERY.md",
         "relative_path": "mouth/comms/docs/RECOVERY.md",
@@ -8641,6 +9841,14 @@
         "path": "/Users/MAC/SuneelWorkSpace/mouth/comms/docs/SAFETY_MODEL.md",
         "relative_path": "mouth/comms/docs/SAFETY_MODEL.md",
         "size": 2565,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/mouth/comms/imessage/README.md",
+        "relative_path": "mouth/comms/imessage/README.md",
+        "size": 832,
         "target": null,
         "type": "file"
       },
@@ -8713,6 +9921,14 @@
         "path": "/Users/MAC/SuneelWorkSpace/mouth/comms/imessage/state/imessage_state.json",
         "relative_path": "mouth/comms/imessage/state/imessage_state.json",
         "size": 94,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/mouth/comms/mail/README.md",
+        "relative_path": "mouth/comms/mail/README.md",
+        "size": 828,
         "target": null,
         "type": "file"
       },
@@ -8805,6 +10021,14 @@
         "type": "file"
       },
       {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/mouth/comms/reports/README.md",
+        "relative_path": "mouth/comms/reports/README.md",
+        "size": 809,
+        "target": null,
+        "type": "file"
+      },
+      {
         "modified_epoch": 1782520438,
         "path": "/Users/MAC/SuneelWorkSpace/mouth/comms/reports/latest_comms_report.md",
         "relative_path": "mouth/comms/reports/latest_comms_report.md",
@@ -8821,6 +10045,14 @@
         "type": "file"
       },
       {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/mouth/comms/workflows/README.md",
+        "relative_path": "mouth/comms/workflows/README.md",
+        "size": 833,
+        "target": null,
+        "type": "file"
+      },
+      {
         "modified_epoch": 1782520438,
         "path": "/Users/MAC/SuneelWorkSpace/mouth/comms/workflows/convert_message_to_task.md",
         "relative_path": "mouth/comms/workflows/convert_message_to_task.md",
@@ -8833,6 +10065,14 @@
         "path": "/Users/MAC/SuneelWorkSpace/mouth/comms/workflows/reply_message.md",
         "relative_path": "mouth/comms/workflows/reply_message.md",
         "size": 996,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/mouth/dispatcher/README.md",
+        "relative_path": "mouth/dispatcher/README.md",
+        "size": 839,
         "target": null,
         "type": "file"
       },
@@ -8911,10 +10151,10 @@
     ],
     "nervous": [
       {
-        "modified_epoch": 1782521956,
+        "modified_epoch": 1782534869,
         "path": "/Users/MAC/SuneelWorkSpace/nervous/README.md",
         "relative_path": "nervous/README.md",
-        "size": 1319,
+        "size": 942,
         "target": null,
         "type": "file"
       },
@@ -8947,6 +10187,14 @@
         "path": "/Users/MAC/SuneelWorkSpace/nervous/__pycache__/nerve_status.cpython-314.pyc",
         "relative_path": "nervous/__pycache__/nerve_status.cpython-314.pyc",
         "size": 3368,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/nervous/gateway/README.md",
+        "relative_path": "nervous/gateway/README.md",
+        "size": 839,
         "target": null,
         "type": "file"
       },
@@ -8991,6 +10239,14 @@
         "type": "file"
       },
       {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/nervous/gateway/clients/README.md",
+        "relative_path": "nervous/gateway/clients/README.md",
+        "size": 805,
+        "target": null,
+        "type": "file"
+      },
+      {
         "modified_epoch": 1782518882,
         "path": "/Users/MAC/SuneelWorkSpace/nervous/gateway/clients/__pycache__/python_client.cpython-314.pyc",
         "relative_path": "nervous/gateway/clients/__pycache__/python_client.cpython-314.pyc",
@@ -9015,10 +10271,18 @@
         "type": "file"
       },
       {
-        "modified_epoch": 1782520438,
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/nervous/gateway/routes/README.md",
+        "relative_path": "nervous/gateway/routes/README.md",
+        "size": 790,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782534869,
         "path": "/Users/MAC/SuneelWorkSpace/nervous/mcp/README.md",
         "relative_path": "nervous/mcp/README.md",
-        "size": 2522,
+        "size": 857,
         "target": null,
         "type": "file"
       },
@@ -9047,6 +10311,14 @@
         "type": "file"
       },
       {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/nervous/mcp/config/README.md",
+        "relative_path": "nervous/mcp/config/README.md",
+        "size": 814,
+        "target": null,
+        "type": "file"
+      },
+      {
         "modified_epoch": 1782518882,
         "path": "/Users/MAC/SuneelWorkSpace/nervous/mcp/config/gstack_version.json",
         "relative_path": "nervous/mcp/config/gstack_version.json",
@@ -9059,6 +10331,14 @@
         "path": "/Users/MAC/SuneelWorkSpace/nervous/mcp/docs/HOW_IT_WORKS.md",
         "relative_path": "nervous/mcp/docs/HOW_IT_WORKS.md",
         "size": 2869,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/nervous/mcp/docs/README.md",
+        "relative_path": "nervous/mcp/docs/README.md",
+        "size": 892,
         "target": null,
         "type": "file"
       },
@@ -9091,6 +10371,14 @@
         "path": "/Users/MAC/SuneelWorkSpace/nervous/mcp/docs/TOOL_REFERENCE.md",
         "relative_path": "nervous/mcp/docs/TOOL_REFERENCE.md",
         "size": 3107,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/nervous/mcp/server/README.md",
+        "relative_path": "nervous/mcp/server/README.md",
+        "size": 928,
         "target": null,
         "type": "file"
       },
@@ -9295,7 +10583,7 @@
         "type": "file"
       },
       {
-        "modified_epoch": 1782532241,
+        "modified_epoch": 1782535845,
         "path": "/Users/MAC/SuneelWorkSpace/nervous/mcp/server/state/last_index.json",
         "relative_path": "nervous/mcp/server/state/last_index.json",
         "size": 102,
@@ -9303,7 +10591,7 @@
         "type": "file"
       },
       {
-        "modified_epoch": 1782532241,
+        "modified_epoch": 1782535845,
         "path": "/Users/MAC/SuneelWorkSpace/nervous/mcp/server/state/mcp_state.json",
         "relative_path": "nervous/mcp/server/state/mcp_state.json",
         "size": 255,
@@ -9311,7 +10599,7 @@
         "type": "file"
       },
       {
-        "modified_epoch": 1782532241,
+        "modified_epoch": 1782535845,
         "path": "/Users/MAC/SuneelWorkSpace/nervous/mcp/server/storage/memory_index.db",
         "relative_path": "nervous/mcp/server/storage/memory_index.db",
         "size": 4395008,
@@ -9351,6 +10639,22 @@
         "type": "file"
       },
       {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/nervous/skills/README.md",
+        "relative_path": "nervous/skills/README.md",
+        "size": 890,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/nervous/skills/copilot-optimizer/README.md",
+        "relative_path": "nervous/skills/copilot-optimizer/README.md",
+        "size": 814,
+        "target": null,
+        "type": "file"
+      },
+      {
         "modified_epoch": 1782520438,
         "path": "/Users/MAC/SuneelWorkSpace/nervous/skills/copilot-optimizer/SKILL.md",
         "relative_path": "nervous/skills/copilot-optimizer/SKILL.md",
@@ -9359,10 +10663,26 @@
         "type": "file"
       },
       {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/nervous/skills/headroom-rtk/README.md",
+        "relative_path": "nervous/skills/headroom-rtk/README.md",
+        "size": 809,
+        "target": null,
+        "type": "file"
+      },
+      {
         "modified_epoch": 1782520044,
         "path": "/Users/MAC/SuneelWorkSpace/nervous/skills/headroom-rtk/SKILL.md",
         "relative_path": "nervous/skills/headroom-rtk/SKILL.md",
         "size": 1022,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/nervous/skills/self-repair/README.md",
+        "relative_path": "nervous/skills/self-repair/README.md",
+        "size": 808,
         "target": null,
         "type": "file"
       },
@@ -9377,10 +10697,10 @@
     ],
     "skeleton": [
       {
-        "modified_epoch": 1782521956,
+        "modified_epoch": 1782534869,
         "path": "/Users/MAC/SuneelWorkSpace/skeleton/README.md",
         "relative_path": "skeleton/README.md",
-        "size": 865,
+        "size": 838,
         "target": null,
         "type": "file"
       },
@@ -9421,6 +10741,14 @@
         "path": "/Users/MAC/SuneelWorkSpace/skeleton/rules/IDENTITY.md",
         "relative_path": "skeleton/rules/IDENTITY.md",
         "size": 2461,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/skeleton/rules/README.md",
+        "relative_path": "skeleton/rules/README.md",
+        "size": 965,
         "target": null,
         "type": "file"
       },
@@ -9467,10 +10795,10 @@
     ],
     "spine": [
       {
-        "modified_epoch": 1782521956,
+        "modified_epoch": 1782534869,
         "path": "/Users/MAC/SuneelWorkSpace/spine/README.md",
         "relative_path": "spine/README.md",
-        "size": 1170,
+        "size": 1021,
         "target": null,
         "type": "file"
       },
@@ -9487,6 +10815,14 @@
         "path": "/Users/MAC/SuneelWorkSpace/spine/__pycache__/enhancement_logger.cpython-314.pyc",
         "relative_path": "spine/__pycache__/enhancement_logger.cpython-314.pyc",
         "size": 3193,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/spine/audit/README.md",
+        "relative_path": "spine/audit/README.md",
+        "size": 922,
         "target": null,
         "type": "file"
       },
@@ -9547,10 +10883,34 @@
         "type": "file"
       },
       {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/spine/audit/security/README.md",
+        "relative_path": "spine/audit/security/README.md",
+        "size": 803,
+        "target": null,
+        "type": "file"
+      },
+      {
         "modified_epoch": 1782520438,
         "path": "/Users/MAC/SuneelWorkSpace/spine/audit/system_audit.md",
         "relative_path": "spine/audit/system_audit.md",
         "size": 3838,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/spine/backups/README.md",
+        "relative_path": "spine/backups/README.md",
+        "size": 817,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/spine/backups/pre-restructure-20260626/README.md",
+        "relative_path": "spine/backups/pre-restructure-20260626/README.md",
+        "size": 1615,
         "target": null,
         "type": "file"
       },
@@ -17979,6 +19339,14 @@
         "type": "file"
       },
       {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/spine/docs/README.md",
+        "relative_path": "spine/docs/README.md",
+        "size": 897,
+        "target": null,
+        "type": "file"
+      },
+      {
         "modified_epoch": 1782529222,
         "path": "/Users/MAC/SuneelWorkSpace/spine/docs/README_Update_Prompt.md",
         "relative_path": "spine/docs/README_Update_Prompt.md",
@@ -17991,6 +19359,14 @@
         "path": "/Users/MAC/SuneelWorkSpace/spine/docs/WORKSPACE_MAP.md",
         "relative_path": "spine/docs/WORKSPACE_MAP.md",
         "size": 4241,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/spine/docs/superpowers/README.md",
+        "relative_path": "spine/docs/superpowers/README.md",
+        "size": 802,
         "target": null,
         "type": "file"
       },
@@ -18027,10 +19403,42 @@
         "type": "file"
       },
       {
+        "modified_epoch": 1782534481,
+        "path": "/Users/MAC/SuneelWorkSpace/spine/readme_dependency_map.json",
+        "relative_path": "spine/readme_dependency_map.json",
+        "size": 34349,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782535827,
+        "path": "/Users/MAC/SuneelWorkSpace/spine/readme_health_cache.json",
+        "relative_path": "spine/readme_health_cache.json",
+        "size": 176,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/spine/snapshots/README.md",
+        "relative_path": "spine/snapshots/README.md",
+        "size": 801,
+        "target": null,
+        "type": "file"
+      },
+      {
         "modified_epoch": 1782518903,
         "path": "/Users/MAC/SuneelWorkSpace/spine/snapshots/gstack/MANIFEST.json",
         "relative_path": "spine/snapshots/gstack/MANIFEST.json",
         "size": 339,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/spine/snapshots/gstack/README.md",
+        "relative_path": "spine/snapshots/gstack/README.md",
+        "size": 844,
         "target": null,
         "type": "file"
       },
@@ -18043,7 +19451,7 @@
         "type": "file"
       },
       {
-        "modified_epoch": 1782532241,
+        "modified_epoch": 1782535845,
         "path": "/Users/MAC/SuneelWorkSpace/spine/state/ACTIVE_CONTEXT.json",
         "relative_path": "spine/state/ACTIVE_CONTEXT.json",
         "size": 4206,
@@ -18059,7 +19467,7 @@
         "type": "file"
       },
       {
-        "modified_epoch": 1782528639,
+        "modified_epoch": 1782532243,
         "path": "/Users/MAC/SuneelWorkSpace/spine/state/CURRENT_STATE.json",
         "relative_path": "spine/state/CURRENT_STATE.json",
         "size": 1960,
@@ -18067,10 +19475,10 @@
         "type": "file"
       },
       {
-        "modified_epoch": 1782532241,
+        "modified_epoch": 1782535844,
         "path": "/Users/MAC/SuneelWorkSpace/spine/state/INDEX.json",
         "relative_path": "spine/state/INDEX.json",
-        "size": 772737,
+        "size": 819810,
         "target": null,
         "type": "file"
       },
@@ -18083,10 +19491,18 @@
         "type": "file"
       },
       {
-        "modified_epoch": 1782532241,
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/spine/state/README.md",
+        "relative_path": "spine/state/README.md",
+        "size": 897,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782535845,
         "path": "/Users/MAC/SuneelWorkSpace/spine/state/WORKSPACE_HEALTH.json",
         "relative_path": "spine/state/WORKSPACE_HEALTH.json",
-        "size": 1415,
+        "size": 1709,
         "target": null,
         "type": "file"
       },
@@ -18099,10 +19515,26 @@
         "type": "file"
       },
       {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/spine/system-context/README.md",
+        "relative_path": "spine/system-context/README.md",
+        "size": 804,
+        "target": null,
+        "type": "file"
+      },
+      {
         "modified_epoch": 1782520044,
         "path": "/Users/MAC/SuneelWorkSpace/spine/system-context/system_profile.json",
         "relative_path": "spine/system-context/system_profile.json",
         "size": 10786,
+        "target": null,
+        "type": "file"
+      },
+      {
+        "modified_epoch": 1782534869,
+        "path": "/Users/MAC/SuneelWorkSpace/spine/tools/README.md",
+        "relative_path": "spine/tools/README.md",
+        "size": 974,
         "target": null,
         "type": "file"
       },

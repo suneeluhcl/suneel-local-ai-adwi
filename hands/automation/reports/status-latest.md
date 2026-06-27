@@ -1,20 +1,21 @@
 # Workspace Status Report
 
-Generated: 2026-06-26T22:50:42-0500
+Generated: 2026-06-26T23:50:46-0500
 
 ## State
 
 - Status: maintained
 - Last summary: Gap analysis and full repair complete — all 12 organs and symlinks verified, all CI tests passing at 100% green
-- Updated: 2026-06-26T21:50:39-0500
+- Updated: 2026-06-26T22:50:43-0500
 
 ## Health
 
 - Status: repairable
-- Issue count: 3
+- Issue count: 4
 - warning: GStack: unknown drift
 - info: codex CLI is not on PATH
 - info: claude CLI is not on PATH
+- warning: Regular files found in bin/ (expected symlinks only): README.md
 
 ## Recent Handoff
 

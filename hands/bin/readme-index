@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+# readme-index [--query <terms>] — build or search the README knowledge index
+WORKSPACE="$(cd "$(dirname "$0")/../.." && pwd)"
+exec "$WORKSPACE/.venv/bin/python3" "$WORKSPACE/hands/automation/readme/knowledge_indexer.py" "$@"
