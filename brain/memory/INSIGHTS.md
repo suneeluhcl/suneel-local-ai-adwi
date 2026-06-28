@@ -19,3 +19,16 @@ The workspace should predict likely next steps from repeated command/workflow se
 ## README Blueprint Insight
 
 The README is now the zero-gap system spec. Agent entrypoints should point agents back to README for complete boot, capability, safety, command, memory, intent, and extension context.
+
+
+---
+*Added by memory curator — 2026-06-28*
+
+## Recent Nerve Events
+
+It appears that there are several nerve events missing from the record. This may indicate a problem with the logging mechanism or a failure to update the memory file.
+
+## Ollama Performance Metrics
+
+The recent Ollama integration has introduced new performance metrics that should be tracked and monitored.
+

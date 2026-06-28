@@ -23,3 +23,16 @@ Record command and workflow events in `brain/anticipation/prediction_memory.json
 ## Intent And Ranked Suggestions Pattern
 
 Before acting, infer intent and store it in `brain/anticipation/current_context.json`. After meaningful actions, show only ranked top 3-5 next actions using `[HIGH]`, `[MED]`, or `[LOW]`. Filter suggestions by current intent and never auto-execute them.
+
+
+---
+*Added by memory curator — 2026-06-28*
+
+## Anticipation Pattern Update
+
+With the integration of Ollama and Hermes, we can now anticipate potential issues and suggest next actions more accurately. This pattern should be updated to reflect this new capability.
+
+### Updated Content
+
+* Record command and workflow events in `brain/anticipation/prediction_memory.json` with consideration for Ollama's repair and learning engines.
+

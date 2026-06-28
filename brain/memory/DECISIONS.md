@@ -93,3 +93,12 @@ Reason: To enable structured brainstorming and packaging of raw feature requests
 
 - Decision: Adopt a bounded local-first self-upgrade loop: audit, profile, gap analysis, recommendations, research artifacts, MCP resource coverage, and health integration may refresh autonomously; external installs, private data indexing, communication sends, money actions, and destructive changes require explicit approval.
 - Source: `brain/research/decisions/20260625-232344-bounded-self-upgrade-validation-decision.md`
+
+
+---
+*Added by memory curator — 2026-06-28*
+
+## New Entry
+
+Ollama integration has added new models to model_registry.json and Hermes is configured for Ollama. A predictive maintenance system using blood/telemetry data should be developed.
+

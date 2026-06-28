@@ -1,0 +1,10 @@
+{
+  "timestamp": "2026-06-28T07:00:56.809410+00:00",
+  "source_organ": "ears",
+  "event_type": "night_repair",
+  "detail": "Deep scan fixes applied to ears",
+  "notified": [
+    "brain",
+    "heart"
+  ]
+}

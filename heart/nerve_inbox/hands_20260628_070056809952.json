@@ -1,0 +1,9 @@
+{
+  "timestamp": "2026-06-28T07:00:56.809944+00:00",
+  "source_organ": "hands",
+  "event_type": "night_repair",
+  "detail": "Deep scan fixes applied to hands",
+  "notified": [
+    "heart"
+  ]
+}

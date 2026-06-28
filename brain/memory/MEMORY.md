@@ -77,3 +77,16 @@
 - Intent detection stores current intent in `brain/anticipation/current_context.json` using categories: messaging, email, research, system_improvement, development, idea_execution, maintenance, unknown.
 - Suggestions are ranked with `frequency_weight + success_weight + recency_weight + identity_alignment + intent_alignment` and limited to top 3-5.
 - Session boot contract in `README.md` requires agents to say `✅ Loading workspace shared brain` and confirm context loaded before meaningful work.
+
+
+---
+*Added by memory curator — 2026-06-28*
+
+## Recent Projects
+
+List of recent projects under `~/SuneelWorkSpace/projects/` to track progress and identify trends.
+
+## Ollama Integration Progress
+
+Summary of Ollama's integration with the workspace, including any new features or capabilities enabled by this integration.
+

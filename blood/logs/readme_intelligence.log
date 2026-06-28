@@ -77,3 +77,123 @@ Missed: 0 folders
 Trend: +2.2% vs last run
 [2026-06-27 00:25:48]   ✅ Self-reflection complete
 [2026-06-27 00:25:48] === Nightly README refresh complete (10 steps) ===
+[2026-06-27 01:24:02] [pre-push] Push allowed: WARNINGS=0
+[2026-06-27 01:24:05] [pre-push] Push allowed: WARNINGS=0
+[2026-06-27 01:54:11] [pre-push] Push allowed: WARNINGS=0
+[2026-06-27 01:54:12] [pre-push] Push allowed: WARNINGS=0
+[2026-06-27 02:24:19] [pre-push] Push allowed: WARNINGS=0
+[2026-06-27 02:24:20] [pre-push] Push allowed: WARNINGS=0
+[2026-06-27 02:54:27] [pre-push] Push allowed: WARNINGS=0
+[2026-06-27 02:54:28] [pre-push] Push allowed: WARNINGS=0
+[2026-06-27 03:24:35] [pre-push] Push allowed: WARNINGS=0
+[2026-06-27 03:24:36] [pre-push] Push allowed: WARNINGS=0
+[2026-06-27 03:54:43] [pre-push] Push allowed: WARNINGS=0
+[2026-06-27 03:54:44] [pre-push] Push allowed: WARNINGS=0
+[2026-06-27 04:24:51] [pre-push] Push allowed: WARNINGS=0
+[2026-06-27 04:24:52] [pre-push] Push allowed: WARNINGS=0
+[2026-06-27 04:54:59] [pre-push] Push allowed: WARNINGS=0
+[2026-06-27 04:55:01] [pre-push] Push allowed: WARNINGS=0
+[2026-06-27 05:25:07] [pre-push] Push allowed: WARNINGS=0
+[2026-06-27 05:25:09] [pre-push] Push allowed: WARNINGS=0
+[2026-06-27 05:55:16] [pre-push] Push allowed: WARNINGS=0
+[2026-06-27 05:55:17] [pre-push] Push allowed: WARNINGS=0
+[2026-06-27 06:25:24] [pre-push] Push allowed: WARNINGS=0
+[2026-06-27 06:25:25] [pre-push] Push allowed: WARNINGS=0
+[2026-06-27 06:55:33] [pre-push] Push allowed: WARNINGS=0
+[2026-06-27 06:55:34] [pre-push] Push allowed: WARNINGS=0
+[2026-06-28 00:00:05] === Nightly README refresh started ===
+[2026-06-28 00:00:05] Step 1/10: Updating all folder READMEs...
+
+✅ 321 updated, 0 failed
+[2026-06-28 00:00:05]   ✅ All READMEs updated
+[2026-06-28 00:00:05] Step 2/10: Rebuilding root README...
+✅ Root README rebuilt (3078 chars, 12 organs, 269 folders)
+[2026-06-28 00:00:05]   ✅ Root README rebuilt
+[2026-06-28 00:00:05] Step 3/10: Rebuilding dependency map...
+Wrote 321 entries to dependency map
+[2026-06-28 00:00:05]   ✅ Dependency map rebuilt
+[2026-06-28 00:00:05] Step 4/10: Running validation...
+✅ README validation passed (2 folders checked)
+[2026-06-28 00:00:05]   ✅ Validation passed
+[2026-06-28 00:00:05] Step 5/10: Building knowledge index...
+✅ Knowledge index: 321 folders (321 with README) → brain/system/readme_knowledge_index.json
+[2026-06-28 00:00:05]   ✅ Knowledge index built
+[2026-06-28 00:00:05] Step 6/10: Checking for low-health folders (threshold=60)...
+{
+  "triggered": [],
+  "skipped": [],
+  "threshold": 60,
+  "dry_run": false
+}
+[2026-06-28 00:00:05]   ✅ Lab bridge check complete
+[2026-06-28 00:00:05] Step 7/10: Computing priority queue...
+Built priority queue: 321 folders
+
+Priority   Score  Health  Blast  Folder
+-----------------------------------------------------------------
+P0             80      60      0   hands/scripts/workflows
+P3             29      90      3   heart
+P3             29      90      3   heart/goals
+P3             29      90      3   heart/model_router
+P3             29      90      3   heart/orchestrator
+P3             29      90      3   heart/orchestrator/dag
+P3             29      90      3   heart/orchestrator/mesh
+P3             29      90      3   heart/orchestrator/router
+P3             29      90      3   heart/tasks
+P3             23      90      1   spine
+P3             23      90      1   spine/audit
+P3             23      90      1   spine/state
+P3             23      90      1   spine/tools
+[2026-06-28 00:00:05]   ✅ Priority queue updated
+[2026-06-28 00:00:05] Step 8/10: Recording health trend snapshot...
+Recorded snapshot: 2026-06-28 | overall=98.0 | healthy=320 | critical=0
+[2026-06-28 00:00:05]   ✅ Trend snapshot recorded
+[2026-06-28 00:00:05] Step 9/10: Auto-repairing SAFE issues...
+[LIVE] Done: 0 | Skipped: 23
+[2026-06-28 00:00:05]   ✅ Auto-repair complete
+[2026-06-28 00:00:05] Step 10/10: Running self-reflection...
+Accuracy: 100.0%
+Missed: 0 folders
+[2026-06-28 00:00:05]   ✅ Self-reflection complete
+[2026-06-28 00:00:05] Step 11/12: Auto-committing changes...
+[2026-06-28 00:02:04] [pre-push] Push allowed: WARNINGS=0
+[2026-06-28 00:00:10] [auto-commit] Found 186 file(s) to stage.
+[2026-06-28 00:00:10] [auto-commit]   + agents/README.md
+[2026-06-28 00:00:10] [auto-commit]   + .agents/skills/README.md
+[2026-06-28 00:00:10] [auto-commit]   + .agents/skills/copilot-optimizer/README.md
+[2026-06-28 00:00:10] [auto-commit]   + .agents/skills/headroom-rtk/README.md
+[2026-06-28 00:00:10] [auto-commit]   + .agents/skills/self-repair/README.md
+[2026-06-28 00:00:10] [auto-commit]   + README.md
+[2026-06-28 00:00:10] [auto-commit]   + blood/README.md
+[2026-06-28 00:00:10] [auto-commit]   + blood/metrics/README.md
+[2026-06-28 00:00:10] [auto-commit]   + blood/telemetry/README.md
+[2026-06-28 00:00:10] [auto-commit]   + blood/telemetry/comparison/README.md
+[2026-06-28 00:00:10] [auto-commit]   ... and 176 more
+[2026-06-28 00:00:12] [auto-commit]   ⚠️  Could not stage hands/automation/reports/README.md: The following paths are ignored by one of your .gitignore files:
+hands/automation/reports
+hint: Use -f if you really want to add them.
+hint: Disable this message with "git config set advice.addIgnoredFile false"
+[2026-06-28 00:00:13] [auto-commit] ✅ Committed: [main 1f36859] chore(readme): auto-sync — 2026-06-28 00:00:13
+[2026-06-28 00:00:13] [auto-commit] Auto-push enabled — running git-safe-push --no-update...
+[2026-06-28 00:02:05] [auto-commit] ✅ Auto-push succeeded.
+[2026-06-28 00:00:05]   ✅ Auto-commit complete
+[2026-06-28 00:00:05] Step 12/12: Auto-push check (enabled=true)...
+
+🚀 git-safe-push starting...
+  ⚡ --no-update: skipping update + rebuild (pipeline already ran)
+
+  Step 3/4: Validating documentation...
+
+📛 README VALIDATION FAILED
+
+  ❌ nervous: README.md is older than folder contents
+
+  Fix: run `readme-update-all && readme-root-build` then push again.
+
+
+❌ Validation failed. Push aborted.
+   Review the failures above and fix before pushing.
+[2026-06-28 00:00:05]   ⚠️  Auto-push failed (commit preserved — check pre-push guard log)
+[2026-06-28 00:00:05] === Nightly README refresh complete (12 steps) ===
+[2026-06-28 10:24:10] [pre-push] Push allowed: WARNINGS=0
+[2026-06-28 10:30:53] [pre-push] Push allowed: WARNINGS=0

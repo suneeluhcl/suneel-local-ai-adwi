@@ -1,6 +1,6 @@
 # Ollama Repair Suggestions
 
-*Generated: 2026-06-28T07:01:46.772405+00:00*
+*Generated: 2026-06-28T15:34:54.270067+00:00*
 
 ## Suggestion 1
 **Fix**: `mcp-reindex`
@@ -20,8 +20,8 @@
 
 ## Improvement Ideas
 
-- **heart/** [medium]: Implement automated model rotation and updating
-- **ears/** [small]: Develop a custom morning brief template using recent evolution events
-- **lab/** [large]: Integrate Ollama learning engine with autolab experiments
-- **eyes/** [small]: Create a nerve propagator monitoring dashboard in eyes/
-- **spine/** [small]: Establish a regular agent-doctor diagnostic schedule
+- **heart** [medium]: Implement automated model rotation and versioning in heart/
+- **blood** [large]: Develop a predictive maintenance system using blood/telemetry data to forecast potential anomalies
+- **mouth** [medium]: Integrate a natural language processing (NLP) module in mouth/ to enhance ws command understanding and response accuracy
+- **brain** [large]: Create a knowledge graph in brain/ to store and connect concepts, entities, and relationships, enhancing vector search and anticipation capabilities
+- **spine** [medium]: Design and implement a self-healing mechanism in spine/ to automatically detect and recover from common faults and errors
