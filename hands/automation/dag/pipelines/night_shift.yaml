@@ -1,0 +1,54 @@
+name: night_shift
+description: Nightly autonomous workspace pipeline
+schedule: "0 22 * * *"
+execution_level: SAFE
+
+steps:
+  - id: morning_brief
+    name: "Build Morning Brief"
+    command: morning-brief
+    args: []
+    depends_on: []
+    execution_level: SAFE
+    condition: null
+
+  - id: hermes_health_check
+    name: "Hermes Agent Health Check"
+    command: hermes
+    args: ["--non-interactive", "--continue", "Run a quick workspace health check. Check if any organs have issues. Report findings to blood/logs/hermes_night_report.md"]
+    depends_on: [morning_brief]
+    execution_level: SAFE
+    condition: null
+
+  - id: ollama_repair
+    name: "Ollama Local Repair Cycle"
+    command: ollama-repair
+    depends_on: [hermes_health_check]
+    execution_level: SAFE
+    on_failure:
+      action: continue
+
+  - id: ollama_learn
+    name: "Ollama Self-Learning Cycle"
+    command: ollama-learn
+    depends_on: [ollama_repair]
+    execution_level: SAFE
+    on_failure:
+      action: continue
+
+  - id: hermes_night_check
+    name: "Hermes Night Health Check"
+    command: hermes-night
+    args: ["Analyze blood/logs/ollama_suggestions.md and blood/logs/ollama_repair.jsonl. Summarize the top 3 findings and save to blood/logs/hermes_night_report.md"]
+    depends_on: [ollama_learn]
+    execution_level: SAFE
+    on_failure:
+      action: continue
+
+  - id: hermes_telegram_brief
+    name: "Send Morning Brief to Telegram"
+    command: hermes-night
+    args: ["Read the latest morning brief log and send a summary to Telegram"]
+    depends_on: [morning_brief]
+    execution_level: SAFE
+    condition: "TELEGRAM_BOT_TOKEN != ''"

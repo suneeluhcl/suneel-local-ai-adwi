@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "description": "Human Body Architecture — Organ Nerve Registry",
+  "description": "Human Body Architecture \u2014 Organ Nerve Registry",
   "migration_complete": true,
   "last_updated": "2026-06-26",
   "organs": {
@@ -16,8 +16,14 @@
         "telemetry_logs": "blood/logs/SESSION_LOG.md",
         "goal_states": "heart/tasks/ACTIVE_TASKS.md"
       },
-      "watches": ["brain/memory/", "brain/anticipation/"],
-      "notifies": ["heart", "spine"],
+      "watches": [
+        "brain/memory/",
+        "brain/anticipation/"
+      ],
+      "notifies": [
+        "heart",
+        "spine"
+      ],
       "inbox": "brain/nerve_inbox/"
     },
     "heart": {
@@ -32,8 +38,16 @@
         "injected_context": "brain/injector/context_injector.py",
         "telemetry_logs": "blood/logs/SESSION_LOG.md"
       },
-      "watches": ["heart/tasks/", "heart/goals/", "heart/model_router/"],
-      "notifies": ["brain", "hands", "blood"],
+      "watches": [
+        "heart/tasks/",
+        "heart/goals/",
+        "heart/model_router/"
+      ],
+      "notifies": [
+        "brain",
+        "hands",
+        "blood"
+      ],
       "inbox": "heart/nerve_inbox/"
     },
     "eyes": {
@@ -48,8 +62,14 @@
         "goal_states": "heart/tasks/ACTIVE_TASKS.md",
         "workspace_health_score": "spine/state/WORKSPACE_HEALTH.json"
       },
-      "watches": ["eyes/dashboard/", "eyes/visual/"],
-      "notifies": ["brain", "spine"],
+      "watches": [
+        "eyes/dashboard/",
+        "eyes/visual/"
+      ],
+      "notifies": [
+        "brain",
+        "spine"
+      ],
       "inbox": "eyes/nerve_inbox/"
     },
     "ears": {
@@ -63,8 +83,13 @@
         "goal_states": "heart/tasks/ACTIVE_TASKS.md",
         "semantic_memory": "brain/memory/MEMORY.md"
       },
-      "watches": ["ears/monitor/"],
-      "notifies": ["brain", "heart"],
+      "watches": [
+        "ears/monitor/"
+      ],
+      "notifies": [
+        "brain",
+        "heart"
+      ],
       "inbox": "ears/nerve_inbox/"
     },
     "nervous": {
@@ -79,7 +104,9 @@
         "static_rules": "skeleton/rules/AGENT_SYSTEM.md",
         "workspace_state": "spine/state/CURRENT_STATE.json"
       },
-      "watches": ["nervous/"],
+      "watches": [
+        "nervous/"
+      ],
       "notifies": [],
       "inbox": "nervous/nerve_inbox/"
     },
@@ -93,7 +120,9 @@
       "needs": {
         "identity_adjustments": "dna/identity/prompts/identity_prompt.md"
       },
-      "watches": ["skeleton/rules/"],
+      "watches": [
+        "skeleton/rules/"
+      ],
       "notifies": [],
       "inbox": "skeleton/nerve_inbox/"
     },
@@ -108,8 +137,12 @@
         "command_executions": "hands/bin/agent-finish",
         "intent_states": "brain/memory/SESSION_HANDOFF.md"
       },
-      "watches": ["blood/telemetry/"],
-      "notifies": ["spine"],
+      "watches": [
+        "blood/telemetry/"
+      ],
+      "notifies": [
+        "spine"
+      ],
       "inbox": "blood/nerve_inbox/"
     },
     "hands": {
@@ -124,8 +157,14 @@
         "model_routes": "heart/model_router/router.py",
         "health_diagnostics": "spine/state/WORKSPACE_HEALTH.json"
       },
-      "watches": ["hands/bin/", "hands/scripts/", "hands/automation/"],
-      "notifies": ["heart"],
+      "watches": [
+        "hands/bin/",
+        "hands/scripts/",
+        "hands/automation/"
+      ],
+      "notifies": [
+        "heart"
+      ],
       "inbox": "hands/nerve_inbox/"
     },
     "mouth": {
@@ -139,8 +178,13 @@
         "vector_memory": "brain/memory/vector/semantic_search.py",
         "goal_states": "heart/tasks/ACTIVE_TASKS.md"
       },
-      "watches": ["mouth/dispatcher/", "mouth/comms/"],
-      "notifies": ["brain"],
+      "watches": [
+        "mouth/dispatcher/",
+        "mouth/comms/"
+      ],
+      "notifies": [
+        "brain"
+      ],
       "inbox": "mouth/nerve_inbox/"
     },
     "dna": {
@@ -149,14 +193,22 @@
       "provides": {
         "identity_prompts": "dna/identity/prompts/identity_prompt.md",
         "tone_profiles": "dna/identity/profile/tone_profile.md",
-        "adaptive_feedback": "dna/feedback/loop_controller.py"
+        "adaptive_feedback": "dna/feedback/loop_controller.py",
+        "hermes_skills": "dna/agents/hermes/skills/",
+        "hermes_memory": "dna/agents/hermes/",
+        "hermes_agent": "dna/agents/hermes/Modelfile.workspace"
       },
       "needs": {
         "vector_memory": "brain/memory/vector/semantic_search.py",
         "safety_boundaries": "skeleton/rules/SAFETY_BOUNDARIES.md"
       },
-      "watches": ["dna/identity/"],
-      "notifies": ["brain", "skeleton"],
+      "watches": [
+        "dna/identity/"
+      ],
+      "notifies": [
+        "brain",
+        "skeleton"
+      ],
       "inbox": "dna/nerve_inbox/"
     },
     "lab": {
@@ -170,8 +222,14 @@
         "telemetry_logs": "blood/logs/SESSION_LOG.md",
         "health_score": "spine/state/WORKSPACE_HEALTH.json"
       },
-      "watches": ["lab/autolab/", "lab/evolution/"],
-      "notifies": ["brain", "spine"],
+      "watches": [
+        "lab/autolab/",
+        "lab/evolution/"
+      ],
+      "notifies": [
+        "brain",
+        "spine"
+      ],
       "inbox": "lab/nerve_inbox/"
     },
     "spine": {
@@ -186,7 +244,10 @@
         "nerve_notification_reports": "nervous/nerve_registry.json",
         "telemetry_flags": "blood/logs/SESSION_LOG.md"
       },
-      "watches": ["spine/state/", "spine/tools/"],
+      "watches": [
+        "spine/state/",
+        "spine/tools/"
+      ],
       "notifies": [],
       "inbox": "spine/nerve_inbox/"
     }

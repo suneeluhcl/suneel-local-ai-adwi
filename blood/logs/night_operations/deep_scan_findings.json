@@ -1,0 +1,1029 @@
+{
+  "scan_time": "2026-06-28T06:56:40.790232+00:00",
+  "organ_findings": [
+    {
+      "gaps": [
+        {
+          "type": "missing_nerve_entry",
+          "description": "nerve.json does not declare CLI commands in hands/bin/",
+          "file_path": "brain/nerve.json",
+          "fix": "Add 'cli_commands' entry to nerve.json with a list of available CLI commands",
+          "severity": "medium",
+          "execution_level": "SAFE"
+        },
+        {
+          "type": "missing_readme",
+          "description": "Some subdirectories in brain/ are missing README.md files",
+          "file_path": "brain/memory/docs/",
+          "fix": "Add README.md files to all subdirectories in brain/",
+          "severity": "low",
+          "execution_level": "SAFE"
+        },
+        {
+          "type": "missing_cli",
+          "description": "No CLI command for building knowledge graph is declared in nerve.json",
+          "file_path": "brain/nerve.json",
+          "fix": "Add 'build_graph' CLI command to nerve.json and implement it in hands/bin/",
+          "severity": "medium",
+          "execution_level": "SAFE"
+        }
+      ],
+      "broken_connections": [
+        {
+          "type": "broken_import",
+          "description": "prediction_engine import is missing in execution_engine.py",
+          "location": "brain/anticipation/execution_engine.py",
+          "fix": "Add 'import prediction_engine' to execution_engine.py or implement a fallback",
+          "severity": "high"
+        },
+        {
+          "type": "broken_path",
+          "description": "WORKSPACE path in bootstrap_patterns.py may not be set",
+          "location": "brain/anticipation/bootstrap_patterns.py",
+          "fix": "Ensure WORKSPACE environment variable is set before running bootstrap_patterns.py",
+          "severity": "medium"
+        }
+      ],
+      "enhancements": [
+        {
+          "description": "Implement a more advanced anticipation algorithm using machine learning",
+          "organ": "brain",
+          "effort": "large",
+          "impact": "high",
+          "implementation": "Research and implement a suitable ML algorithm, integrate it with the existing anticipation system"
+        },
+        {
+          "description": "Add support for multiple knowledge graph formats",
+          "organ": "brain",
+          "effort": "medium",
+          "impact": "medium",
+          "implementation": "Modify build_graph.py to support additional graph formats, update graph_query.py accordingly"
+        }
+      ],
+      "missing_wiring": [
+        {
+          "description": "Connection between brain and nervous organs for nerve propagation",
+          "from_organ": "brain",
+          "to_organ": "nervous",
+          "connection_type": "nerve",
+          "fix": "Implement nerve propagation from brain to nervous organ using nerve_propagator.py"
+        },
+        {
+          "description": "Connection between brain and eyes organs for dashboard updates",
+          "from_organ": "brain",
+          "to_organ": "eyes",
+          "connection_type": "mcp",
+          "fix": "Implement MCP updates from brain to eyes organ using eyes' API"
+        }
+      ],
+      "summary": "The brain organ has some gaps and broken connections, but overall it is functional and can be improved with enhancements and additional wiring to other organs.",
+      "organ": "brain",
+      "files_scanned": 62,
+      "nerve_json_exists": true,
+      "readme_exists": true
+    },
+    {
+      "gaps": [
+        {
+          "type": "missing_nerve_entry",
+          "description": "Missing nerve.json entry for model_router",
+          "file_path": "heart/nerve.json",
+          "fix": "Add 'model_router' to nerve.json provides or needs section",
+          "severity": "medium",
+          "execution_level": "SAFE"
+        },
+        {
+          "type": "missing_cli",
+          "description": "Missing CLI command for quota_tracker",
+          "file_path": "hands/bin/",
+          "fix": "Create a new CLI command in hands/bin/ for quota_tracker",
+          "severity": "low",
+          "execution_level": "SAFE"
+        },
+        {
+          "type": "missing_readme",
+          "description": "Missing README.md file for model_router",
+          "file_path": "heart/model_router/",
+          "fix": "Create a new README.md file in heart/model_router/ describing its purpose and usage",
+          "severity": "low",
+          "execution_level": "SAFE"
+        },
+        {
+          "type": "broken_import",
+          "description": "Broken import in health_checker.py",
+          "file_path": "heart/model_router/health_checker.py",
+          "fix": "Fix the import statement for anthropic and openai libraries",
+          "severity": "high",
+          "execution_level": "CONTROLLED"
+        }
+      ],
+      "broken_connections": [
+        {
+          "type": "broken_path",
+          "description": "Broken path reference in nerve.json",
+          "location": "heart/nerve.json",
+          "fix": "Update the path reference to a valid location",
+          "severity": "critical"
+        },
+        {
+          "type": "missing_dependency",
+          "description": "Missing dependency for quota_tracker.py",
+          "location": "heart/model_router/quota_tracker.py",
+          "fix": "Add the missing dependency to the requirements file",
+          "severity": "high"
+        }
+      ],
+      "enhancements": [
+        {
+          "description": "Implement automated goal prioritization",
+          "organ": "heart",
+          "effort": "medium",
+          "impact": "high",
+          "implementation": "Modify the goal planner to prioritize goals based on their complexity and priority"
+        },
+        {
+          "description": "Add real-time monitoring for model usage",
+          "organ": "heart",
+          "effort": "small",
+          "impact": "medium",
+          "implementation": "Update the quota_tracker to provide real-time monitoring of model usage"
+        }
+      ],
+      "missing_wiring": [
+        {
+          "description": "Connection between heart and brain for goal planning",
+          "from_organ": "heart",
+          "to_organ": "brain",
+          "connection_type": "nerve",
+          "fix": "Establish a nerve connection between heart and brain to enable goal planning"
+        },
+        {
+          "description": "Connection between heart and eyes for dashboard updates",
+          "from_organ": "heart",
+          "to_organ": "eyes",
+          "connection_type": "mcp",
+          "fix": "Establish an MCP connection between heart and eyes to update the dashboard"
+        }
+      ],
+      "summary": "The heart organ has some gaps and broken connections that need to be addressed, but overall it is functioning properly.",
+      "organ": "heart",
+      "files_scanned": 89,
+      "nerve_json_exists": true,
+      "readme_exists": true
+    },
+    {
+      "gaps": [
+        {
+          "type": "missing_nerve_entry",
+          "description": "Missing 'provides' and 'needs' entries in nerve.json",
+          "file_path": "eyes/nerve.json",
+          "fix": "Add 'provides': ['dashboard', 'screenshot_manager'] and 'needs': ['brain/memory', 'heart/orchestration'] to nerve.json",
+          "severity": "medium",
+          "execution_level": "SAFE"
+        },
+        {
+          "type": "missing_cli",
+          "description": "Missing CLI command for screenshot manager",
+          "file_path": "hands/bin/",
+          "fix": "Add a new file 'screenshot_manager.sh' in hands/bin/ with the necessary commands to interact with eyes/visual/screenshot_manager.py",
+          "severity": "low",
+          "execution_level": "SAFE"
+        },
+        {
+          "type": "missing_readme",
+          "description": "Missing README.md for eyes/visual/",
+          "file_path": "eyes/visual/README.md",
+          "fix": "Create a new file 'README.md' in eyes/visual/ with documentation about the visual monitor and screenshot manager",
+          "severity": "low",
+          "execution_level": "SAFE"
+        }
+      ],
+      "broken_connections": [
+        {
+          "type": "broken_import",
+          "description": "Importing non-existent module 'asyncio' in health_repair_pipeline.py",
+          "location": "eyes/dashboard/execution/health_repair_pipeline.py",
+          "fix": "Replace 'import asyncio' with the correct import statement or remove it if not necessary",
+          "severity": "high"
+        }
+      ],
+      "enhancements": [
+        {
+          "description": "Implement automated testing for dashboard and screenshot manager",
+          "organ": "eyes",
+          "effort": "medium",
+          "impact": "high",
+          "implementation": "Write unit tests and integration tests using a Python testing framework like unittest or pytest"
+        },
+        {
+          "description": "Improve the user interface of the dashboard",
+          "organ": "eyes",
+          "effort": "large",
+          "impact": "medium",
+          "implementation": "Use a front-end framework like React or Angular to create a more interactive and visually appealing dashboard"
+        }
+      ],
+      "missing_wiring": [
+        {
+          "description": "Connection between eyes and brain for memory updates",
+          "from_organ": "eyes",
+          "to_organ": "brain",
+          "connection_type": "nerve",
+          "fix": "Add a nerve connection from eyes to brain in the nerve.json files of both organs"
+        },
+        {
+          "description": "Connection between eyes and heart for orchestration updates",
+          "from_organ": "eyes",
+          "to_organ": "heart",
+          "connection_type": "nerve",
+          "fix": "Add a nerve connection from eyes to heart in the nerve.json files of both organs"
+        }
+      ],
+      "summary": "The eyes organ has some gaps and broken connections, but overall it is functional and can be improved with enhancements and additional wiring to other organs.",
+      "organ": "eyes",
+      "files_scanned": 43,
+      "nerve_json_exists": true,
+      "readme_exists": true
+    },
+    {
+      "gaps": [
+        {
+          "type": "missing_cli",
+          "description": "No CLI command in hands/bin/ for ears organ",
+          "file_path": "hands/bin/",
+          "fix": "Create a new file in hands/bin/ that points to ears/monitor/digest/digest_builder.py or other relevant scripts",
+          "severity": "medium",
+          "execution_level": "SAFE"
+        },
+        {
+          "type": "missing_readme",
+          "description": "Some subdirectories in ears/ are missing README files",
+          "file_path": "ears/monitor/__init__.py, ears/nerve_inbox/",
+          "fix": "Add README files to these directories to document their purpose and contents",
+          "severity": "low",
+          "execution_level": "SAFE"
+        }
+      ],
+      "broken_connections": [
+        {
+          "type": "broken_import",
+          "description": "Potential broken import in digest_builder.py if ACTIVE_TASKS_PATH or BRAIN_LOGS do not exist",
+          "location": "ears/monitor/digest/digest_builder.py",
+          "fix": "Add error handling for file existence checks and consider using relative imports",
+          "severity": "high",
+          "execution_level": "CONTROLLED"
+        }
+      ],
+      "enhancements": [
+        {
+          "description": "Improve digest scoring algorithm to better prioritize relevant items",
+          "organ": "ears",
+          "effort": "medium",
+          "impact": "high",
+          "implementation": "Modify digest_builder.py to incorporate more sophisticated natural language processing techniques"
+        },
+        {
+          "description": "Add support for additional feed sources (e.g., Twitter, Reddit)",
+          "organ": "ears",
+          "effort": "small",
+          "impact": "medium",
+          "implementation": "Update monitor_config.json and add new source handlers in ears/monitor/sources/"
+        }
+      ],
+      "missing_wiring": [
+        {
+          "description": "Ears organ should notify brain of new digest items for long-term memory storage",
+          "from_organ": "ears",
+          "to_organ": "brain",
+          "connection_type": "nerve",
+          "fix": "Update ears/nerve.json to include notification to brain and implement corresponding handler in brain"
+        },
+        {
+          "description": "Ears organ should receive task updates from heart for relevance scoring",
+          "from_organ": "heart",
+          "to_organ": "ears",
+          "connection_type": "nerve",
+          "fix": "Update heart/nerve.json to notify ears of task changes and implement corresponding handler in ears"
+        }
+      ],
+      "summary": "The ears organ is generally well-structured but lacks CLI commands, has potential broken imports, and could benefit from enhancements to its scoring algorithm and feed sources.",
+      "organ": "ears",
+      "files_scanned": 18,
+      "nerve_json_exists": true,
+      "readme_exists": true
+    },
+    {
+      "gaps": [
+        {
+          "type": "missing_nerve_entry",
+          "description": "Missing nerve.json entry for nerve_propagator.py script",
+          "file_path": "nervous/nerve.json",
+          "fix": "Add 'script': 'nervous/nerve_propagator.py' to nerve.json",
+          "severity": "medium",
+          "execution_level": "SAFE"
+        },
+        {
+          "type": "missing_cli",
+          "description": "Missing CLI command for nerve_status.py script",
+          "file_path": "hands/bin/",
+          "fix": "Add a new file to hands/bin/ that runs nervous/nerve_status.py",
+          "severity": "low",
+          "execution_level": "SAFE"
+        },
+        {
+          "type": "missing_readme",
+          "description": "Missing README.md for nervous/skills/ directory",
+          "file_path": "nervous/skills/README.md",
+          "fix": "Create a new README.md file in nervous/skills/",
+          "severity": "low",
+          "execution_level": "SAFE"
+        },
+        {
+          "type": "broken_import",
+          "description": "Potential broken import in gateway/api.py if FastAPI or uvicorn is not installed",
+          "file_path": "nervous/gateway/api.py",
+          "fix": "Run pip3 install fastapi uvicorn --break-system-packages to ensure dependencies are met",
+          "severity": "critical",
+          "execution_level": "CONTROLLED"
+        }
+      ],
+      "broken_connections": [
+        {
+          "type": "broken_path",
+          "description": "Potential broken path in nervous/gateway/api.py if WORKSPACE environment variable is not set",
+          "location": "nervous/gateway/api.py",
+          "fix": "Ensure WORKSPACE environment variable is set before running the script",
+          "severity": "high"
+        },
+        {
+          "type": "missing_dependency",
+          "description": "Missing dependency for requests in nervous/gateway/clients/python_client.py",
+          "location": "nervous/gateway/clients/python_client.py",
+          "fix": "Run pip3 install requests to ensure the dependency is met",
+          "severity": "medium"
+        }
+      ],
+      "enhancements": [
+        {
+          "description": "Implement additional error handling in nervous/gateway/api.py for improved robustness",
+          "organ": "nervous",
+          "effort": "small",
+          "impact": "high",
+          "implementation": "Add try-except blocks to handle potential errors and exceptions"
+        },
+        {
+          "description": "Develop a more comprehensive testing suite for nervous/mcp/server/ scripts",
+          "organ": "nervous",
+          "effort": "medium",
+          "impact": "medium",
+          "implementation": "Create test cases using a testing framework like unittest or pytest"
+        }
+      ],
+      "missing_wiring": [
+        {
+          "description": "Connection between nervous organ and eyes organ for dashboard updates",
+          "from_organ": "nervous",
+          "to_organ": "eyes",
+          "connection_type": "nerve",
+          "fix": "Establish a nerve connection between the two organs to enable real-time updates"
+        },
+        {
+          "description": "Connection between nervous organ and lab organ for evolution engine integration",
+          "from_organ": "nervous",
+          "to_organ": "lab",
+          "connection_type": "mcp",
+          "fix": "Configure the MCP server to integrate with the evolution engine in the lab organ"
+        }
+      ],
+      "summary": "The nervous organ has some gaps and broken connections that need to be addressed, but overall it is functioning and can be improved with additional enhancements and wiring to other organs.",
+      "organ": "nervous",
+      "files_scanned": 55,
+      "nerve_json_exists": true,
+      "readme_exists": true
+    },
+    {
+      "gaps": [
+        {
+          "type": "missing_nerve_entry",
+          "description": "Missing 'provides' and 'needs' entries in nerve.json",
+          "file_path": "skeleton/nerve.json",
+          "fix": "Add 'provides' and 'needs' sections to nerve.json",
+          "severity": "medium",
+          "execution_level": "SAFE"
+        },
+        {
+          "type": "missing_cli",
+          "description": "Missing CLI commands in hands/bin/ for skeleton organ",
+          "file_path": "hands/bin/",
+          "fix": "Create CLI commands in hands/bin/ that interact with skeleton organ",
+          "severity": "medium",
+          "execution_level": "SAFE"
+        }
+      ],
+      "broken_connections": [
+        {
+          "type": "broken_import",
+          "description": "Potential broken import in __init__.py files",
+          "location": "skeleton/__init__.py and skeleton/rules/__init__.py",
+          "fix": "Verify imports in __init__.py files are correct and functional",
+          "severity": "low"
+        }
+      ],
+      "enhancements": [
+        {
+          "description": "Implement automated rule validation and enforcement",
+          "organ": "skeleton",
+          "effort": "medium",
+          "impact": "high",
+          "implementation": "Develop a script to validate rules against current state and enforce them when necessary"
+        },
+        {
+          "description": "Add version control for rules and safety boundaries",
+          "organ": "skeleton",
+          "effort": "small",
+          "impact": "medium",
+          "implementation": "Use Git or similar tool to track changes to rules and safety boundaries"
+        }
+      ],
+      "missing_wiring": [
+        {
+          "description": "Connection between skeleton and nervous organs for nerve propagation",
+          "from_organ": "skeleton",
+          "to_organ": "nervous",
+          "connection_type": "nerve",
+          "fix": "Verify nerve_propagator path in skeleton/nerve.json points to a valid script in nervous organ"
+        },
+        {
+          "description": "Connection between skeleton and heart organs for task queue management",
+          "from_organ": "skeleton",
+          "to_organ": "heart",
+          "connection_type": "mcp",
+          "fix": "Establish MCP connection between skeleton and heart organs for task queue updates"
+        }
+      ],
+      "summary": "The skeleton organ has some gaps in its configuration and potential for enhancements, but overall it is functional with minor issues to address.",
+      "organ": "skeleton",
+      "files_scanned": 12,
+      "nerve_json_exists": true,
+      "readme_exists": true
+    },
+    {
+      "gaps": [
+        {
+          "type": "missing_file",
+          "description": "telemetry.db file is missing",
+          "file_path": "blood/telemetry/telemetry.db",
+          "fix": "Create an empty telemetry.db file or run the _get_conn function in telemetry_anomaly.py to initialize it",
+          "severity": "high",
+          "execution_level": "SAFE"
+        },
+        {
+          "type": "missing_nerve_entry",
+          "description": "nerve.json does not declare any CLI commands",
+          "file_path": "blood/nerve.json",
+          "fix": "Add a 'cli' section to nerve.json with the list of available CLI commands",
+          "severity": "medium",
+          "execution_level": "SAFE"
+        },
+        {
+          "type": "missing_cli",
+          "description": "No CLI command for running telemetry_anomaly.py",
+          "file_path": "hands/bin/",
+          "fix": "Create a new CLI command in hands/bin/ that runs telemetry_anomaly.py",
+          "severity": "medium",
+          "execution_level": "SAFE"
+        }
+      ],
+      "broken_connections": [
+        {
+          "type": "broken_import",
+          "description": "telemetry_anomaly.py and compare_agents.py import schema.sql but it's not clear if the file exists or is up-to-date",
+          "location": "blood/telemetry/telemetry_anomaly.py and blood/telemetry/comparison/compare_agents.py",
+          "fix": "Verify that schema.sql exists and is up-to-date, and update the imports accordingly",
+          "severity": "medium"
+        }
+      ],
+      "enhancements": [
+        {
+          "description": "Implement automated repair report analysis to detect recurring issues",
+          "organ": "blood",
+          "effort": "medium",
+          "impact": "high",
+          "implementation": "Write a script that analyzes the repair reports and detects patterns or recurring issues, and integrates it with the existing logging and monitoring system"
+        },
+        {
+          "description": "Add more detailed logging for telemetry_anomaly.py and compare_agents.py",
+          "organ": "blood",
+          "effort": "small",
+          "impact": "medium",
+          "implementation": "Modify the scripts to log more detailed information about their execution, such as input parameters, intermediate results, and any errors that occur"
+        }
+      ],
+      "missing_wiring": [
+        {
+          "description": "blood organ should be connected to nervous organ for nerve propagation",
+          "from_organ": "blood",
+          "to_organ": "nervous",
+          "connection_type": "nerve",
+          "fix": "Update nerve.json to include the necessary connections to the nervous organ"
+        },
+        {
+          "description": "blood organ should be connected to spine organ for health monitoring",
+          "from_organ": "blood",
+          "to_organ": "spine",
+          "connection_type": "mcp",
+          "fix": "Update nerve.json to include the necessary connections to the spine organ"
+        }
+      ],
+      "summary": "The blood organ has some gaps and broken connections, but overall it is functioning correctly and providing valuable telemetry data for the workspace.",
+      "organ": "blood",
+      "files_scanned": 35,
+      "nerve_json_exists": true,
+      "readme_exists": true
+    },
+    {
+      "gaps": [
+        {
+          "type": "missing_nerve_entry",
+          "description": "nerve.json does not declare automation scripts as provided services",
+          "file_path": "hands/nerve.json",
+          "fix": "add 'provides': ['automation_scripts'] to nerve.json",
+          "severity": "medium",
+          "execution_level": "SAFE"
+        },
+        {
+          "type": "missing_cli",
+          "description": "no CLI command for running evolution_scorer.py",
+          "file_path": "hands/bin/",
+          "fix": "add a CLI command to run evolution_scorer.py",
+          "severity": "low",
+          "execution_level": "SAFE"
+        },
+        {
+          "type": "missing_readme",
+          "description": "some subdirectories lack README.md files",
+          "file_path": "hands/automation/",
+          "fix": "add README.md files to subdirectories",
+          "severity": "low",
+          "execution_level": "SAFE"
+        }
+      ],
+      "broken_connections": [
+        {
+          "type": "broken_import",
+          "description": "workspace_ci.py may have incomplete import due to truncation",
+          "location": "hands/automation/ci/workspace_ci.py",
+          "fix": "verify and complete imports in workspace_ci.py",
+          "severity": "high"
+        },
+        {
+          "type": "missing_dependency",
+          "description": "evolution_scorer.py depends on spine/state/WORKSPACE_HEALTH.json, which may not exist",
+          "location": "hands/automation/evolution_scorer.py",
+          "fix": "ensure WORKSPACE_HEALTH.json exists and is accessible",
+          "severity": "critical"
+        }
+      ],
+      "enhancements": [
+        {
+          "description": "improve error handling in automation scripts",
+          "organ": "hands",
+          "effort": "medium",
+          "impact": "high",
+          "implementation": "review and enhance try-except blocks in Python scripts"
+        },
+        {
+          "description": "add logging for key events in automation scripts",
+          "organ": "hands",
+          "effort": "small",
+          "impact": "medium",
+          "implementation": "insert log statements at critical points in scripts"
+        }
+      ],
+      "missing_wiring": [
+        {
+          "description": "connect hands organ to spine for health score updates",
+          "from_organ": "hands",
+          "to_organ": "spine",
+          "connection_type": "nerve",
+          "fix": "update nerve.json to notify spine of health score changes"
+        },
+        {
+          "description": "link hands automation scripts to lab experiments",
+          "from_organ": "hands",
+          "to_organ": "lab",
+          "connection_type": "mcp",
+          "fix": "configure MCP server to route experiment requests from hands to lab"
+        }
+      ],
+      "summary": "The hands organ has some gaps in nerve.json entries and CLI commands, but overall it is well-structured with opportunities for enhancements and better connections to other organs.",
+      "organ": "hands",
+      "files_scanned": 282,
+      "nerve_json_exists": true,
+      "readme_exists": true
+    },
+    {
+      "gaps": [
+        {
+          "type": "missing_nerve_entry",
+          "description": "Missing 'provides' entry in nerve.json for mouth organ",
+          "file_path": "mouth/nerve.json",
+          "fix": "Add 'provides': ['comms', 'dispatcher'] to nerve.json",
+          "severity": "medium",
+          "execution_level": "SAFE"
+        },
+        {
+          "type": "missing_cli",
+          "description": "Missing CLI command for mouth organ in hands/bin/",
+          "file_path": "hands/bin/",
+          "fix": "Create a new file in hands/bin/ with a descriptive name (e.g., mouth-cli) that points to the mouth organ",
+          "severity": "medium",
+          "execution_level": "SAFE"
+        },
+        {
+          "type": "missing_readme",
+          "description": "Missing README.md files in some subdirectories of mouth organ",
+          "file_path": "mouth/comms/imessage/state/",
+          "fix": "Create a new README.md file in the specified directory with a brief description of its purpose",
+          "severity": "low",
+          "execution_level": "SAFE"
+        },
+        {
+          "type": "broken_import",
+          "description": "Broken import statement in mouth/dispatcher/ws.py",
+          "file_path": "mouth/dispatcher/ws.py",
+          "fix": "Fix the import statement to correctly point to the intent_classifier module",
+          "severity": "high",
+          "execution_level": "CONTROLLED"
+        }
+      ],
+      "broken_connections": [
+        {
+          "type": "broken_path",
+          "description": "Broken path reference in mouth/dispatcher/intent_classifier.py to leaderboard.json",
+          "location": "mouth/dispatcher/intent_classifier.py",
+          "fix": "Update the path to correctly point to the leaderboard.json file",
+          "severity": "high"
+        },
+        {
+          "type": "missing_dependency",
+          "description": "Missing dependency in mouth/comms/config/access_policy.json for full_disk_access",
+          "location": "mouth/comms/config/access_policy.json",
+          "fix": "Add the necessary dependency or modify the access policy to not require it",
+          "severity": "medium"
+        }
+      ],
+      "enhancements": [
+        {
+          "description": "Improve natural language processing in mouth/dispatcher/intent_classifier.py",
+          "organ": "mouth",
+          "effort": "large",
+          "impact": "high",
+          "implementation": "Integrate a more advanced NLP library or model to improve intent classification accuracy"
+        },
+        {
+          "description": "Add support for additional communication channels in mouth/comms/",
+          "organ": "mouth",
+          "effort": "medium",
+          "impact": "medium",
+          "implementation": "Create new subdirectories and configuration files for the additional channels, and update the dispatcher to handle them"
+        }
+      ],
+      "missing_wiring": [
+        {
+          "description": "Missing connection between mouth organ and brain organ for intent classification",
+          "from_organ": "mouth",
+          "to_organ": "brain",
+          "connection_type": "nerve",
+          "fix": "Add a nerve connection between the two organs to enable the brain to provide intent classification data to the mouth"
+        },
+        {
+          "description": "Missing connection between mouth organ and hands organ for CLI commands",
+          "from_organ": "mouth",
+          "to_organ": "hands",
+          "connection_type": "cli",
+          "fix": "Create a new CLI command in hands/bin/ that points to the mouth organ"
+        }
+      ],
+      "summary": "The mouth organ has some gaps and broken connections, but overall it is functional and can be improved with enhancements and additional wiring to other organs.",
+      "organ": "mouth",
+      "files_scanned": 47,
+      "nerve_json_exists": true,
+      "readme_exists": true
+    },
+    {
+      "gaps": [
+        {
+          "type": "missing_file",
+          "description": "No main entry point for dna/ organ",
+          "file_path": "dna/__main__.py",
+          "fix": "Create a __main__.py file to serve as the main entry point for the dna/ organ",
+          "severity": "medium",
+          "execution_level": "SAFE"
+        },
+        {
+          "type": "missing_cli",
+          "description": "No CLI command for managing feedback loops",
+          "file_path": "hands/bin/feedback-loop-manager",
+          "fix": "Create a CLI command to manage feedback loops, e.g., hands/bin/feedback-loop-manager",
+          "severity": "medium",
+          "execution_level": "SAFE"
+        },
+        {
+          "type": "missing_readme",
+          "description": "No README file for dna/agents/hermes/",
+          "file_path": "dna/agents/hermes/README.md",
+          "fix": "Create a README file to document the hermes agent",
+          "severity": "low",
+          "execution_level": "SAFE"
+        }
+      ],
+      "broken_connections": [
+        {
+          "type": "broken_import",
+          "description": "Potential broken import in dna/feedback/feedback_ingest.py",
+          "location": "dna/feedback/feedback_ingest.py",
+          "fix": "Verify imports and fix any broken ones, e.g., check for missing modules or incorrect paths",
+          "severity": "high"
+        }
+      ],
+      "enhancements": [
+        {
+          "description": "Implement automated testing for feedback loop controller",
+          "organ": "dna",
+          "effort": "medium",
+          "impact": "high",
+          "implementation": "Write unit tests and integration tests for the feedback loop controller using a testing framework like pytest"
+        },
+        {
+          "description": "Add support for multiple feedback formats",
+          "organ": "dna",
+          "effort": "large",
+          "impact": "medium",
+          "implementation": "Modify the feedback ingest script to handle different file formats, e.g., JSON, CSV, etc."
+        }
+      ],
+      "missing_wiring": [
+        {
+          "description": "Connect dna/ organ to lab/ organ for automated experimentation",
+          "from_organ": "dna",
+          "to_organ": "lab",
+          "connection_type": "nerve",
+          "fix": "Create a nerve connection between dna/ and lab/ to enable automated experimentation"
+        },
+        {
+          "description": "Connect dna/ organ to spine/ organ for health monitoring",
+          "from_organ": "dna",
+          "to_organ": "spine",
+          "connection_type": "mcp",
+          "fix": "Create an MCP connection between dna/ and spine/ to monitor the health of the dna/ organ"
+        }
+      ],
+      "summary": "The dna/ organ has some gaps in its implementation, but overall it is well-structured and functional, with opportunities for enhancements and improved connections to other organs.",
+      "organ": "dna",
+      "files_scanned": 50,
+      "nerve_json_exists": true,
+      "readme_exists": true
+    },
+    {
+      "gaps": [
+        {
+          "type": "missing_cli",
+          "description": "Missing CLI command for hypothesis_generator.py",
+          "file_path": "lab/autolab/hypothesis_generator.py",
+          "fix": "Add a new file to hands/bin/ that calls lab/autolab/hypothesis_generator.py",
+          "severity": "medium",
+          "execution_level": "SAFE"
+        },
+        {
+          "type": "missing_readme",
+          "description": "Missing README.md in lab/autolab/experiments/active directory",
+          "file_path": "lab/autolab/experiments/active",
+          "fix": "Create a new file lab/autolab/experiments/active/README.md to document active experiments",
+          "severity": "low",
+          "execution_level": "SAFE"
+        }
+      ],
+      "broken_connections": [
+        {
+          "type": "broken_import",
+          "description": "Missing import for urllib.request in deep_scan_engine.py",
+          "location": "lab/autolab/deep_scan_engine.py",
+          "fix": "Add import statement for urllib.request",
+          "severity": "high"
+        }
+      ],
+      "enhancements": [
+        {
+          "description": "Improve experiment prioritization using machine learning algorithms",
+          "organ": "lab",
+          "effort": "large",
+          "impact": "high",
+          "implementation": "Integrate a machine learning library to analyze experiment results and prioritize new experiments"
+        },
+        {
+          "description": "Automate the creation of new experiments based on hypothesis generator output",
+          "organ": "lab",
+          "effort": "medium",
+          "impact": "medium",
+          "implementation": "Modify hypothesis_generator.py to create new experiment files in lab/autolab/experiments/active"
+        }
+      ],
+      "missing_wiring": [
+        {
+          "description": "Connect lab organ to brain organ for improved memory analysis",
+          "from_organ": "lab",
+          "to_organ": "brain",
+          "connection_type": "nerve",
+          "fix": "Update nerve.json in lab and brain organs to include each other's paths"
+        },
+        {
+          "description": "Connect lab organ to nervous organ for improved MCP resource discovery",
+          "from_organ": "lab",
+          "to_organ": "nervous",
+          "connection_type": "mcp",
+          "fix": "Update nerve.json in lab and nervous organs to include each other's paths"
+        }
+      ],
+      "summary": "The lab organ has some gaps and broken connections, but overall it is functioning well and has opportunities for enhancements and improved wiring with other organs.",
+      "organ": "lab",
+      "files_scanned": 219,
+      "nerve_json_exists": true,
+      "readme_exists": true
+    },
+    {
+      "gaps": [
+        {
+          "type": "missing_cli",
+          "description": "No CLI command for spine/enhancement_logger.py",
+          "file_path": "hands/bin/",
+          "fix": "Add a CLI command in hands/bin/ to utilize spine/enhancement_logger.py",
+          "severity": "medium",
+          "execution_level": "SAFE"
+        },
+        {
+          "type": "missing_cli",
+          "description": "No CLI command for spine/tools/brain_injector.py",
+          "file_path": "hands/bin/",
+          "fix": "Add a CLI command in hands/bin/ to utilize spine/tools/brain_injector.py",
+          "severity": "medium",
+          "execution_level": "SAFE"
+        },
+        {
+          "type": "missing_readme",
+          "description": "No README.md for spine/enhancement_logger.py and spine/tools/brain_injector.py",
+          "file_path": "spine/enhancement_logger.py and spine/tools/brain_injector.py",
+          "fix": "Add a README.md to describe the functionality of these scripts",
+          "severity": "low",
+          "execution_level": "SAFE"
+        }
+      ],
+      "broken_connections": [
+        {
+          "type": "broken_import",
+          "description": "Potential broken import in spine/tools/brain_injector.py due to missing file paths",
+          "location": "spine/tools/brain_injector.py",
+          "fix": "Verify and correct the file paths for imports in spine/tools/brain_injector.py",
+          "severity": "high"
+        }
+      ],
+      "enhancements": [
+        {
+          "description": "Automate the generation of README.md files for scripts in spine/",
+          "organ": "spine",
+          "effort": "small",
+          "impact": "medium",
+          "implementation": "Create a script to automatically generate README.md files based on script functionality"
+        },
+        {
+          "description": "Implement a notification system for when new enhancements are logged by spine/enhancement_logger.py",
+          "organ": "spine",
+          "effort": "medium",
+          "impact": "high",
+          "implementation": "Modify spine/enhancement_logger.py to send notifications to the nervous/nerve_propagator.py when a new enhancement is logged"
+        }
+      ],
+      "missing_wiring": [
+        {
+          "description": "Connection between spine/ and heart/ for task context injection",
+          "from_organ": "spine",
+          "to_organ": "heart",
+          "connection_type": "nerve",
+          "fix": "Establish a nerve connection to enable the exchange of task context information"
+        },
+        {
+          "description": "Connection between spine/ and nervous/ for enhancement notifications",
+          "from_organ": "spine",
+          "to_organ": "nervous",
+          "connection_type": "nerve",
+          "fix": "Establish a nerve connection to enable the propagation of enhancement notifications"
+        }
+      ],
+      "summary": "The spine organ has some gaps in CLI commands and README files, but overall it is well-structured with opportunities for enhancements and improved connections to other organs.",
+      "organ": "spine",
+      "files_scanned": 52,
+      "nerve_json_exists": true,
+      "readme_exists": true
+    }
+  ],
+  "nerve_findings": {
+    "broken": [
+      {
+        "organ": "dna",
+        "type": "broken_provides",
+        "key": "hermes_memory",
+        "path": "~/.hermes/memory/",
+        "fix": "Create ~/.hermes/memory/ or update nerve_registry.json"
+      },
+      {
+        "organ": "dna",
+        "type": "broken_provides",
+        "key": "hermes_agent",
+        "path": "hermes CLI",
+        "fix": "Create hermes CLI or update nerve_registry.json"
+      }
+    ],
+    "missing": []
+  },
+  "broken_symlinks": [],
+  "import_issues": [
+    {
+      "file": "lab/autolab/deep_scan_engine.py",
+      "old_pattern": "from agent_system",
+      "suggestion": "from brain/heart/blood/spine (check which organ)",
+      "fix": "Update import in lab/autolab/deep_scan_engine.py"
+    },
+    {
+      "file": "lab/autolab/deep_scan_engine.py",
+      "old_pattern": "from orchestrator",
+      "suggestion": "from heart.orchestrator",
+      "fix": "Update import in lab/autolab/deep_scan_engine.py"
+    },
+    {
+      "file": "lab/autolab/deep_scan_engine.py",
+      "old_pattern": "from identity",
+      "suggestion": "from dna.identity",
+      "fix": "Update import in lab/autolab/deep_scan_engine.py"
+    },
+    {
+      "file": "lab/autolab/deep_scan_engine.py",
+      "old_pattern": "from autolab",
+      "suggestion": "from lab.autolab",
+      "fix": "Update import in lab/autolab/deep_scan_engine.py"
+    },
+    {
+      "file": "lab/autolab/deep_scan_engine.py",
+      "old_pattern": "from evolution",
+      "suggestion": "from lab.evolution",
+      "fix": "Update import in lab/autolab/deep_scan_engine.py"
+    },
+    {
+      "file": "lab/autolab/deep_scan_engine.py",
+      "old_pattern": "from dashboard",
+      "suggestion": "from eyes.dashboard",
+      "fix": "Update import in lab/autolab/deep_scan_engine.py"
+    },
+    {
+      "file": "lab/autolab/deep_scan_engine.py",
+      "old_pattern": "from visual",
+      "suggestion": "from eyes.visual",
+      "fix": "Update import in lab/autolab/deep_scan_engine.py"
+    },
+    {
+      "file": "lab/autolab/deep_scan_engine.py",
+      "old_pattern": "from monitor",
+      "suggestion": "from ears.monitor",
+      "fix": "Update import in lab/autolab/deep_scan_engine.py"
+    },
+    {
+      "file": "lab/autolab/deep_scan_engine.py",
+      "old_pattern": "from dispatcher",
+      "suggestion": "from mouth.dispatcher",
+      "fix": "Update import in lab/autolab/deep_scan_engine.py"
+    },
+    {
+      "file": "lab/autolab/deep_scan_engine.py",
+      "old_pattern": "from comms",
+      "suggestion": "from mouth.comms",
+      "fix": "Update import in lab/autolab/deep_scan_engine.py"
+    },
+    {
+      "file": "lab/autolab/deep_scan_engine.py",
+      "old_pattern": "import orchestrator",
+      "suggestion": "import heart.orchestrator",
+      "fix": "Update import in lab/autolab/deep_scan_engine.py"
+    },
+    {
+      "file": "lab/autolab/deep_scan_engine.py",
+      "old_pattern": "import autolab",
+      "suggestion": "import lab.autolab",
+      "fix": "Update import in lab/autolab/deep_scan_engine.py"
+    },
+    {
+      "file": "nervous/mcp/server/main.py",
+      "old_pattern": "from comms",
+      "suggestion": "from mouth.comms",
+      "fix": "Update import in nervous/mcp/server/main.py"
+    }
+  ]
+}

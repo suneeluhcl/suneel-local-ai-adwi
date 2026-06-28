@@ -6,7 +6,7 @@ import re
 from pathlib import Path
 
 INTENT_MAP_PATH = Path(__file__).parent / "intent_map.json"
-LEADERBOARD_PATH = Path(__file__).parent.parent / "agent-system" / "telemetry" / "comparison" / "leaderboard.json"
+LEADERBOARD_PATH = Path(__file__).parent.parent.parent / "blood" / "telemetry" / "comparison" / "leaderboard.json"
 CONFIDENCE_THRESHOLD = 0.7
 
 

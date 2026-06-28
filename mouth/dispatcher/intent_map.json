@@ -4,155 +4,399 @@
       "command": "agent-doctor",
       "args": [],
       "task_type": "health_check",
-      "keywords": ["health", "doctor", "status", "check", "broken", "fix", "repair", "working", "alive", "workspace health"],
+      "keywords": [
+        "health",
+        "doctor",
+        "status",
+        "check",
+        "broken",
+        "fix",
+        "repair",
+        "working",
+        "alive",
+        "workspace health"
+      ],
       "description": "Run workspace health check"
     },
     "telemetry_summary": {
       "command": "telemetry-query",
-      "args": ["summary", "--days", "7"],
+      "args": [
+        "summary",
+        "--days",
+        "7"
+      ],
       "task_type": "telemetry",
-      "keywords": ["telemetry", "metrics", "stats", "statistics", "performance", "how did", "how has", "tokens", "success rate", "what did", "show telemetry", "telemetry last", "last 7 days", "agent stats", "usage stats", "show stats", "show metrics", "token usage"],
+      "keywords": [
+        "telemetry",
+        "metrics",
+        "stats",
+        "statistics",
+        "performance",
+        "how did",
+        "how has",
+        "tokens",
+        "success rate",
+        "what did",
+        "show telemetry",
+        "telemetry last",
+        "last 7 days",
+        "agent stats",
+        "usage stats",
+        "show stats",
+        "show metrics",
+        "token usage"
+      ],
       "description": "Show agent performance summary"
     },
     "telemetry_anomalies": {
       "command": "telemetry-anomalies",
       "args": [],
       "task_type": "telemetry",
-      "keywords": ["anomal", "regression", "degraded", "worse", "slower", "dropping", "alert"],
+      "keywords": [
+        "anomal",
+        "regression",
+        "degraded",
+        "worse",
+        "slower",
+        "dropping",
+        "alert"
+      ],
       "description": "Check for performance anomalies"
     },
     "agent_compare": {
       "command": "agent-compare",
       "args": [],
       "task_type": "comparison",
-      "keywords": ["compare", "better", "best", "leaderboard", "versus", "vs", "which agent", "who is best", "agent performance", "compare agents", "agent compare", "compare performance", "agent leaderboard", "who performs"],
+      "keywords": [
+        "compare",
+        "better",
+        "best",
+        "leaderboard",
+        "versus",
+        "vs",
+        "which agent",
+        "who is best",
+        "agent performance",
+        "compare agents",
+        "agent compare",
+        "compare performance",
+        "agent leaderboard",
+        "who performs"
+      ],
       "description": "Compare agent performance"
     },
     "morning_brief": {
       "command": "monitor-digest",
       "args": [],
       "task_type": "monitor",
-      "keywords": ["morning", "brief", "digest", "news", "today", "what happened", "update", "summary"],
+      "keywords": [
+        "morning",
+        "brief",
+        "digest",
+        "news",
+        "today",
+        "what happened",
+        "update",
+        "summary"
+      ],
       "description": "Show morning brief digest"
     },
     "monitor_run": {
       "command": "monitor-run",
       "args": [],
       "task_type": "monitor",
-      "keywords": ["monitor", "fetch", "arxiv", "rss", "github", "papers", "releases", "world", "external"],
+      "keywords": [
+        "monitor",
+        "fetch",
+        "arxiv",
+        "rss",
+        "github",
+        "papers",
+        "releases",
+        "world",
+        "external"
+      ],
       "description": "Run external world monitor"
     },
     "feedback_ingest": {
       "command": "feedback-ingest",
       "args": [],
       "task_type": "feedback",
-      "keywords": ["feedback", "ingest", "training", "rate", "bad response", "wrong answer", "correct", "improve"],
+      "keywords": [
+        "feedback",
+        "ingest",
+        "training",
+        "rate",
+        "bad response",
+        "wrong answer",
+        "correct",
+        "improve"
+      ],
       "description": "Process feedback files"
     },
     "feedback_status": {
       "command": "feedback-ingest",
-      "args": ["status"],
+      "args": [
+        "status"
+      ],
       "task_type": "feedback",
-      "keywords": ["feedback status", "pending feedback", "how many feedback"],
+      "keywords": [
+        "feedback status",
+        "pending feedback",
+        "how many feedback"
+      ],
       "description": "Show feedback queue status"
     },
     "run_pipeline": {
       "command": "dag-run",
       "args": [],
       "task_type": "pipeline",
-      "keywords": ["pipeline", "dag", "workflow", "run pipeline", "execute pipeline", "run workflow"],
+      "keywords": [
+        "pipeline",
+        "dag",
+        "workflow",
+        "run pipeline",
+        "execute pipeline",
+        "run workflow"
+      ],
       "description": "Run a DAG pipeline"
     },
     "validate_pipeline": {
       "command": "dag-validate",
       "args": [],
       "task_type": "pipeline",
-      "keywords": ["validate pipeline", "check pipeline", "pipeline valid", "test pipeline"],
+      "keywords": [
+        "validate pipeline",
+        "check pipeline",
+        "pipeline valid",
+        "test pipeline"
+      ],
       "description": "Validate a DAG pipeline"
     },
     "list_schedules": {
       "command": "dag-schedule",
-      "args": ["--list"],
+      "args": [
+        "--list"
+      ],
       "task_type": "pipeline",
-      "keywords": ["schedule", "scheduled", "cron", "when does", "what runs", "list pipelines"],
+      "keywords": [
+        "schedule",
+        "scheduled",
+        "cron",
+        "when does",
+        "what runs",
+        "list pipelines"
+      ],
       "description": "List scheduled pipelines"
     },
     "brain_inject": {
       "command": "brain-inject",
       "args": [],
       "task_type": "brain",
-      "keywords": ["brain", "context", "knowledge", "notes", "obsidian", "what do i know", "relevant notes"],
+      "keywords": [
+        "brain",
+        "context",
+        "knowledge",
+        "notes",
+        "obsidian",
+        "what do i know",
+        "relevant notes"
+      ],
       "description": "Inject brain context for a task"
     },
     "system_audit": {
       "command": "system-audit",
       "args": [],
       "task_type": "audit",
-      "keywords": ["audit", "analyse", "analyze", "assess", "review system", "system review"],
+      "keywords": [
+        "audit",
+        "analyse",
+        "analyze",
+        "assess",
+        "review system",
+        "system review"
+      ],
       "description": "Run full system audit"
     },
     "reindex": {
       "command": "mcp-reindex",
       "args": [],
       "task_type": "maintenance",
-      "keywords": ["reindex", "index", "rebuild index", "mcp reindex", "refresh index"],
+      "keywords": [
+        "reindex",
+        "index",
+        "rebuild index",
+        "mcp reindex",
+        "refresh index"
+      ],
       "description": "Reindex MCP knowledge base"
     },
     "hypothesis_generate": {
       "command": "hypothesis-generate",
       "args": [],
       "task_type": "autolab",
-      "keywords": ["hypothesis", "hypotheses", "experiment", "autolab", "generate ideas", "generate hypotheses", "suggest improvements", "what should i try", "new experiments", "experiment queue"],
+      "keywords": [
+        "hypothesis",
+        "hypotheses",
+        "experiment",
+        "autolab",
+        "generate ideas",
+        "generate hypotheses",
+        "suggest improvements",
+        "what should i try",
+        "new experiments",
+        "experiment queue"
+      ],
       "description": "Generate experiment hypotheses"
     },
     "agent_finish": {
       "command": "agent-finish",
       "args": [],
       "task_type": "session",
-      "keywords": ["finish", "done", "close session", "wrap up", "end session", "closeout"],
+      "keywords": [
+        "finish",
+        "done",
+        "close session",
+        "wrap up",
+        "end session",
+        "closeout"
+      ],
       "description": "Close out current session"
     },
     "goal_status": {
       "command": "goal-status",
       "args": [],
       "task_type": "goals",
-      "keywords": ["goal", "goals", "objective", "what am i working on", "active tasks", "current task"],
+      "keywords": [
+        "goal",
+        "goals",
+        "objective",
+        "what am i working on",
+        "active tasks",
+        "current task"
+      ],
       "description": "Show goal and task status"
     },
     "run_system_health": {
       "command": "dag-run",
-      "args": ["hands/automation/dag/pipelines/system_health.yaml", "--dry-run"],
+      "args": [
+        "hands/automation/dag/pipelines/system_health.yaml",
+        "--dry-run"
+      ],
       "task_type": "pipeline",
-      "keywords": ["system health pipeline", "run health pipeline", "full health cycle"],
+      "keywords": [
+        "system health pipeline",
+        "run health pipeline",
+        "full health cycle"
+      ],
       "description": "Run the system health pipeline"
     },
     "run_morning_brief_pipeline": {
       "command": "dag-run",
-      "args": ["hands/automation/dag/pipelines/morning_brief.yaml"],
+      "args": [
+        "hands/automation/dag/pipelines/morning_brief.yaml"
+      ],
       "task_type": "pipeline",
-      "keywords": ["morning pipeline", "run morning", "morning brief pipeline"],
+      "keywords": [
+        "morning pipeline",
+        "run morning",
+        "morning brief pipeline"
+      ],
       "description": "Run the morning brief pipeline"
     },
     "workspace_context": {
       "command": "workspace-context",
       "args": [],
       "task_type": "session",
-      "keywords": ["context", "where are we", "what is the state", "show context", "workspace state"],
+      "keywords": [
+        "context",
+        "where are we",
+        "what is the state",
+        "show context",
+        "workspace state"
+      ],
       "description": "Show workspace context"
     },
     "open_dashboard": {
       "command": "workspace-dashboard",
       "args": [],
       "task_type": "dashboard",
-      "keywords": ["dashboard", "control center", "open dashboard", "show dashboard", "ui", "browser"],
+      "keywords": [
+        "dashboard",
+        "control center",
+        "open dashboard",
+        "show dashboard",
+        "ui",
+        "browser"
+      ],
       "description": "Open the Control Center dashboard"
     },
     "run_tests": {
       "command": "workspace-test",
       "args": [],
       "task_type": "test",
-      "keywords": ["run tests", "test suite", "pytest", "unit tests", "test all", "run all tests"],
+      "keywords": [
+        "run tests",
+        "test suite",
+        "pytest",
+        "unit tests",
+        "test all",
+        "run all tests"
+      ],
       "description": "Run workspace test suite"
+    },
+    "hermes_chat": {
+      "description": "Start Hermes Agent interactive session",
+      "commands": [
+        "hermes"
+      ],
+      "keywords": [
+        "ask hermes",
+        "hermes",
+        "talk to hermes",
+        "hermes agent"
+      ],
+      "execution_level": "SAFE",
+      "task_type": "research"
+    },
+    "hermes_continue": {
+      "description": "Resume last Hermes Agent session",
+      "commands": [
+        "hermes --continue"
+      ],
+      "keywords": [
+        "continue hermes",
+        "resume hermes",
+        "hermes resume"
+      ],
+      "execution_level": "SAFE",
+      "task_type": "research"
+    },
+    "hermes_skills": {
+      "description": "List skills Hermes has learned",
+      "commands": [
+        "hermes skills list"
+      ],
+      "keywords": [
+        "hermes skills",
+        "what skills does hermes have",
+        "hermes learned"
+      ],
+      "execution_level": "SAFE",
+      "task_type": "maintenance"
+    },
+    "hermes_update": {
+      "description": "Update Hermes Agent to latest version",
+      "commands": [
+        "hermes update"
+      ],
+      "keywords": [
+        "update hermes",
+        "hermes update",
+        "upgrade hermes"
+      ],
+      "execution_level": "CONTROLLED",
+      "task_type": "maintenance"
     }
   }
 }

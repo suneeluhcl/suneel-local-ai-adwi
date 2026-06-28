@@ -84,6 +84,51 @@ def get_fallback_chain() -> list:
     return chain
 
 
+# ── Ollama REST API support ───────────────────────────────────────────────
+
+def _is_ollama_running() -> bool:
+    import urllib.request
+    try:
+        urllib.request.urlopen("http://localhost:11434/api/tags", timeout=3)
+        return True
+    except Exception:
+        return False
+
+
+def _start_ollama_if_needed():
+    import subprocess, time
+    if not _is_ollama_running():
+        subprocess.Popen(
+            ["ollama", "serve"],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL
+        )
+        time.sleep(3)
+
+
+def _call_ollama_api(model_name: str, prompt: str, timeout: int = 120) -> dict:
+    """Call Ollama via REST API for better reliability than CLI."""
+    import urllib.request, json as _json
+    payload = _json.dumps({
+        "model": model_name,
+        "prompt": prompt,
+        "stream": False,
+        "options": {"temperature": 0.3, "num_ctx": 8192}
+    }).encode()
+    req = urllib.request.Request(
+        "http://localhost:11434/api/generate",
+        data=payload,
+        headers={"Content-Type": "application/json"},
+        method="POST"
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=timeout) as r:
+            result = _json.loads(r.read())
+            return {"success": True, "output": result.get("response", "").strip()}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+
 if __name__ == "__main__":
     task = sys.argv[1] if len(sys.argv) > 1 else "default"
     print(get_best_model(task))

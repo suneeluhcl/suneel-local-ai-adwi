@@ -4,5 +4,9 @@
     6
   ],
   "day_interval_minutes": 45,
-  "night_interval_minutes": 30
+  "night_interval_minutes": 30,
+  "night_mode": {
+    "run_hermes_health_check": true,
+    "hermes_night_prompt": "Analyze the SuneelWorkSpace workspace. Check blood/telemetry/anomalies.json for issues. Check spine/state/WORKSPACE_HEALTH.json for health score. Suggest 3 specific improvements and save them to blood/logs/hermes_suggestions.md"
+  }
 }

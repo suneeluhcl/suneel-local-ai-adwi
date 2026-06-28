@@ -227,6 +227,26 @@
         </div>
       </div>
 
+      <!-- Ollama Panel -->
+      <div class="cc-panel" id="panel-ollama"
+           hx-get="/widgets/ollama" hx-trigger="every 60s" hx-swap="innerHTML">
+        <div class="cc-panel-header">
+          <span class="cc-panel-icon">🦙</span>
+          <span class="cc-panel-title">Ollama</span>
+        </div>
+        <div class="cc-panel-body">Loading...</div>
+      </div>
+
+      <!-- Hermes Agent Panel -->
+      <div class="cc-panel" id="panel-hermes"
+           hx-get="/widgets/hermes" hx-trigger="every 60s" hx-swap="innerHTML">
+        <div class="cc-panel-header">
+          <span class="cc-panel-icon">🤖</span>
+          <span class="cc-panel-title">Hermes</span>
+        </div>
+        <div class="cc-panel-body">Loading...</div>
+      </div>
+
     </aside>
   </div>
 

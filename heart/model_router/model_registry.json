@@ -23,6 +23,125 @@
       "provider": "google",
       "priority": 4,
       "tokens_limit": 1000000
+    },
+    {
+      "id": "suneelworkspace",
+      "provider": "ollama",
+      "cli_command": "ollama run suneelworkspace",
+      "api_env_var": null,
+      "ollama_model": "suneelworkspace",
+      "ollama_base_url": "http://localhost:11434",
+      "priority": 5,
+      "cost_tier": "local_free",
+      "strengths": [
+        "workspace_aware",
+        "local",
+        "no_quota",
+        "privacy",
+        "self_repair"
+      ],
+      "daily_token_limit": 999999999,
+      "rate_limit_per_minute": 999,
+      "fallback_on_errors": [],
+      "notes": "Custom model pre-loaded with SuneelWorkSpace context"
+    },
+    {
+      "id": "llama3.1",
+      "provider": "ollama",
+      "cli_command": "ollama run llama3.1",
+      "api_env_var": null,
+      "ollama_model": "llama3.1",
+      "ollama_base_url": "http://localhost:11434",
+      "priority": 6,
+      "cost_tier": "local_free",
+      "strengths": [
+        "reasoning",
+        "analysis",
+        "hypothesis_generation",
+        "gap_finding"
+      ],
+      "daily_token_limit": 999999999,
+      "rate_limit_per_minute": 999,
+      "fallback_on_errors": []
+    },
+    {
+      "id": "codellama",
+      "provider": "ollama",
+      "cli_command": "ollama run codellama",
+      "api_env_var": null,
+      "ollama_model": "codellama",
+      "ollama_base_url": "http://localhost:11434",
+      "priority": 7,
+      "cost_tier": "local_free",
+      "strengths": [
+        "code_generation",
+        "code_repair",
+        "syntax_fixing",
+        "refactoring"
+      ],
+      "daily_token_limit": 999999999,
+      "rate_limit_per_minute": 999,
+      "fallback_on_errors": []
+    },
+    {
+      "id": "mistral",
+      "provider": "ollama",
+      "cli_command": "ollama run mistral",
+      "api_env_var": null,
+      "ollama_model": "mistral",
+      "ollama_base_url": "http://localhost:11434",
+      "priority": 8,
+      "cost_tier": "local_free",
+      "strengths": [
+        "code_analysis",
+        "workspace_repair",
+        "fast",
+        "efficient"
+      ],
+      "daily_token_limit": 999999999,
+      "rate_limit_per_minute": 999,
+      "fallback_on_errors": []
+    },
+    {
+      "id": "llama3.2",
+      "provider": "ollama",
+      "cli_command": "ollama run llama3.2",
+      "api_env_var": null,
+      "ollama_model": "llama3.2",
+      "ollama_base_url": "http://localhost:11434",
+      "priority": 9,
+      "cost_tier": "local_free",
+      "strengths": [
+        "fast",
+        "lightweight",
+        "quick_tasks",
+        "health_checks"
+      ],
+      "daily_token_limit": 999999999,
+      "rate_limit_per_minute": 999,
+      "fallback_on_errors": []
+    },
+    {
+      "id": "llava",
+      "provider": "ollama",
+      "cli_command": "ollama run llava",
+      "api_env_var": null,
+      "ollama_model": "llava",
+      "ollama_base_url": "http://localhost:11434",
+      "priority": 10,
+      "cost_tier": "local_free",
+      "strengths": [
+        "vision",
+        "screenshot_analysis",
+        "visual_repair",
+        "image_understanding"
+      ],
+      "daily_token_limit": 999999999,
+      "rate_limit_per_minute": 999,
+      "fallback_on_errors": [],
+      "notes": "Vision model \u2014 used by eyes/visual/vision_analyzer.py"
     }
-  ]
+  ],
+  "local_models_always_available": true,
+  "ollama_base_url": "http://localhost:11434"
 }

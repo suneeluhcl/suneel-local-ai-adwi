@@ -423,5 +423,15 @@
   "workspace://research/arxiv": {
     "description": "Arxiv research paper connector",
     "file": "bin/arxiv-mcp"
+  },
+  "workspace://hermes/status": {
+    "description": "Hermes Agent status and skill count",
+    "path": "dna/agents/hermes/",
+    "type": "resource"
+  },
+  "workspace://hermes/skills": {
+    "description": "Hermes Agent learned skill documents",
+    "path": "dna/agents/hermes/skills/",
+    "type": "resource"
   }
 }

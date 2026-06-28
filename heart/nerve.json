@@ -1,8 +1,30 @@
 {
   "organ": "heart",
-  "version": "1.0",
+  "version": "1.1",
   "description": "Orchestration, goal engine, task queue, model router",
   "status": "active",
   "inbox": "heart/nerve_inbox/",
-  "nerve_propagator": "nervous/nerve_propagator.py"
+  "nerve_propagator": "nervous/nerve_propagator.py",
+  "provides": {
+    "model_router": "heart/model_router/router.py",
+    "model_registry": "heart/model_router/model_registry.json",
+    "health_checker": "heart/model_router/health_checker.py",
+    "task_queue": "heart/tasks/ACTIVE_TASKS.md",
+    "goals": "heart/goals/",
+    "orchestrator": "heart/orchestrator/"
+  },
+  "needs": {
+    "memory": "brain/memory/MEMORY.md",
+    "workspace_health": "spine/state/WORKSPACE_HEALTH.json",
+    "nerve_propagator": "nervous/nerve_propagator.py"
+  },
+  "key_files": [
+    "heart/model_router/router.py",
+    "heart/model_router/model_registry.json",
+    "heart/model_router/health_checker.py",
+    "heart/tasks/ACTIVE_TASKS.md"
+  ],
+  "cli_commands": {
+    "model-status": "hands/bin/model-status"
+  }
 }

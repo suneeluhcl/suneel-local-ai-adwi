@@ -160,6 +160,36 @@ function togglePause() {
   btn.title = feedPaused ? 'Resume' : 'Pause';
 }
 
+// ── Ollama ─────────────────────────────────────────────────────────────────
+function ollamaRepair() {
+  log('stage', '🔧', 'Running Ollama repair cycle...');
+  if (ws && ws.readyState === WebSocket.OPEN) {
+    ws.send(JSON.stringify({ type: 'quick_action', command: 'ollama-repair', action: 'ollama_repair' }));
+  }
+}
+
+function ollamaLearn() {
+  log('stage', '🧠', 'Running Ollama learning cycle...');
+  if (ws && ws.readyState === WebSocket.OPEN) {
+    ws.send(JSON.stringify({ type: 'quick_action', command: 'ollama-learn', action: 'ollama_learn' }));
+  }
+}
+
+// ── Hermes Agent ───────────────────────────────────────────────────────────
+function startHermes() {
+  log('stage', '🤖', 'Starting Hermes Agent session...');
+  if (ws && ws.readyState === WebSocket.OPEN) {
+    ws.send(JSON.stringify({ type: 'quick_action', command: 'hermes-start', action: 'hermes_chat' }));
+  }
+}
+
+function hermesNight() {
+  log('stage', '🌙', 'Running Hermes night health check...');
+  if (ws && ws.readyState === WebSocket.OPEN) {
+    ws.send(JSON.stringify({ type: 'quick_action', command: 'hermes-night', action: 'hermes_night' }));
+  }
+}
+
 // ── Confirm Panel ──────────────────────────────────────────────────────────
 function showConfirmPanel(plan) {
   const panel = document.getElementById('panel-confirm');
@@ -535,6 +565,10 @@ const QUICK_ACTIONS = {
   'evolution-start':{ cmd: 'python3 evolution/engine.py cycle', label: 'Evolution Cycle' },
   'morning-brief':  { cmd: 'morning-brief',                     label: 'Morning Brief' },
   'workspace-ci':   { cmd: 'workspace-ci',                      label: 'Workspace CI' },
+  'hermes-chat':    { cmd: 'hermes-start',                      label: 'Hermes Chat' },
+  'hermes-night':   { cmd: 'hermes-night',                      label: 'Hermes Night Check' },
+  'ollama-repair':  { cmd: 'ollama-repair',                     label: 'Ollama Repair' },
+  'ollama-learn':   { cmd: 'ollama-learn',                      label: 'Ollama Learn' },
 };
 
 async function quickAction(action) {

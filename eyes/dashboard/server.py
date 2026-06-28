@@ -667,6 +667,71 @@ async def api_autolab_generate() -> Any:
         return {"status": "error", "error": str(e)}
 
 
+# ── Ollama ───────────────────────────────────────────────────────────────────
+
+@app.get("/api/ollama/status")
+async def get_ollama_status() -> Any:
+    import urllib.request
+    try:
+        with urllib.request.urlopen("http://localhost:11434/api/tags", timeout=5) as r:
+            data = json.loads(r.read())
+            models = data.get("models", [])
+            return {
+                "running": True,
+                "model_count": len(models),
+                "models": [{"name": m["name"], "size": m.get("size", 0)} for m in models],
+                "base_url": "http://localhost:11434",
+            }
+    except Exception as e:
+        return {"running": False, "error": str(e), "model_count": 0, "models": []}
+
+
+@app.get("/widgets/ollama")
+async def widget_ollama() -> HTMLResponse:
+    from eyes.dashboard.widgets.ollama_status import render_html
+    return HTMLResponse(render_html())
+
+
+# ── Hermes Agent ─────────────────────────────────────────────────────────────
+
+@app.get("/api/hermes/status")
+async def get_hermes_status() -> Any:
+    try:
+        result = subprocess.run(
+            ["hermes", "--version"],
+            capture_output=True, text=True, timeout=5
+        )
+        version = result.stdout.strip() if result.returncode == 0 else None
+
+        skills_dir = os.path.expanduser("~/.hermes/skills/")
+        skill_count = len(os.listdir(skills_dir)) if os.path.exists(skills_dir) else 0
+
+        sessions_dir = os.path.expanduser("~/.hermes/sessions/")
+        last_session = None
+        if os.path.exists(sessions_dir):
+            sessions = sorted(os.listdir(sessions_dir))
+            last_session = sessions[-1] if sessions else None
+
+        has_night_report = os.path.exists(os.path.join(WORKSPACE, "blood/logs/hermes_night_report.md"))
+
+        return {
+            "installed": version is not None,
+            "version": version,
+            "skill_count": skill_count,
+            "last_session": last_session,
+            "has_night_report": has_night_report,
+            "status": "active" if version else "not_installed",
+        }
+    except Exception as e:
+        return {"installed": False, "error": str(e), "status": "error"}
+
+
+@app.get("/widgets/hermes")
+async def widget_hermes() -> HTMLResponse:
+    from eyes.dashboard.widgets.hermes_status import render_html
+    return HTMLResponse(render_html())
+
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("eyes.dashboard.server:app", host="127.0.0.1", port=7777, log_level="warning", reload=False)

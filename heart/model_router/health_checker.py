@@ -35,9 +35,22 @@ def check_openai() -> dict:
         return {"available": False, "reason": str(e)[:120]}
 
 
+def check_ollama() -> dict:
+    """Check Ollama server health and list available models."""
+    import urllib.request
+    try:
+        with urllib.request.urlopen("http://localhost:11434/api/tags", timeout=5) as r:
+            data = json.loads(r.read())
+            models = [m["name"] for m in data.get("models", [])]
+            return {"available": True, "running": True, "models": models, "model_count": len(models)}
+    except Exception as e:
+        return {"available": False, "running": False, "error": str(e)[:120], "models": []}
+
+
 def run_health_check() -> dict:
     results = {
         "claude": check_anthropic(),
+        "ollama": check_ollama(),
     }
     # Only check OpenAI if key is present
     import os
