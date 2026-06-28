@@ -14,7 +14,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect
+from fastapi import BackgroundTasks, FastAPI, Request, WebSocket, WebSocketDisconnect
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
@@ -775,6 +775,99 @@ async def get_health_trend() -> Any:
         return {"history": history[-10:], "trend": trend, "current": scores[-1] if scores else 0}
     except Exception as e:
         return {"error": str(e), "history": [], "trend": "error"}
+
+
+# ── Test Suite ────────────────────────────────────────────────────────────────
+
+@app.get("/api/tests/status")
+async def get_test_status() -> Any:
+    reports_dir = os.path.join(WORKSPACE, "tests/reports")
+    if not os.path.exists(reports_dir):
+        return {"latest": None, "pass_rate": None, "ran": False}
+    reports = sorted([f for f in os.listdir(reports_dir) if f.startswith("test_report_")])
+    if not reports:
+        return {"latest": None, "pass_rate": None, "ran": False}
+    try:
+        latest = json.load(open(os.path.join(reports_dir, reports[-1])))
+        total = latest.get("total", 0)
+        passed = latest.get("passed", 0)
+        return {
+            "ran": True,
+            "timestamp": latest.get("timestamp"),
+            "passed": passed,
+            "failed": latest.get("failed", 0),
+            "errors": latest.get("errors", 0),
+            "total": total,
+            "pass_rate": round(passed / max(total, 1), 3),
+            "duration_seconds": latest.get("duration_seconds"),
+        }
+    except Exception as e:
+        return {"error": str(e), "ran": False}
+
+
+@app.post("/api/tests/run")
+async def run_tests_api(background_tasks: BackgroundTasks) -> Any:
+    job_id = f"tests_{str(uuid.uuid4())[:8]}"
+
+    def _run() -> None:
+        try:
+            sys.path.insert(0, WORKSPACE)
+            from tests.test_runner import run_all_tests
+            run_all_tests(verbose=False)
+        except Exception as e:
+            logging.error(f"Test run [{job_id}] error: {e}")
+
+    background_tasks.add_task(_run)
+    return {"status": "started", "job_id": job_id}
+
+
+@app.post("/api/tests/repair-loop")
+async def run_repair_loop_api(background_tasks: BackgroundTasks) -> Any:
+    job_id = f"repair_{str(uuid.uuid4())[:8]}"
+
+    def _run() -> None:
+        try:
+            sys.path.insert(0, WORKSPACE)
+            from tests.autonomous_repair_loop import run_autonomous_repair_loop
+            run_autonomous_repair_loop(max_iterations=3)
+        except Exception as e:
+            logging.error(f"Repair loop [{job_id}] error: {e}")
+
+    background_tasks.add_task(_run)
+    return {"status": "started", "job_id": job_id}
+
+
+@app.get("/widgets/tests")
+async def widget_tests() -> HTMLResponse:
+    reports_dir = os.path.join(WORKSPACE, "tests/reports")
+    try:
+        reports = sorted([f for f in os.listdir(reports_dir) if f.startswith("test_report_")])
+        if not reports:
+            raise FileNotFoundError
+        data = json.load(open(os.path.join(reports_dir, reports[-1])))
+        total = data.get("total", 0)
+        passed = data.get("passed", 0)
+        failed = data.get("failed", 0)
+        pass_rate = passed / max(total, 1)
+        color = "#4ade80" if pass_rate >= 0.95 else "#facc15" if pass_rate >= 0.80 else "#f87171"
+        ts = (data.get("timestamp") or "")[:16].replace("T", " ")
+        import html as html_mod
+        failures_html = ""
+        for f in data.get("failures", [])[:3]:
+            msg = html_mod.escape(str(f.get("message", ""))[:80])
+            failures_html += f'<div style="font-size:10px;color:var(--text-dim);padding:1px 0">✗ {msg}</div>'
+        html = f"""<div style="font-size:12px">
+  <div style="color:{color};font-weight:600">{passed}/{total} passing ({pass_rate*100:.0f}%)</div>
+  <div style="color:var(--text-dim);font-size:10px">{failed} failed · {ts}</div>
+  {failures_html}
+  <div style="margin-top:6px;display:flex;gap:4px">
+    <button onclick="runTests()" style="font-size:10px;padding:2px 6px;background:var(--bg-raised);border:1px solid var(--border);border-radius:4px;cursor:pointer;color:var(--text)">▶ Run</button>
+    <button onclick="runRepairLoop()" style="font-size:10px;padding:2px 6px;background:var(--bg-raised);border:1px solid var(--border);border-radius:4px;cursor:pointer;color:var(--text)">🔧 Repair</button>
+  </div>
+</div>"""
+    except Exception:
+        html = '<div style="color:var(--text-dim);font-size:11px">No test results — click Run<br><button onclick="runTests()" style="font-size:10px;padding:2px 6px;margin-top:4px;background:var(--bg-raised);border:1px solid var(--border);border-radius:4px;cursor:pointer;color:var(--text)">▶ Run Tests</button></div>'
+    return HTMLResponse(html)
 
 
 if __name__ == "__main__":

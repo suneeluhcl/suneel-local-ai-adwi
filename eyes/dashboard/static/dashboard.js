@@ -667,6 +667,37 @@ async function startHealthRepair() {
   }
 }
 
+// ── Test Suite Controls ────────────────────────────────────────────────────
+async function loadTestsPanel() {
+  const el = document.getElementById('tests-body');
+  if (!el) return;
+  try {
+    const res = await fetch('/widgets/tests');
+    // Content is server-rendered with html.escape() on all user-derived values
+    el.innerHTML = await res.text();
+  } catch(e) { el.textContent = 'Tests unavailable'; }
+}
+
+async function runTests() {
+  log('info', '🧪', 'Running test suite…');
+  try {
+    const res = await fetch('/api/tests/run', { method: 'POST' });
+    const data = await res.json();
+    log('info', '▶', `Test run started: ${data.job_id}`);
+    setTimeout(loadTestsPanel, 15000);
+  } catch(e) { log('error', '✗', `Test run failed: ${e.message}`); }
+}
+
+async function runRepairLoop() {
+  log('info', '🔧', 'Starting autonomous repair loop…');
+  try {
+    const res = await fetch('/api/tests/repair-loop', { method: 'POST' });
+    const data = await res.json();
+    log('info', '▶', `Repair loop started: ${data.job_id}`);
+    setTimeout(loadTestsPanel, 60000);
+  } catch(e) { log('error', '✗', `Repair loop failed: ${e.message}`); }
+}
+
 // ── Enhancement 2: Autolab Controls ───────────────────────────────────────
 async function runAutolabExperiments() {
   log('info', '⚗', 'Triggering autolab experiment runner…');
@@ -762,6 +793,7 @@ function init() {
   loadEvolutionPanel();
   loadVisualPanel();
   loadApprovalQueue();
+  loadTestsPanel();
 
   // Polling intervals
   setInterval(loadHealth,        30000);
@@ -774,6 +806,7 @@ function init() {
   setInterval(loadEvolutionPanel, 30000);
   setInterval(loadVisualPanel,   45000);
   setInterval(loadApprovalQueue, 20000);
+  setInterval(loadTestsPanel,   120000);
 
   // Check AI status via /api/status
   async function checkStatus() {

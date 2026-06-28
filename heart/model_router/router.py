@@ -47,25 +47,26 @@ def _log_fallback(from_model: str, to_model: str, reason: str) -> None:
         pass
 
 
-def get_best_model(task_type: str = "default", preferred: str = None) -> str:
-    """Return the best available model for the given task type."""
+def get_best_model(task_type: str = "default", preferred: str = None) -> dict:
+    """Return the best available model dict for the given task type."""
     get_status, _, _ = _get_quota()
     status = get_status()
     available: dict[str, bool] = {m["id"]: m["available"] for m in status.get("models", [])}
+    by_id: dict[str, dict] = {m["id"]: m for m in status.get("models", [])}
 
     preferred_model = preferred or TASK_ROUTING.get(task_type, TASK_ROUTING["default"])
 
     if available.get(preferred_model, True):
-        return preferred_model
+        return by_id.get(preferred_model, {"id": preferred_model})
 
     for model in FALLBACK_CHAIN:
         if model != preferred_model and available.get(model, True):
             _log_fallback(preferred_model, model, f"preferred unavailable for task:{task_type}")
             logging.info(f"Model router: falling back {preferred_model} → {model}")
-            return model
+            return by_id.get(model, {"id": model})
 
     logging.warning("Model router: all tracked models appear unavailable, using chain[0]")
-    return FALLBACK_CHAIN[0]
+    return by_id.get(FALLBACK_CHAIN[0], {"id": FALLBACK_CHAIN[0]})
 
 
 def get_fallback_chain() -> list:

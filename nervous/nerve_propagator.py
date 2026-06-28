@@ -19,7 +19,30 @@ def _load_registry() -> dict:
         return {"organs": {}}
 
 
-def notify_change(organ: str, event_type: str = "file_updated", detail: str = "") -> None:
+def get_status() -> dict:
+    """Return health status for all 12 organs."""
+    organs = ["brain", "heart", "eyes", "ears", "nervous", "skeleton",
+              "blood", "hands", "mouth", "dna", "lab", "spine"]
+    status = {}
+    for organ_name in organs:
+        organ_dir = os.path.join(WORKSPACE, organ_name)
+        nerve_path = os.path.join(WORKSPACE, organ_name, "nerve.json")
+        inbox_path = os.path.join(WORKSPACE, organ_name, "nerve_inbox")
+        pending = 0
+        if os.path.isdir(inbox_path):
+            try:
+                pending = len([f for f in os.listdir(inbox_path) if f.endswith(".json")])
+            except Exception:
+                pass
+        status[organ_name] = {
+            "path_exists": os.path.isdir(organ_dir),
+            "nerve_json_exists": os.path.isfile(nerve_path),
+            "unprocessed_notifications": pending,
+        }
+    return status
+
+
+def notify_change(organ: str, event_type: str = "file_updated", detail: str = "", *args, **kwargs) -> dict:
     registry = _load_registry()
     organ_config = registry["organs"].get(organ, {})
     subscribers = organ_config.get("notifies", [])
@@ -45,6 +68,7 @@ def notify_change(organ: str, event_type: str = "file_updated", detail: str = ""
 
     # Log the event
     _log_event(payload)
+    return payload
 
 
 def check_inbox(organ: str) -> list[dict]:

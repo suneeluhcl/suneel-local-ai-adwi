@@ -52,3 +52,31 @@ steps:
     depends_on: [morning_brief]
     execution_level: SAFE
     condition: "TELEGRAM_BOT_TOKEN != ''"
+
+  - id: run_tests
+    name: "Run Full Test Suite"
+    command: run-tests
+    args: ["--quiet"]
+    depends_on: [ollama_learn]
+    execution_level: SAFE
+    on_failure:
+      action: continue
+
+  - id: repair_loop
+    name: "Autonomous Repair Loop"
+    command: repair-loop
+    args: ["--max-iterations", "3"]
+    depends_on: [run_tests]
+    execution_level: SAFE
+    condition: "TEST_FAILURES > 0"
+    on_failure:
+      action: continue
+
+  - id: readme_sync
+    name: "Sync READMEs with Test Results"
+    command: readme-sync
+    args: []
+    depends_on: [run_tests]
+    execution_level: SAFE
+    on_failure:
+      action: continue
