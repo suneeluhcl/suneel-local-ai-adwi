@@ -1,8 +1,26 @@
 {
   "organ": "nervous",
-  "version": "1.0",
-  "description": "MCP server, gateway, nerve propagator, agent skills",
+  "version": "1.1",
+  "description": "Central nerve gateway, MCP connectors, nerve propagator, organ registry",
   "status": "active",
   "inbox": "nervous/nerve_inbox/",
-  "nerve_propagator": "nervous/nerve_propagator.py"
+  "nerve_propagator": "nervous/nerve_propagator.py",
+  "provides": {
+    "nerve_propagator": "nervous/nerve_propagator.py",
+    "nerve_registry": "nervous/nerve_registry.json",
+    "mcp_server": "nervous/mcp/server/",
+    "gateway": "nervous/gateway/",
+    "skills": "nervous/skills/"
+  },
+  "needs": {
+    "all_organs": "*/nerve.json",
+    "workspace_health": "spine/state/WORKSPACE_HEALTH.json"
+  },
+  "key_files": [
+    "nervous/nerve_propagator.py",
+    "nervous/nerve_registry.json",
+    "nervous/nerve_status.py",
+    "nervous/mcp/server/main.py"
+  ],
+  "cli_commands": ["nerve-status", "mcp-reindex", "nerve-propagate"]
 }

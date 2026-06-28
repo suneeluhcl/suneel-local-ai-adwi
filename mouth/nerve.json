@@ -1,8 +1,26 @@
 {
   "organ": "mouth",
-  "version": "1.0",
-  "description": "Dispatcher, comms, outbound communication",
+  "version": "1.1",
+  "description": "WebSocket dispatcher, communication plugins, intent classifier, outbound messages",
   "status": "active",
   "inbox": "mouth/nerve_inbox/",
-  "nerve_propagator": "nervous/nerve_propagator.py"
+  "nerve_propagator": "nervous/nerve_propagator.py",
+  "provides": {
+    "ws_dispatcher": "mouth/comms/ws.py",
+    "intent_classifier": "mouth/dispatcher/intent_classifier.py",
+    "intent_map": "mouth/dispatcher/intent_map.json",
+    "communication_plugins": "mouth/comms/"
+  },
+  "needs": {
+    "nerve_propagator": "nervous/nerve_propagator.py",
+    "heart_router": "heart/model_router/router.py",
+    "brain_memory": "brain/memory/",
+    "leaderboard": "blood/telemetry/comparison/leaderboard.json"
+  },
+  "key_files": [
+    "mouth/comms/ws.py",
+    "mouth/dispatcher/intent_classifier.py",
+    "mouth/dispatcher/intent_map.json"
+  ],
+  "cli_commands": []
 }

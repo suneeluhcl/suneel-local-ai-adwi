@@ -1,8 +1,30 @@
 {
   "organ": "brain",
-  "version": "1.0",
+  "version": "1.1",
   "description": "Long-term memory, research, anticipation, knowledge graph",
   "status": "active",
   "inbox": "brain/nerve_inbox/",
-  "nerve_propagator": "nervous/nerve_propagator.py"
+  "nerve_propagator": "nervous/nerve_propagator.py",
+  "provides": {
+    "memory_search": "brain/memory/",
+    "vector_memory": "brain/memory/vector_store/",
+    "anticipation": "brain/anticipation/",
+    "research": "brain/research/",
+    "knowledge_graph": "brain/graph/",
+    "session_handoff": "brain/memory/SESSION_HANDOFF.md",
+    "decisions": "brain/memory/DECISIONS.md"
+  },
+  "needs": {
+    "nerve_propagator": "nervous/nerve_propagator.py",
+    "workspace_health": "spine/state/WORKSPACE_HEALTH.json",
+    "logs": "blood/logs/"
+  },
+  "key_files": [
+    "brain/memory/MEMORY.md",
+    "brain/memory/DECISIONS.md",
+    "brain/memory/SESSION_HANDOFF.md",
+    "brain/anticipation/anticipation_engine.py",
+    "brain/memory/logs/vector_embed.log"
+  ],
+  "cli_commands": ["memory-search", "memory-store", "anticipate"]
 }

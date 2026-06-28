@@ -1,8 +1,26 @@
 {
   "organ": "blood",
-  "version": "1.0",
-  "description": "Telemetry, logs, metrics, anomaly detection",
+  "version": "1.1",
+  "description": "SQLite telemetry databases, logs, anomaly indicators, execution history",
   "status": "active",
   "inbox": "blood/nerve_inbox/",
-  "nerve_propagator": "nervous/nerve_propagator.py"
+  "nerve_propagator": "nervous/nerve_propagator.py",
+  "provides": {
+    "telemetry_db": "blood/telemetry/",
+    "session_log": "blood/logs/SESSION_LOG.md",
+    "execution_history": "blood/logs/execution_history.jsonl",
+    "nerve_events": "blood/logs/nerve_events.jsonl",
+    "night_ops": "blood/logs/night_operations/",
+    "enhancements_log": "blood/logs/enhancements.jsonl"
+  },
+  "needs": {
+    "nerve_propagator": "nervous/nerve_propagator.py"
+  },
+  "key_files": [
+    "blood/logs/SESSION_LOG.md",
+    "blood/logs/execution_history.jsonl",
+    "blood/logs/nerve_events.jsonl",
+    "blood/logs/night_operations/deep_scan_findings.json"
+  ],
+  "cli_commands": ["log-enhancement", "telemetry-query"]
 }

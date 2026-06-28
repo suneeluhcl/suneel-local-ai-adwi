@@ -845,3 +845,11 @@
 ## 2026-06-26
 
 - Gap analysis and full repair complete — all 12 organs and symlinks verified, all CI tests passing at 100% green
+
+## 2026-06-28
+
+- Hermes Agent integration complete: tirith 0.3.1 confirmed installed, MCP wired to nervous/mcp/, dashboard panel + API endpoint added, night_shift.yaml created, ws dispatcher 4 intents added, evolution engine wired, dna/agents/hermes/ organ created
+
+## 2026-06-28
+
+- Hermes Completion + Ollama integration: Ollama running, suneelworkspace model created, repair+learning engines in lab/autolab/, hands/bin/ollama-repair and ollama-learn wired, night_shift.yaml 3 new steps, dashboard Ollama panel + routes, model_registry.json 6 Ollama models added, Hermes configured for Ollama

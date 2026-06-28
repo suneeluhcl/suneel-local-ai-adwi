@@ -1,8 +1,30 @@
 {
   "organ": "spine",
-  "version": "1.0",
-  "description": "Workspace state, audit, docs, snapshots, backups, tools, system-context",
+  "version": "1.1",
+  "description": "Workspace state, health profiles, audit, snapshots, diagnostics, docs",
   "status": "active",
   "inbox": "spine/nerve_inbox/",
-  "nerve_propagator": "nervous/nerve_propagator.py"
+  "nerve_propagator": "nervous/nerve_propagator.py",
+  "provides": {
+    "workspace_health": "spine/state/WORKSPACE_HEALTH.json",
+    "current_state": "spine/state/CURRENT_STATE.json",
+    "health_history": "spine/diagnostics/health_history.json",
+    "diagnostic_scheduler": "spine/diagnostics/diagnostic_scheduler.py",
+    "enhancement_logger": "spine/enhancement_logger.py",
+    "readme_health": "spine/readme_health_cache.json",
+    "snapshots": "spine/snapshots/"
+  },
+  "needs": {
+    "nerve_propagator": "nervous/nerve_propagator.py",
+    "agent_doctor": "hands/bin/agent-doctor",
+    "blood_logs": "blood/logs/"
+  },
+  "key_files": [
+    "spine/state/WORKSPACE_HEALTH.json",
+    "spine/state/CURRENT_STATE.json",
+    "spine/diagnostics/diagnostic_scheduler.py",
+    "spine/enhancement_logger.py",
+    "spine/system-context/"
+  ],
+  "cli_commands": ["agent-doctor", "workspace-snapshot", "diagnostics-start", "diagnostics-stop"]
 }

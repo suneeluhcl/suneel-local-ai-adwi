@@ -732,6 +732,51 @@ async def widget_hermes() -> HTMLResponse:
     return HTMLResponse(render_html())
 
 
+# ── Nerve Monitor ─────────────────────────────────────────────────────────────
+
+@app.get("/api/nerve/status")
+async def get_nerve_status() -> Any:
+    from eyes.dashboard.widgets.nerve_monitor import get_data
+    return get_data()
+
+
+@app.get("/widgets/nerve")
+async def widget_nerve() -> HTMLResponse:
+    from eyes.dashboard.widgets.nerve_monitor import render_html
+    return HTMLResponse(render_html())
+
+
+# ── Model Rotation ────────────────────────────────────────────────────────────
+
+@app.get("/api/models/rotation")
+async def get_model_rotation() -> Any:
+    try:
+        from heart.model_router.model_rotator import get_rotation_stats
+        return get_rotation_stats()
+    except Exception as e:
+        return {"error": str(e), "total_rotations": 0}
+
+
+# ── Health Trend ──────────────────────────────────────────────────────────────
+
+@app.get("/api/health/trend")
+async def get_health_trend() -> Any:
+    history_path = os.path.join(WORKSPACE, "spine/diagnostics/health_history.json")
+    if not os.path.exists(history_path):
+        return {"history": [], "trend": "no_data"}
+    try:
+        history = json.load(open(history_path))
+        scores = [h["score"] for h in history[-10:]]
+        if len(scores) >= 2:
+            delta = scores[-1] - scores[0]
+            trend = "improving" if delta > 3 else "declining" if delta < -3 else "stable"
+        else:
+            trend = "insufficient_data"
+        return {"history": history[-10:], "trend": trend, "current": scores[-1] if scores else 0}
+    except Exception as e:
+        return {"error": str(e), "history": [], "trend": "error"}
+
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("eyes.dashboard.server:app", host="127.0.0.1", port=7777, log_level="warning", reload=False)

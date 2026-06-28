@@ -1,8 +1,28 @@
 {
   "organ": "ears",
-  "version": "1.0",
-  "description": "World monitor, RSS/GitHub/arxiv feeds, digest builder",
+  "version": "1.1",
+  "description": "World monitor, RSS/GitHub/arxiv feeds, digest builder, morning brief",
   "status": "active",
   "inbox": "ears/nerve_inbox/",
-  "nerve_propagator": "nervous/nerve_propagator.py"
+  "nerve_propagator": "nervous/nerve_propagator.py",
+  "provides": {
+    "world_monitor": "ears/monitor/monitor_runner.py",
+    "rss_cache": "ears/monitor/cache/",
+    "digest_builder": "ears/monitor/digest/digest_builder.py",
+    "personalized_brief": "ears/monitor/digest/personalized_brief.py",
+    "sources_config": "ears/monitor/config/"
+  },
+  "needs": {
+    "nerve_propagator": "nervous/nerve_propagator.py",
+    "active_goals": "heart/goals/goals/active_goals.md",
+    "evolution_log": "lab/evolution/evolution_log.jsonl",
+    "workspace_health": "spine/state/WORKSPACE_HEALTH.json"
+  },
+  "key_files": [
+    "ears/monitor/monitor_runner.py",
+    "ears/monitor/digest/digest_builder.py",
+    "ears/monitor/digest/personalized_brief.py",
+    "ears/monitor/digest/digest_formatter.py"
+  ],
+  "cli_commands": ["morning-brief", "morning-brief-personal", "world-monitor"]
 }

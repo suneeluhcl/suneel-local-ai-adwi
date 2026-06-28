@@ -1,8 +1,33 @@
 {
   "organ": "eyes",
-  "version": "1.0",
-  "description": "Dashboard UI, visual monitor, screenshot manager",
+  "version": "1.1",
+  "description": "Control center dashboard, visual screenshot healer, monitoring UI",
   "status": "active",
   "inbox": "eyes/nerve_inbox/",
-  "nerve_propagator": "nervous/nerve_propagator.py"
+  "nerve_propagator": "nervous/nerve_propagator.py",
+  "provides": {
+    "dashboard": "eyes/dashboard/server.py",
+    "dashboard_index": "eyes/dashboard/index.html",
+    "visual_monitor": "eyes/visual/",
+    "widgets": "eyes/dashboard/widgets/",
+    "nerve_monitor": "eyes/dashboard/widgets/nerve_monitor.py",
+    "ollama_status": "eyes/dashboard/widgets/ollama_status.py",
+    "hermes_status": "eyes/dashboard/widgets/hermes_status.py"
+  },
+  "needs": {
+    "nerve_propagator": "nervous/nerve_propagator.py",
+    "workspace_health": "spine/state/WORKSPACE_HEALTH.json",
+    "heart_goals": "heart/goals/",
+    "brain_memory": "brain/memory/",
+    "ollama": "http://localhost:11434"
+  },
+  "key_files": [
+    "eyes/dashboard/server.py",
+    "eyes/dashboard/index.html",
+    "eyes/dashboard/static/dashboard.js",
+    "eyes/dashboard/widgets/nerve_monitor.py",
+    "eyes/dashboard/widgets/ollama_status.py",
+    "eyes/dashboard/widgets/hermes_status.py"
+  ],
+  "cli_commands": ["workspace-dashboard", "dashboard-start", "dashboard-stop"]
 }

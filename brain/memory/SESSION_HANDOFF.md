@@ -2,9 +2,9 @@
 
 ## Latest Handoff
 
-Date: 2026-06-26
+Date: 2026-06-28
 
-Summary: Gap analysis and full repair complete — all 12 organs and symlinks verified, all CI tests passing at 100% green
+Summary: Hermes Completion + Ollama integration: Ollama running, suneelworkspace model created, repair+learning engines in lab/autolab/, hands/bin/ollama-repair and ollama-learn wired, night_shift.yaml 3 new steps, dashboard Ollama panel + routes, model_registry.json 6 Ollama models added, Hermes configured for Ollama
 
 Changed:
 

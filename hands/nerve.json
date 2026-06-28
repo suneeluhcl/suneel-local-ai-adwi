@@ -1,8 +1,31 @@
 {
   "organ": "hands",
-  "version": "1.0",
-  "description": "Bin scripts, automation, CI, project management, codex env",
+  "version": "1.1",
+  "description": "Scripts, executables, launchd automation, CI runner, CLI bin directory",
   "status": "active",
   "inbox": "hands/nerve_inbox/",
-  "nerve_propagator": "nervous/nerve_propagator.py"
+  "nerve_propagator": "nervous/nerve_propagator.py",
+  "provides": {
+    "cli_commands": "hands/bin/",
+    "scripts": "hands/scripts/",
+    "automation": "hands/automation/",
+    "launchd_plists": "hands/automation/launchd/",
+    "ci_runner": "hands/scripts/ci_runner.sh"
+  },
+  "needs": {
+    "nerve_propagator": "nervous/nerve_propagator.py",
+    "workspace_health": "spine/state/WORKSPACE_HEALTH.json"
+  },
+  "key_files": [
+    "hands/scripts/hermes_start.sh",
+    "hands/scripts/hermes_night.sh",
+    "hands/scripts/morning_brief.sh",
+    "hands/scripts/diagnostic_start.sh",
+    "hands/scripts/diagnostic_stop.sh"
+  ],
+  "cli_commands": [
+    "agent-start", "agent-finish", "agent-doctor", "workspace-dashboard",
+    "deep-scan", "morning-brief", "diagnostics-start", "diagnostics-stop",
+    "model-rotate", "experiment-skills"
+  ]
 }

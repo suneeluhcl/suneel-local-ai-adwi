@@ -1,8 +1,32 @@
 {
   "organ": "lab",
-  "version": "1.0",
-  "description": "Autolab experiments, evolution engine, hypothesis generation, tests",
+  "version": "1.1",
+  "description": "Autolab experiments, self-evolution, hypothesis generation, Ollama learning",
   "status": "active",
   "inbox": "lab/nerve_inbox/",
-  "nerve_propagator": "nervous/nerve_propagator.py"
+  "nerve_propagator": "nervous/nerve_propagator.py",
+  "provides": {
+    "autolab": "lab/autolab/",
+    "deep_scan": "lab/autolab/deep_scan_engine.py",
+    "ollama_learning": "lab/autolab/ollama_learning_engine.py",
+    "ollama_repair": "lab/autolab/ollama_repair_engine.py",
+    "hypothesis_generator": "lab/autolab/hypothesis_generator.py",
+    "experiment_skills": "lab/autolab/experiment_skill_generator.py",
+    "evolution": "lab/evolution/",
+    "promotion_gate": "lab/autolab/promotion_gate.py"
+  },
+  "needs": {
+    "nerve_propagator": "nervous/nerve_propagator.py",
+    "ollama": "http://localhost:11434",
+    "workspace_health": "spine/state/WORKSPACE_HEALTH.json",
+    "hermes_skills": "dna/agents/hermes/skills/"
+  },
+  "key_files": [
+    "lab/autolab/deep_scan_engine.py",
+    "lab/autolab/ollama_learning_engine.py",
+    "lab/autolab/ollama_repair_engine.py",
+    "lab/autolab/experiment_skill_generator.py",
+    "lab/autolab/hypothesis_generator.py"
+  ],
+  "cli_commands": ["deep-scan", "experiment-skills", "autolab-run"]
 }

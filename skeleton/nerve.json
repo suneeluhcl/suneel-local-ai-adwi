@@ -1,8 +1,26 @@
 {
   "organ": "skeleton",
-  "version": "1.0",
-  "description": "Shared rules, agent system config, safety boundaries",
+  "version": "1.1",
+  "description": "Shared instructions, safety gates, rules, agent system docs",
   "status": "active",
   "inbox": "skeleton/nerve_inbox/",
-  "nerve_propagator": "nervous/nerve_propagator.py"
+  "nerve_propagator": "nervous/nerve_propagator.py",
+  "provides": {
+    "agent_system_rules": "skeleton/rules/AGENT_SYSTEM.md",
+    "identity_rules": "skeleton/rules/IDENTITY.md",
+    "workflow_rules": "skeleton/rules/WORKFLOW_RULES.md",
+    "safety_boundaries": "skeleton/rules/SAFETY_BOUNDARIES.md",
+    "startup_checklist": "skeleton/rules/STARTUP_CHECKLIST.md"
+  },
+  "needs": {
+    "nerve_propagator": "nervous/nerve_propagator.py"
+  },
+  "key_files": [
+    "skeleton/rules/AGENT_SYSTEM.md",
+    "skeleton/rules/SAFETY_BOUNDARIES.md",
+    "skeleton/rules/WORKFLOW_RULES.md",
+    "skeleton/rules/IDENTITY.md",
+    "skeleton/rules/STARTUP_CHECKLIST.md"
+  ],
+  "cli_commands": []
 }

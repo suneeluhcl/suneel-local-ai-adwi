@@ -1,8 +1,27 @@
 {
   "organ": "dna",
-  "version": "1.0",
-  "description": "Identity, prompts, feedback loop, tone profile",
+  "version": "1.1",
+  "description": "Identity prompt models, adapt loop scorers, Hermes agent config, persona",
   "status": "active",
   "inbox": "dna/nerve_inbox/",
-  "nerve_propagator": "nervous/nerve_propagator.py"
+  "nerve_propagator": "nervous/nerve_propagator.py",
+  "provides": {
+    "identity_prompt": "dna/identity/prompts/identity_prompt.md",
+    "communication_prompt": "dna/identity/prompts/communication_prompt.md",
+    "tone_profile": "dna/identity/profile/tone_profile.md",
+    "decision_profile": "dna/identity/profile/decision_profile.md",
+    "hermes_modelfile": "dna/agents/hermes/Modelfile.workspace",
+    "hermes_skills": "dna/agents/hermes/skills/"
+  },
+  "needs": {
+    "nerve_propagator": "nervous/nerve_propagator.py",
+    "ollama": "http://localhost:11434"
+  },
+  "key_files": [
+    "dna/identity/prompts/identity_prompt.md",
+    "dna/identity/profile/tone_profile.md",
+    "dna/agents/hermes/Modelfile.workspace",
+    "dna/agents/hermes/skills/"
+  ],
+  "cli_commands": ["hermes", "hermes-start", "hermes-night"]
 }
